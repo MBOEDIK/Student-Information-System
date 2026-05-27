@@ -1,27 +1,32 @@
+## 📁 Struktur Proyek (Project Structure)
+
+Aplikasi ini menggunakan arsitektur **Single Repository (Monorepo Sederhana)**. Kode *Frontend* dan *Backend* disatukan di dalam satu proyek yang sama untuk mempermudah kolaborasi tim pemula.
+
+```text
 student-information-system/
 ├── database/
-│   └── schema.sql         # Cetak biru database MySQL (sesuai workflow kemarin)
-├── public/                # [FRONTEND] Tempat template HTML, CSS, & Vanilla JS
+│   └── schema.sql         # [DATABASE] Cetak biru tabel MySQL (Ekspor khusus struktur)
+├── public/                # [FRONTEND] Tempat template visual HTML, CSS, & JS Native
 │   ├── css/
-│   │   └── style.css      # Custom styling jika diperlukan
+│   │   └── style.css      # Kumpulan custom styling tampilan tambahan
 │   ├── js/
-│   │   ├── auth.js        # Logika Vanilla JS untuk handle login/logout
-│   │   ├── siswa.js       # Logika Vanilla JS untuk handle pendaftaran/pencarian siswa
-│   │   └── guru.js        # Logika Vanilla JS untuk handle data guru
-│   ├── index.html         # Halaman utama / Login
-│   └── dashboard.html     # Halaman utama aplikasi setelah login
-├── src/                   # [BACKEND] Tempat otak aplikasi (Express.js)
+│   │   ├── auth.js        # Logika JavaScript untuk menangani Login & Logout
+│   │   ├── siswa.js       # Logika JavaScript untuk CRUD data siswa (Fetch API)
+│   │   └── guru.js        # Logika JavaScript untuk CRUD data guru (Fetch API)
+│   ├── index.html         # Halaman utama (Form Login Awal)
+│   └── dashboard.html     # Halaman utama aplikasi setelah berhasil login
+├── src/                   # [BACKEND] Otak server aplikasi berbasis Express.js
 │   ├── config/
-│   │   └── db.js          # Kode koneksi Express.js ke MySQL XAMPP
+│   │   └── db.js          # Konfigurasi koneksi database Node.js ke MySQL XAMPP
 │   ├── controllers/
-│   │   ├── authController.js   # Logika proses login & cek session
-│   │   ├── siswaController.js  # Logika CRUD data siswa
-│   │   └── guruController.js   # Logika CRUD data guru
+│   │   ├── authController.js   # Logika bisnis autentikasi session & enkripsi
+│   │   ├── siswaController.js  # Pemrosesan query SQL untuk data siswa
+│   │   └── guruController.js   # Pemrosesan query SQL untuk data guru
 │   ├── routes/
-│   │   ├── authRoutes.js  # Jalur URL untuk login/logout
-│   │   ├── siswaRoutes.js # Jalur URL untuk API data siswa
-│   │   └── guruRoutes.js  # Jalur URL untuk API data guru
-│   └── app.js             # File utama untuk menyalakan server Express
-├── .gitignore             # File wajib agar rahasia & file sampah tidak masuk GitHub
-├── package.json           # Daftar library/dependencies (Express, Mysql2, dll.)
-└── README.md              # Catatan panduan cara menjalankan aplikasi untuk tim
+│   │   ├── authRoutes.js  # Daftar URL/Endpoint untuk alur Login & Logout
+│   │   ├── siswaRoutes.js # Daftar URL/Endpoint API untuk data siswa
+│   │   └── guruRoutes.js  # Daftar URL/Endpoint API untuk data guru
+│   └── app.js             # File utama untuk inisialisasi dan menjalankan server
+├── .gitignore             # File pembatas agar folder 'node_modules' tidak terupload
+├── package.json           # Daftar library dependencies proyek (Express, Mysql2, dll.)
+└── README.md              # Dokumentasi panduan pengerjaan proyek tim
