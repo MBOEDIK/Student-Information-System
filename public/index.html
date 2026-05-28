@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Student Information System</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="login-container">
+    <h2>Student Information System</h2>
+    <form id="form-login">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Masukkan username" required />
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Masukkan password" required />
+      <button type="submit">Login</button>
+      <p id="pesan-error" style="color:red; display:none;"></p>
+    </form>
+  </div>
+  <script src="js/auth.js"></script>
+</body>
+</html>

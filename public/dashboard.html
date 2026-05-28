@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Student Information System</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="navbar">
+    <h2>Student Information System</h2>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="container">
+    <!-- TAB NAVIGATION -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('siswa')">Data Siswa</button>
+      <button class="tab-btn" onclick="showTab('guru')">Data Guru</button>
+    </div>
+
+    <!-- TAB SISWA -->
+    <div id="tab-siswa" class="tab-content">
+      <h3>Daftar Siswa</h3>
+      <table id="tabel-siswa">
+        <thead>
+          <tr>
+            <th>ID</th><th>Nama</th><th>NIS</th><th>Kelas</th>
+            <th>Alamat</th><th>Status</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="body-siswa"></tbody>
+      </table>
+    </div>
+
+    <!-- TAB GURU -->
+    <div id="tab-guru" class="tab-content" style="display:none">
+      <h3>Daftar Guru</h3>
+      <table id="tabel-guru">
+        <thead>
+          <tr>
+            <th>ID</th><th>Nama</th><th>NIP</th><th>Mata Pelajaran</th>
+            <th>Alamat</th><th>Status</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="body-guru"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT SISWA -->
+  <div id="modal-siswa" class="modal" style="display:none">
+    <div class="modal-box">
+      <h3>Edit Data Siswa</h3>
+      <input type="hidden" id="edit-siswa-id" />
+      <label>Nama</label>
+      <input type="text" id="edit-siswa-nama" />
+      <label>NIS</label>
+      <input type="text" id="edit-siswa-nis" />
+      <label>Kelas</label>
+      <input type="text" id="edit-siswa-kelas" />
+      <label>Alamat</label>
+      <input type="text" id="edit-siswa-alamat" />
+      <label>Status</label>
+      <select id="edit-siswa-status">
+        <option value="Aktif">Aktif</option>
+        <option value="Non-Aktif">Non-Aktif</option>
+      </select>
+      <div class="modal-actions">
+        <button onclick="simpanSiswa()">Simpan</button>
+        <button onclick="tutupModal('modal-siswa')">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT GURU -->
+  <div id="modal-guru" class="modal" style="display:none">
+    <div class="modal-box">
+      <h3>Edit Data Guru</h3>
+      <input type="hidden" id="edit-guru-id" />
+      <label>Nama</label>
+      <input type="text" id="edit-guru-nama" />
+      <label>NIP</label>
+      <input type="text" id="edit-guru-nip" />
+      <label>Mata Pelajaran</label>
+      <input type="text" id="edit-guru-mapel" />
+      <label>Alamat</label>
+      <input type="text" id="edit-guru-alamat" />
+      <label>Status</label>
+      <select id="edit-guru-status">
+        <option value="Aktif">Aktif</option>
+        <option value="Non-Aktif">Non-Aktif</option>
+      </select>
+      <div class="modal-actions">
+        <button onclick="simpanGuru()">Simpan</button>
+        <button onclick="tutupModal('modal-guru')">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/siswa.js"></script>
+  <script src="js/guru.js"></script>
+  <script>
+    function showTab(tab) {
+      document.getElementById('tab-siswa').style.display = tab === 'siswa' ? 'block' : 'none';
+      document.getElementById('tab-guru').style.display  = tab === 'guru'  ? 'block' : 'none';
+      document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', (i === 0 && tab === 'siswa') || (i === 1 && tab === 'guru'));
+      });
+    }
+    function tutupModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+  </script>
+</body>
+</html>
