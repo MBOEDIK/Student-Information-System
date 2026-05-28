@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — SIS SMK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="dashboard-body">
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar__brand">
+    <i class="bi bi-mortarboard-fill"></i>
+    <span>MiSiS</span>
+  </div>
+  <nav class="sidebar__nav" id="sidebarNav">
+    <a href="#" class="nav-item active" data-page="home">
+      <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a href="#" class="nav-item" data-page="siswa" id="navSiswa">
+      <i class="bi bi-people"></i> Data Siswa
+    </a>
+    <a href="#" class="nav-item" data-page="guru" id="navGuru">
+      <i class="bi bi-person-workspace"></i> Data Guru
+    </a>
+
+    <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 10px 0;" />
+
+    <a href="#" class="nav-item" data-page="pendaftaran" id="navPendaftaran">
+      <i class="bi bi-person-plus"></i> Pendaftaran Siswa
+    </a>
+    <a href="#" class="nav-item" data-page="jadwal" id="navJadwal">
+      <i class="bi bi-calendar3"></i> Penjadwalan Kelas
+    </a>
+    <a href="#" class="nav-item" data-page="absensi" id="navAbsensi">
+      <i class="bi bi-check2-square"></i> Absensi Resmi
+    </a>
+    <a href="#" class="nav-item" data-page="nilai" id="navNilai">
+      <i class="bi bi-file-earmark-spreadsheet"></i> Transkrip Nilai
+    </a>
+    <a href="#" class="nav-item" data-page="kesehatan" id="navKesehatan">
+      <i class="bi bi-heart-pulse"></i> Catatan Kesehatan
+    </a>
+    <a href="#" class="nav-item" data-page="konseling" id="navKonseling">
+      <i class="bi bi-chat-left-quote"></i> Konseling (BK)
+    </a>
+  </nav>
+  <div class="sidebar__footer">
+    <button class="btn-logout" id="btnLogout">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </button>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <header class="topbar">
+    <button class="topbar__toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="topbar__user" id="topbarUser">
+      <i class="bi bi-person-circle"></i>
+      <span id="userNameDisplay">...</span>
+      <span class="role-badge" id="roleBadge">-</span>
+    </div>
+  </header>
+
+  <section class="page active" id="page-home">
+    <div class="page-header">
+      <h1>Dashboard</h1>
+    </div>
+    </section>
+
+  <section class="page" id="page-siswa">
+    <h1>Data Siswa</h1>
+  </section>
+  <section class="page" id="page-guru">
+    <h1>Data Guru</h1>
+  </section>
+
+  <section class="page" id="page-pendaftaran">
+    <div class="page-header"><h1>Pendaftaran Siswa Baru</h1></div>
+  </section>
+
+  <section class="page" id="page-jadwal">
+    <div class="page-header"><h1>Penjadwalan Kelas</h1></div>
+  </section>
+
+  <section class="page" id="page-absensi">
+    <div class="page-header"><h1>Absensi Resmi Sekolah</h1></div>
+  </section>
+
+  <section class="page" id="page-nilai">
+    <div class="page-header"><h1>Transkrip & Rekap Nilai</h1></div>
+  </section>
+
+  <section class="page" id="page-kesehatan">
+    <div class="page-header"><h1>Catatan Kesehatan Siswa</h1></div>
+  </section>
+
+  <section class="page" id="page-konseling">
+    <div class="page-header"><h1>Bimbingan & Konseling (BK)</h1></div>
+  </section>
+
+</main>
+
+<script>
+  'use strict';
+
+  // Menyimpan data user secara global setelah fetch session berhasil
+  let currentUser = null;
+
+  // Aturan Pembatasan Menu Sidebar berdasarkan Role
+  // Jika role TIDAK ADA di dalam array, maka menu id tersebut akan di-HIDDEN total!
+  const menuAccessRule = {
+    pendaftaran: ['admin'],
+    jadwal:      ['admin'],
+    absensi:     ['admin', 'guru'],
+    kesehatan:   ['admin'],
+    konseling:   ['admin', 'guru'],
+    nilai:       ['admin', 'guru', 'siswa'], // Siswa boleh masuk tapi nanti isinya read-only
+    siswa:       ['admin', 'guru'],          // Siswa tidak perlu lihat daftar seluruh siswa
+    guru:        ['admin', 'guru']
+  };
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Cek Sesi Ke Backend
+    try {
+      const response = await fetch('/api/auth/check');
+      if (response.status === 401) {
+        window.location.href = '/index.html';
+        return;
+      }
+
+      const result = await response.json();
+      if (result.loggedIn && result.user) {
+        currentUser = result.user;
+        
+        // Tampilkan Identitas di Topbar
+        if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').textContent = currentUser.nama;
+        if (document.getElementById('roleBadge')) document.getElementById('roleBadge').textContent = currentUser.role.toUpperCase();
+
+        // 🔥 FILTERING SIDEBAR: Sembunyikan menu berdasarkan aturan role
+        applySidebarFilter(currentUser.role);
+
+      } else {
+        window.location.href = '/index.html';
+      }
+    } catch (err) {
+      console.error('Sesi error:', err);
+      window.location.href = '/index.html';
+    }
+
+    // 2. Logika Navigasi SPA (Mencegah Klik Menu Ilegal)
+    document.querySelectorAll('.nav-item[data-page]').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const page = link.dataset.page;
+
+        // PROTEKSI URL LOKAL: Cek apakah role user saat ini boleh membuka page tersebut
+        if (page !== 'home' && menuAccessRule[page] && !menuAccessRule[page].includes(currentUser.role)) {
+          alert('Akses Ditolak: Anda tidak memiliki wewenang membuka fitur ini!');
+          return;
+        }
+
+        // Jalankan Efek Pindah Halaman jika Lolos Sensor
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        link.classList.add('active');
+
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(`page-${page}`)?.classList.add('active');
+      });
+    });
+
+    // 3. Tombol Logout (belum ada endpoint)
+    document.getElementById('btnLogout')?.addEventListener('click', async () => {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+      } finally {
+        window.location.href = '/index.html';
+      }
+    });
+
+    // 4. Sidebar Toggle Mobile
+    document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+      document.getElementById('sidebar')?.classList.toggle('open');
+    });
+  });
+
+  // Fungsi Bantu: Menyaring Element Menu HTML Sidebar
+  function applySidebarFilter(role) {
+    // Periksa objek aturan akses
+    for (const [pageName, allowedRoles] of Object.entries(menuAccessRule)) {
+      // Cari element berdasarkan ID menu-nya
+      const menuId = 'nav' + pageName.charAt(0).toUpperCase() + pageName.slice(1);
+      const menuElement = document.getElementById(menuId);
+
+      if (menuElement) {
+        // Jika role user tidak terdaftar dalam role yang boleh melihat, hancurkan/sembunyikan menunya!
+        if (!allowedRoles.includes(role)) {
+          menuElement.style.display = 'none'; // Menghilangkan menu dari barisan sidebar
+        }
+      }
+    }
+  }
+</script>
+</body>
+</html>
