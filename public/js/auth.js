@@ -79,8 +79,6 @@ window.doLogout = async function () {
   }
 };
 
-// Tombol logout di dashboard
-document.getElementById('btnLogout')?.addEventListener('click', window.doLogout);
 
 // Enter key di field password
 document.getElementById('password')?.addEventListener('keydown', (e) => {
