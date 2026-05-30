@@ -94,3 +94,15 @@ exports.login = async (req, res) => {
     res.status(500).json({ success: false, message: 'Kesalahan pada server.' });
   }
 };
+
+// ── POST /api/auth/logout ────────────────────────────────────
+exports.logout = (req, res) => {
+  const username = req.session.user?.username || 'unknown';
+
+  req.session.destroy((err) => {
+    if (err) console.error('[LOGOUT ERROR]', err);
+    console.log(`[LOGOUT] "${username}" logout.`);
+    res.clearCookie('connect.sid', { path: '/' });
+    res.json({ success: true, message: 'Logout berhasil.' });
+  });
+};
