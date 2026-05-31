@@ -1,10 +1,8 @@
-// src/routes/guruRoutes.js
-
 const express = require('express');
 const router = express.Router();
-const guruController = require('../controllers/guruController');
+const guruCtrl = require('../controllers/guruController');
 
-// Define guru routes here
-// router.get('/', guruController.getAllGuru);
+router.get('/',       guruCtrl.getAllGuru);
+router.get('/stats',  guruCtrl.getStats);
 
 module.exports = router;
