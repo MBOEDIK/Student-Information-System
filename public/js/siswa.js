@@ -64,6 +64,15 @@
       resetForm();
     });
 
+    form.querySelectorAll('input, textarea, select').forEach(function (el) {
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          form.requestSubmit();
+        }
+      });
+    });
+
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
