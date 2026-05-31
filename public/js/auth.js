@@ -1,10 +1,21 @@
 // public/js/auth.js
-// Menangani login, logout, dan proteksi halaman via fetch API
+// Menangani login, logout, proteksi halaman, dan hak akses menu via fetch API
 
 'use strict';
 
-// ── Proteksi halaman dashboard ────────────────────────────────
-// Jika file ini dimuat di dashboard.html, cek session dulu
+// ── Aturan Hak Akses Menu Dashboard (Shofa's Security Guard) ──
+const menuAccessRule = {
+  pendaftaran: ['admin'],
+  jadwal:       ['admin'],
+  absensi:     ['admin', 'guru'],
+  kesehatan:   ['admin'],
+  konseling:   ['admin', 'guru'],
+  nilai:       ['admin', 'guru', 'siswa'],
+  siswa:       ['admin', 'guru'],
+  guru:        ['admin', 'guru']
+};
+
+// ── Proteksi Halaman Dashboard & Inisialisasi Data Pengguna ──
 if (window.location.pathname.includes('dashboard')) {
   (async () => {
     try {
@@ -14,17 +25,27 @@ if (window.location.pathname.includes('dashboard')) {
         window.location.href = '/index.html';
         return;
       }
+
       // Tampilkan info user di topbar
       const user = data.user;
       const nameEl = document.getElementById('userNameDisplay');
       const badgeEl = document.getElementById('roleBadge');
-      if (nameEl)  nameEl.textContent  = user.nama;
+      if (nameEl)  nameEl.textContent  = user.nama || user.nama_lengkap;
       if (badgeEl) badgeEl.textContent = user.role;
 
-      // Simpan di window untuk dipakai modul lain
+      // Simpan di window untuk dipakai oleh modul js lainnya
       window.currentUser = user;
 
-      // Tampilkan tombol tambah/edit/hapus hanya untuk admin
+      // Sembunyikan elemen menu yang tidak sesuai wewenang role
+      for (const [pageName, allowedRoles] of Object.entries(menuAccessRule)) {
+        const menuId = 'nav' + pageName.charAt(0).toUpperCase() + pageName.slice(1);
+        const menuElement = document.getElementById(menuId);
+        if (menuElement && !allowedRoles.includes(user.role)) {
+          menuElement.style.display = 'none';
+        }
+      }
+
+      // Tampilkan tombol akselerator tambah/edit/hapus hanya untuk admin
       if (user.role === 'admin') {
         document.querySelectorAll('[id^="btnTambah"]').forEach(el => el.hidden = false);
       }
@@ -34,17 +55,17 @@ if (window.location.pathname.includes('dashboard')) {
   })();
 }
 
-// ── Login (dipanggil dari index.html) ────────────────────────
+// ── Proses Login (Dipanggil dari Form index.html) ────────────────────────
 window.doLogin = async function () {
   const username = document.getElementById('username')?.value.trim();
   const password = document.getElementById('password')?.value;
 
-  // Bersihkan error lama
+  // Bersihkan penanda error lama
   clearFieldError('group-username', 'err-username');
   clearFieldError('group-password', 'err-password');
   hideAlert();
 
-  // Validasi sisi klien
+  // Validasi input di sisi klien
   if (!username) { showFieldError('group-username', 'err-username', 'Username tidak boleh kosong.'); return; }
   if (!password) { showFieldError('group-password', 'err-password', 'Password tidak boleh kosong.'); return; }
 
@@ -70,7 +91,7 @@ window.doLogin = async function () {
   }
 };
 
-// ── Logout ────────────────────────────────────────────────────
+// ── Proses Logout ────────────────────────────────────────────────────
 window.doLogout = async function () {
   try {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -79,8 +100,10 @@ window.doLogout = async function () {
   }
 };
 
+// Hubungkan tombol logout HTML dengan fungsi logout JS
+document.getElementById('btnLogout')?.addEventListener('click', window.doLogout);
 
-// Enter key di field password
+// Pemicu tombol Enter untuk kenyamanan UX login
 document.getElementById('password')?.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') window.doLogin?.();
 });
@@ -88,7 +111,7 @@ document.getElementById('username')?.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') window.doLogin?.();
 });
 
-// ── Toggle password visibility ────────────────────────────────
+// ── Fitur Sembunyikan/Tampilkan Password ──────────────────────────────
 window.togglePassword = function () {
   const input = document.getElementById('password');
   const icon  = document.getElementById('eyeIcon');
@@ -97,34 +120,40 @@ window.togglePassword = function () {
   icon.className = input.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
 };
 
-// ── Sidebar toggle (mobile) ───────────────────────────────────
+// ── Kontrol Navigasi Miring Sidebar (Mobile Responsive) ───────────────
 document.getElementById('sidebarToggle')?.addEventListener('click', () => {
   document.getElementById('sidebar')?.classList.toggle('open');
 });
 
-// ── SPA: navigasi antar page ──────────────────────────────────
+// ── Sistem SPA: Mekanisme Perpindahan Halaman & Validasi Role ──
 document.querySelectorAll('.nav-item[data-page]').forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
     const page = link.dataset.page;
 
-    // Aktifkan nav item
+    // INTERCEPTOR: Cek kewenangan akses role pengguna saat ini
+    if (page !== 'home' && menuAccessRule[page] && !menuAccessRule[page].includes(window.currentUser?.role)) {
+      alert('Akses Ditolak: Anda tidak memiliki wewenang membuka fitur ini!');
+      return;
+    }
+
+    // Aktifkan visual nav item yang diklik
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     link.classList.add('active');
 
-    // Tampilkan page
+    // Tampilkan kontainer halaman tujuan
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById(`page-${page}`);
     if (target) target.classList.add('active');
 
-    // Trigger load data
-    if (page === 'siswa')  window.loadSiswa?.();
-    if (page === 'guru')   window.loadGuru?.();
-    if (page === 'home')   window.loadStats?.();
+    // Jalankan pemicu otomatis pengambilan data fitur spesifik
+    if (page === 'siswa')   window.loadSiswa?.();
+    if (page === 'guru')    window.loadGuru?.();
+    if (page === 'home')    window.loadStats?.();
   });
 });
 
-// ── Load stats dashboard ──────────────────────────────────────
+// ── Memuat Angka Statistik Ringkasan Utama Dasbor ──────────────────────
 window.loadStats = async function () {
   try {
     const [rSiswa, rGuru] = await Promise.all([
@@ -139,19 +168,21 @@ window.loadStats = async function () {
       setText('statTotalGuru', rGuru.data.total);
       setText('statAktifGuru', rGuru.data.aktif);
     }
-  } catch (e) { console.error('Stats error', e); }
+  } catch (e) { 
+    console.error('Gagal memuat statistik dasbor:', e); 
+  }
 };
 
-// Load stats saat dashboard pertama buka
+// Eksekusi pemuatan data ringkasan sesaat setelah dasbor terbuka
 if (window.location.pathname.includes('dashboard')) {
   window.addEventListener('load', () => setTimeout(window.loadStats, 300));
 }
 
-// ── Modal helpers ─────────────────────────────────────────────
+// ── Fungsi Pembantu Manajemen Jendela Modal ────────────────────────────
 window.openModal  = (id) => { const m = document.getElementById(id); if(m) m.hidden = false; };
 window.closeModal = (id) => { const m = document.getElementById(id); if(m) m.hidden = true; };
 
-// ── Utilities ─────────────────────────────────────────────────
+// ── Utilitas Komponen UI & Notifikasi Form ──────────────────────────────
 function setText(id, val) { const el = document.getElementById(id); if(el) el.textContent = val ?? '–'; }
 
 function showAlert(msg) {
@@ -192,18 +223,18 @@ function setLoading(on) {
   if (arrEl)  arrEl.hidden  = on;
 }
 
-// ── Badge helper (dipakai siswa.js & guru.js) ─────────────────
+// ── Utilitas Komponen Label Warna Status Berkas ───────────────────────
 window.statusBadge = function (status) {
   const map = {
     'aktif': 'badge--green',
     'lulus': 'badge--gray',
-    'keluar':'badge--red',
-    'tidak aktif':'badge--red'
+    'keluar': 'badge--red',
+    'tidak aktif': 'badge--red'
   };
   return `<span class="badge ${map[status] || 'badge--gray'}">${status}</span>`;
 };
 
-// ── API helper ────────────────────────────────────────────────
+// ── Standarisasi Pemanggilan API Jaringan Kelompok ─────────────────────
 window.api = async function (url, options = {}) {
   const res  = await fetch(url, {
     headers: { 'Content-Type': 'application/json', ...options.headers },

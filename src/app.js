@@ -1,5 +1,5 @@
 // src/app.js
-// Entry point aplikasi Student Information System
+// Entry point utama aplikasi Student Information System
 
 require('dotenv').config();
 const express = require('express');
@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// ── Session ───────────────────────────────────────────────────
+// ── Session Configuration ─────────────────────────────────────
 app.use(session({
   secret:            process.env.SESSION_SECRET || 'sis_secret_ganti_ini',
   resave:            false,
@@ -28,19 +28,21 @@ app.use(session({
   cookie: {
     httpOnly: true,
     secure:   process.env.NODE_ENV === 'production',
-    maxAge:   1000 * 60 * 60 * 8   // 8 jam
+    maxAge:   1000 * 60 * 60 * 8   // Masa aktif sesi 8 jam
   }
 }));
 
-// ── API Routes ────────────────────────────────────────────────
+// ── API Routes Registration ───────────────────────────────────
 app.use('/api/auth',  authRoutes);
+app.use('/api/siswa', siswaRoutes);
+app.use('/api/guru',  guruRoutes);
 
-// ── Root → index.html ─────────────────────────────────────────
+// ── Root Navigation → Landing Login Page ──────────────────────
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// ── 404 ───────────────────────────────────────────────────────
+// ── 404 Router Handlers ───────────────────────────────────────
 app.use((req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ success: false, message: 'Endpoint tidak ditemukan.' });
@@ -48,13 +50,13 @@ app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// ── Error handler ─────────────────────────────────────────────
+// ── Global Error Handler ──────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('[APP ERROR]', err);
   res.status(500).json({ success: false, message: 'Kesalahan server.' });
 });
 
-// ── Start ─────────────────────────────────────────────────────
+// ── Start Network Boot Server ─────────────────────────────────
 app.listen(PORT, () => {
   console.log('');
   console.log(`🚀 Server: http://localhost:${PORT}`);

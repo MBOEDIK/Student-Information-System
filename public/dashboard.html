@@ -72,17 +72,76 @@
     <div class="page-header">
       <h1>Dashboard</h1>
     </div>
-    </section>
+  </section>
 
   <section class="page" id="page-siswa">
     <h1>Data Siswa</h1>
   </section>
+
   <section class="page" id="page-guru">
     <h1>Data Guru</h1>
   </section>
 
   <section class="page" id="page-pendaftaran">
-    <div class="page-header"><h1>Pendaftaran Siswa Baru</h1></div>
+    <div class="page-header">
+      <h1>Pendaftaran Siswa Baru</h1>
+    </div>
+
+    <div class="alert alert--success" id="alertSuccess" hidden>
+      <i class="bi bi-check-circle-fill"></i>
+      <span id="alertSuccessMsg"></span>
+      <button class="alert__close" onclick="this.parentElement.hidden=true">&times;</button>
+    </div>
+
+    <div class="alert alert--error" id="alertError" hidden>
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span id="alertErrorMsg"></span>
+      <button class="alert__close" onclick="this.parentElement.hidden=true">&times;</button>
+    </div>
+
+    <div class="card">
+      <div class="card__body">
+        <form id="formPendaftaran" novalidate>
+          <div class="form-group" id="group-nis">
+            <label class="form-label" for="nis">NIS <span class="required">*</span></label>
+            <input type="text" class="form-input" id="nis" name="nis" placeholder="Masukkan NIS" maxlength="20" required />
+            <small class="field-error" id="err-nis"></small>
+          </div>
+
+          <div class="form-group" id="group-nama">
+            <label class="form-label" for="nama">Nama Lengkap <span class="required">*</span></label>
+            <input type="text" class="form-input" id="nama" name="nama" placeholder="Masukkan nama lengkap" maxlength="100" required />
+            <small class="field-error" id="err-nama"></small>
+          </div>
+
+          <div class="form-group" id="group-jenis_kelamin">
+            <label class="form-label" for="jenis_kelamin">Jenis Kelamin <span class="required">*</span></label>
+            <select class="form-input" id="jenis_kelamin" name="jenis_kelamin" required>
+              <option value="">— Pilih —</option>
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+            <small class="field-error" id="err-jenis_kelamin"></small>
+          </div>
+
+          <div class="form-group" id="group-alamat">
+            <label class="form-label" for="alamat">Alamat <span class="required">*</span></label>
+            <textarea class="form-input" id="alamat" name="alamat" placeholder="Masukkan alamat lengkap" rows="3" required></textarea>
+            <small class="field-error" id="err-alamat"></small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary" id="btnSimpan">
+              <span class="btn__text" id="btnSimpanText">Simpan</span>
+              <span class="btn__loader" id="btnSimpanLoader" hidden>
+                <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
+              </span>
+            </button>
+            <button type="reset" class="btn btn--secondary" id="btnReset">Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </section>
 
   <section class="page" id="page-jadwal">
@@ -107,109 +166,7 @@
 
 </main>
 
-<script>
-  'use strict';
-
-  // Menyimpan data user secara global setelah fetch session berhasil
-  let currentUser = null;
-
-  // Aturan Pembatasan Menu Sidebar berdasarkan Role
-  // Jika role TIDAK ADA di dalam array, maka menu id tersebut akan di-HIDDEN total!
-  const menuAccessRule = {
-    pendaftaran: ['admin'],
-    jadwal:      ['admin'],
-    absensi:     ['admin', 'guru'],
-    kesehatan:   ['admin'],
-    konseling:   ['admin', 'guru'],
-    nilai:       ['admin', 'guru', 'siswa'], // Siswa boleh masuk tapi nanti isinya read-only
-    siswa:       ['admin', 'guru'],          // Siswa tidak perlu lihat daftar seluruh siswa
-    guru:        ['admin', 'guru']
-  };
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Cek Sesi Ke Backend
-    try {
-      const response = await fetch('/api/auth/check');
-      if (response.status === 401) {
-        window.location.href = '/index.html';
-        return;
-      }
-
-      const result = await response.json();
-      if (result.loggedIn && result.user) {
-        currentUser = result.user;
-        
-        // Tampilkan Identitas di Topbar
-        if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').textContent = currentUser.nama;
-        if (document.getElementById('roleBadge')) document.getElementById('roleBadge').textContent = currentUser.role.toUpperCase();
-
-        // 🔥 FILTERING SIDEBAR: Sembunyikan menu berdasarkan aturan role
-        applySidebarFilter(currentUser.role);
-
-      } else {
-        window.location.href = '/index.html';
-      }
-    } catch (err) {
-      console.error('Sesi error:', err);
-      window.location.href = '/index.html';
-    }
-
-    // 2. Logika Navigasi SPA (Mencegah Klik Menu Ilegal)
-    document.querySelectorAll('.nav-item[data-page]').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        const page = link.dataset.page;
-
-        // PROTEKSI URL LOKAL: Cek apakah role user saat ini boleh membuka page tersebut
-        if (page !== 'home' && menuAccessRule[page] && !menuAccessRule[page].includes(currentUser.role)) {
-          alert('Akses Ditolak: Anda tidak memiliki wewenang membuka fitur ini!');
-          return;
-        }
-
-        // Jalankan Efek Pindah Halaman jika Lolos Sensor
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        link.classList.add('active');
-
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(`page-${page}`)?.classList.add('active');
-      });
-    });
-
-    // 3. Tombol Logout
-    document.getElementById('btnLogout')?.addEventListener('click', async (e) => {
-      e.preventDefault(); 
-
-      try {
-        await fetch('/api/auth/logout', { method: 'POST' });
-      } catch (err) {
-        console.error('Koneksi ke server gagal saat logout:', err);
-      } finally {
-        window.location.href = '/index.html';
-      }
-    });
-
-    // 4. Sidebar Toggle Mobile
-    document.getElementById('sidebarToggle')?.addEventListener('click', () => {
-      document.getElementById('sidebar')?.classList.toggle('open');
-    });
-  });
-
-  // Fungsi Bantu: Menyaring Element Menu HTML Sidebar
-  function applySidebarFilter(role) {
-    // Periksa objek aturan akses
-    for (const [pageName, allowedRoles] of Object.entries(menuAccessRule)) {
-      // Cari element berdasarkan ID menu-nya
-      const menuId = 'nav' + pageName.charAt(0).toUpperCase() + pageName.slice(1);
-      const menuElement = document.getElementById(menuId);
-
-      if (menuElement) {
-        // Jika role user tidak terdaftar dalam role yang boleh melihat, hancurkan/sembunyikan menunya!
-        if (!allowedRoles.includes(role)) {
-          menuElement.style.display = 'none'; // Menghilangkan menu dari barisan sidebar
-        }
-      }
-    }
-  }
-</script>
+<script src="/js/auth.js"></script>
+<script src="/js/siswa.js"></script>
 </body>
 </html>

@@ -1,4 +1,3 @@
-
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
@@ -13,7 +12,7 @@ const pool = mysql.createPool({
   charset: 'utf8mb4'
 });
 
-// Test koneksi saat startup
+// Test koneksi saat startup server
 (async () => {
   try {
     const conn = await pool.getConnection();

@@ -1,14 +1,16 @@
 // src/controllers/authController.js
+// Menangani logika login, logout, dan verifikasi sesi di sisi server
 
 const crypto = require('crypto');
 const pool   = require('../config/db');
 
-// ── Helper: SHA-256 ─────────────────────────────────────────
+// ── Helper: Enkripsi Password SHA-256 ─────────────────────────
 function hashPassword(plainText) {
   return crypto.createHash('sha256').update(plainText).digest('hex');
 }
 
-// ── GET /api/dashboard/user  ──
+// ── GET /api/auth/check ──────────────────────────────────────
+// Memeriksa apakah pengguna masih dalam kondisi login aktif
 exports.checkSession = (req, res) => {
   if (req.session && req.session.user) {
     return res.json({ 
@@ -21,10 +23,11 @@ exports.checkSession = (req, res) => {
 };
 
 // ── POST /api/auth/login ─────────────────────────────────────
+// Memproses pencocokan akun pengguna di database
 exports.login = async (req, res) => {
   const { username, password } = req.body;
 
-  // Validasi input
+  // Validasi input sisi server
   if (!username || !username.trim()) {
     return res.status(400).json({ success: false, message: 'Username tidak boleh kosong.' });
   }
@@ -33,6 +36,7 @@ exports.login = async (req, res) => {
   }
 
   try {
+    // Cari pengguna berdasarkan username (NIS / NIP / Admin)
     const [rows] = await pool.query(
       'SELECT id, username, password, role, nama_lengkap FROM users WHERE username = ?',
       [username.trim()]
@@ -44,13 +48,13 @@ exports.login = async (req, res) => {
 
     const user = rows[0];
 
-    // Verifikasi password
+    // Verifikasi password hasil input dengan hash di database
     const hashedInput = hashPassword(password);
     if (hashedInput !== user.password) {
       return res.status(401).json({ success: false, message: 'Password salah.' });
     }
 
-    // Simpan data ke session
+    // Siapkan cetakan data profil untuk disimpan di session
     const sessionData = {
       id:       user.id,
       username: user.username,
@@ -59,7 +63,7 @@ exports.login = async (req, res) => {
       loginAt:  new Date().toISOString()
     };
 
-    // Regenerate session ID (cegah session fixation)
+    // Regenerate session ID (Mencegah celah keamanan Session Fixation)
     req.session.regenerate((err) => {
       if (err) {
         console.error('[SESSION REGENERATE ERROR]', err);
@@ -96,12 +100,15 @@ exports.login = async (req, res) => {
 };
 
 // ── POST /api/auth/logout ────────────────────────────────────
+// Menghancurkan session dan menghapus total cookie di browser
 exports.logout = (req, res) => {
   const username = req.session.user?.username || 'unknown';
 
   req.session.destroy((err) => {
     if (err) console.error('[LOGOUT ERROR]', err);
     console.log(`[LOGOUT] "${username}" logout.`);
+    
+    // Paksa browser membuang total stempel session cookie kelompok (Lolos AC 2)
     res.clearCookie('connect.sid', { path: '/' });
     res.json({ success: true, message: 'Logout berhasil.' });
   });

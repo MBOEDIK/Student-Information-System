@@ -13,7 +13,6 @@
 
 <div class="login-wrapper">
 
-  <!-- LEFT PANEL -->
   <div class="panel-left">
     <div class="panel-left__inner">
       <div class="brand">
@@ -24,25 +23,23 @@
       <div class="panel-left__illustration">
         <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" class="hero-svg">
           <rect x="60" y="120" width="280" height="160" rx="8" fill="rgba(255,255,255,0.08)"/>
-          <rect x="80" y="100" width="240" height="30"  rx="4" fill="rgba(255,255,255,0.12)"/>
-          <rect x="160" y="80" width="80"  height="28"  rx="4" fill="rgba(255,255,255,0.15)"/>
-          <rect x="90" y="148"  width="40" height="40"  rx="4" fill="rgba(255,255,255,0.15)"/>
-          <rect x="148" y="148" width="40" height="40"  rx="4" fill="rgba(255,255,255,0.15)"/>
-          <rect x="206" y="148" width="40" height="40"  rx="4" fill="rgba(255,255,255,0.15)"/>
-          <rect x="264" y="148" width="40" height="40"  rx="4" fill="rgba(255,255,255,0.15)"/>
-          <rect x="168" y="210" width="64" height="70"  rx="4" fill="rgba(255,255,255,0.20)"/>
+          <rect x="80" y="100" width="240" height="30"   rx="4" fill="rgba(255,255,255,0.12)"/>
+          <rect x="160" y="80" width="80"  height="28"   rx="4" fill="rgba(255,255,255,0.15)"/>
+          <rect x="90" y="148"  width="40" height="40"   rx="4" fill="rgba(255,255,255,0.15)"/>
+          <rect x="148" y="148" width="40" height="40"   rx="4" fill="rgba(255,255,255,0.15)"/>
+          <rect x="206" y="148" width="40" height="40"   rx="4" fill="rgba(255,255,255,0.15)"/>
+          <rect x="264" y="148" width="40" height="40"   rx="4" fill="rgba(255,255,255,0.15)"/>
+          <rect x="168" y="210" width="64" height="70"   rx="4" fill="rgba(255,255,255,0.20)"/>
           <line x1="200" y1="55" x2="200" y2="85" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
-          <rect x="200" y="55" width="24" height="14"   rx="2" fill="rgba(255,255,255,0.5)"/>
+          <rect x="200" y="55" width="24" height="14"    rx="2" fill="rgba(255,255,255,0.5)"/>
         </svg>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT PANEL -->
   <div class="panel-right">
     <div class="form-container">
 
-      <!-- Flash alert (diisi oleh JS) -->
       <div class="alert alert--error" id="flashAlert" hidden>
         <i class="bi bi-exclamation-triangle-fill alert__icon"></i>
         <span class="alert__text" id="flashMsg"></span>
@@ -56,9 +53,7 @@
         <p class="form-header__subtitle">Masuk ke akun Anda untuk melanjutkan</p>
       </div>
 
-      <!-- Form: action ditangani JS (fetch), bukan submit biasa -->
       <div id="loginForm">
-
         <div class="form-group" id="group-username">
           <label class="form-label" for="username">
             <i class="bi bi-person-badge"></i> Username / NIS / NIP
@@ -95,7 +90,7 @@
           <i class="bi bi-arrow-right btn-login__arrow"></i>
         </button>
 
-      </div><!-- /#loginForm -->
+      </div>
 
       <p class="form-help">
         <i class="bi bi-info-circle"></i>
