@@ -5,6 +5,7 @@
 
 // ── Aturan Hak Akses Menu Dashboard (Shofa's Security Guard) ──
 const menuAccessRule = {
+  home:         ['admin', 'guru'],
   pendaftaran: ['admin'],
   jadwal:       ['admin'],
   absensi:     ['admin', 'guru'],
@@ -48,6 +49,14 @@ if (window.location.pathname.includes('dashboard')) {
       // Tampilkan tombol akselerator tambah/edit/hapus hanya untuk admin
       if (user.role === 'admin') {
         document.querySelectorAll('[id^="btnTambah"]').forEach(el => el.hidden = false);
+      }
+
+      // Jika role tidak punya akses ke halaman home, buka halaman pertama yang diizinkan
+      if (user.role === 'siswa') {
+        const firstAllowed = document.querySelector('.nav-item[data-page]:not([style*="display: none"])');
+        if (firstAllowed) {
+          firstAllowed.click();
+        }
       }
     } catch (e) {
       window.location.href = '/index.html';
@@ -132,7 +141,7 @@ document.querySelectorAll('.nav-item[data-page]').forEach(link => {
     const page = link.dataset.page;
 
     // INTERCEPTOR: Cek kewenangan akses role pengguna saat ini
-    if (page !== 'home' && menuAccessRule[page] && !menuAccessRule[page].includes(window.currentUser?.role)) {
+    if (menuAccessRule[page] && !menuAccessRule[page].includes(window.currentUser?.role)) {
       alert('Akses Ditolak: Anda tidak memiliki wewenang membuka fitur ini!');
       return;
     }
@@ -152,6 +161,59 @@ document.querySelectorAll('.nav-item[data-page]').forEach(link => {
     if (page === 'home')    window.loadStats?.();
   });
 });
+
+// ── Memuat Data Siswa ke Tabel ────────────────────────────────────────
+window.loadSiswa = async function () {
+  const tbody = document.getElementById('siswaTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+  try {
+    const res = await fetch('/api/siswa');
+    const json = await res.json();
+    if (!json.success || !json.data.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Belum ada data siswa.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = json.data.map((s, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${s.nis}</strong></td>
+        <td>${s.nama}</td>
+        <td>${s.jenis_kelamin}</td>
+        <td>${s.alamat || '–'}</td>
+        <td>${window.statusBadge(s.status)}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--danger);">Gagal memuat data.</td></tr>';
+  }
+};
+
+// ── Memuat Data Guru ke Tabel ────────────────────────────────────────
+window.loadGuru = async function () {
+  const tbody = document.getElementById('guruTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+  try {
+    const res = await fetch('/api/guru');
+    const json = await res.json();
+    if (!json.success || !json.data.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Belum ada data guru.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = json.data.map((g, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${g.nip}</strong></td>
+        <td>${g.nama}</td>
+        <td>${g.email || '–'}</td>
+        <td>${window.statusBadge(g.status)}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--danger);">Gagal memuat data.</td></tr>';
+  }
+};
 
 // ── Memuat Angka Statistik Ringkasan Utama Dasbor ──────────────────────
 window.loadStats = async function () {

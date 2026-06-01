@@ -42,3 +42,18 @@ CREATE TABLE IF NOT EXISTS students (
 
 CREATE INDEX idx_students_nis     ON students(nis);
 CREATE INDEX idx_students_status  ON students(status);
+
+-- ============================================================
+-- TABEL: teachers (data guru)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS teachers (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  nip           VARCHAR(20)  NOT NULL UNIQUE,
+  nama          VARCHAR(100) NOT NULL,
+  email         VARCHAR(100) DEFAULT NULL,
+  status        ENUM('aktif','tidak aktif','pensiun') DEFAULT 'aktif',
+  created_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX idx_teachers_nip     ON teachers(nip);
+CREATE INDEX idx_teachers_status  ON teachers(status);
