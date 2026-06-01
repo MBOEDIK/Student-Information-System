@@ -1,5 +1,22 @@
 const pool = require('../config/db');
 
+exports.searchSiswa = async (req, res) => {
+  try {
+    const keyword = req.query.keyword;
+    if (!keyword || !keyword.trim()) {
+      return res.status(400).json({ success: false, message: 'Kata kunci pencarian tidak boleh kosong.' });
+    }
+    const [rows] = await pool.query(
+      'SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students WHERE nama LIKE ? OR nis LIKE ? ORDER BY created_at DESC',
+      [`%${keyword}%`, `%${keyword}%`]
+    );
+    return res.json({ success: true, data: rows });
+  } catch (err) {
+    console.error('[SISWA CONTROLLER] searchSiswa:', err);
+    return res.status(500).json({ success: false, message: 'Gagal mencari data siswa.' });
+  }
+};
+
 exports.getAllSiswa = async (req, res) => {
   try {
     const [rows] = await pool.query(

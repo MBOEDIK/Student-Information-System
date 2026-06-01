@@ -188,3 +188,38 @@ window.simpanSiswa = async function () {
   closeModal('modal-siswa');
   window.loadSiswa();
 };
+
+window.cariSiswa = async function (keyword) {
+  if (!keyword || !keyword.trim()) return;
+  const res = await fetch(`/api/siswa/search?keyword=${encodeURIComponent(keyword)}`);
+  const json = await res.json();
+  const tbody = document.getElementById('siswaTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (!json.success || json.data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Data siswa tidak ditemukan.</td></tr>';
+    return;
+  }
+  json.data.forEach((s, i) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${s.nis}</td>
+        <td>${s.nama}</td>
+        <td>${s.jenis_kelamin}</td>
+        <td>${s.alamat}</td>
+        <td>${window.statusBadge(s.status)}</td>
+        <td><button class="btn btn--sm btn--primary" onclick="editSiswa(${s.id})">Edit</button></td>
+      </tr>`;
+  });
+};
+
+document.getElementById('formCariSiswa')?.addEventListener('submit', function (e) {
+  e.preventDefault();
+  const keyword = document.getElementById('inputCariSiswa').value.trim();
+  if (!keyword) {
+    window.loadSiswa();
+    return;
+  }
+  window.cariSiswa(keyword);
+});
