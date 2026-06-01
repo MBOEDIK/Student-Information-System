@@ -6,9 +6,7 @@ const express = require('express');
 const session = require('express-session');
 const path    = require('path');
 
-const authRoutes  = require('./routes/authRoutes');
-const siswaRoutes = require('./routes/siswaRoutes');
-const guruRoutes  = require('./routes/guruRoutes');
+const routes = require('./routes/index');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -33,9 +31,7 @@ app.use(session({
 }));
 
 // ── API Routes Registration ───────────────────────────────────
-app.use('/api/auth',  authRoutes);
-app.use('/api/siswa', siswaRoutes);
-app.use('/api/guru',  guruRoutes);
+app.use('/api', routes);
 
 // ── Root Navigation → Landing Login Page ──────────────────────
 app.get('/', (req, res) => {

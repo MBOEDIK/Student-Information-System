@@ -1,0 +1,29 @@
+<div class="page active">
+  <div class="page-header">
+    <h1>Data Siswa</h1>
+  </div>
+  <div class="search-bar">
+    <form id="formCariSiswa" style="display:flex; gap:8px;">
+      <input type="text" id="inputCariSiswa" class="form-input" placeholder="Cari siswa berdasarkan Nama atau NIS..." style="flex:1;" />
+      <button type="submit" class="btn btn--primary">Cari</button>
+    </form>
+  </div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>NIS</th>
+          <th>Nama</th>
+          <th>Jenis Kelamin</th>
+          <th>Alamat</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="siswaTableBody">
+        <tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -68,176 +68,12 @@
     </div>
   </header>
 
-  <section class="page active" id="page-home">
-    <div class="page-header">
-      <h1>Dashboard</h1>
+  <div id="page-container">
+    <div class="page active">
+      <div class="page-header"><h1>Dashboard</h1></div>
+      <p style="color:var(--text-muted);">Memuat...</p>
     </div>
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-card__icon" style="background:#e8f0fe;color:#1a56db;"><i class="bi bi-people"></i></div>
-        <div class="stat-card__info">
-          <span class="stat-card__label">Total Siswa</span>
-          <span class="stat-card__value" id="statTotalSiswa">–</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__icon" style="background:#e0f7e8;color:#0e9f6e;"><i class="bi bi-person-check"></i></div>
-        <div class="stat-card__info">
-          <span class="stat-card__label">Siswa Aktif</span>
-          <span class="stat-card__value" id="statAktifSiswa">–</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__icon" style="background:#f3e8ff;color:#7e3af2;"><i class="bi bi-person-workspace"></i></div>
-        <div class="stat-card__info">
-          <span class="stat-card__label">Total Guru</span>
-          <span class="stat-card__value" id="statTotalGuru">–</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__icon" style="background:#fff4e6;color:#f59e0b;"><i class="bi bi-person-check-fill"></i></div>
-        <div class="stat-card__info">
-          <span class="stat-card__label">Guru Aktif</span>
-          <span class="stat-card__value" id="statAktifGuru">–</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="page" id="page-siswa">
-    <div class="page-header">
-      <h1>Data Siswa</h1>
-    </div>
-    <div class="search-bar" style="margin-bottom: 16px;">
-      <form id="formCariSiswa" style="display:flex; gap:8px;">
-        <input type="text" id="inputCariSiswa" class="form-input" placeholder="Cari siswa berdasarkan Nama atau NIS..." style="flex:1;" />
-        <button type="submit" class="btn btn--primary">Cari</button>
-      </form>
-    </div>
-    <div style="overflow-x:auto">
-      <table>
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>NIS</th>
-            <th>Nama</th>
-            <th>Jenis Kelamin</th>
-            <th>Alamat</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="siswaTableBody">
-          <tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="page" id="page-guru">
-    <div class="page-header">
-      <h1>Data Guru</h1>
-    </div>
-    <div style="overflow-x:auto">
-      <table>
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>NIP</th>
-            <th>Nama</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="guruTableBody">
-          <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="page" id="page-pendaftaran">
-    <div class="page-header">
-      <h1>Pendaftaran Siswa Baru</h1>
-    </div>
-
-    <div class="alert alert--success" id="alertSuccess" hidden>
-      <i class="bi bi-check-circle-fill"></i>
-      <span id="alertSuccessMsg"></span>
-      <button class="alert__close" onclick="this.parentElement.hidden=true">&times;</button>
-    </div>
-
-    <div class="alert alert--error" id="alertError" hidden>
-      <i class="bi bi-exclamation-triangle-fill"></i>
-      <span id="alertErrorMsg"></span>
-      <button class="alert__close" onclick="this.parentElement.hidden=true">&times;</button>
-    </div>
-
-    <div class="card">
-      <div class="card__body">
-        <form id="formPendaftaran" novalidate>
-          <div class="form-group" id="group-nis">
-            <label class="form-label" for="nis">NIS <span class="required">*</span></label>
-            <input type="text" class="form-input" id="nis" name="nis" placeholder="Masukkan NIS" maxlength="20" required />
-            <small class="field-error" id="err-nis"></small>
-          </div>
-
-          <div class="form-group" id="group-nama">
-            <label class="form-label" for="nama">Nama Lengkap <span class="required">*</span></label>
-            <input type="text" class="form-input" id="nama" name="nama" placeholder="Masukkan nama lengkap" maxlength="100" required />
-            <small class="field-error" id="err-nama"></small>
-          </div>
-
-          <div class="form-group" id="group-jenis_kelamin">
-            <label class="form-label" for="jenis_kelamin">Jenis Kelamin <span class="required">*</span></label>
-            <select class="form-input" id="jenis_kelamin" name="jenis_kelamin" required>
-              <option value="">— Pilih —</option>
-              <option value="Laki-laki">Laki-laki</option>
-              <option value="Perempuan">Perempuan</option>
-            </select>
-            <small class="field-error" id="err-jenis_kelamin"></small>
-          </div>
-
-          <div class="form-group" id="group-alamat">
-            <label class="form-label" for="alamat">Alamat <span class="required">*</span></label>
-            <textarea class="form-input" id="alamat" name="alamat" placeholder="Masukkan alamat lengkap" rows="3" required></textarea>
-            <small class="field-error" id="err-alamat"></small>
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="btn btn--primary" id="btnSimpan">
-              <span class="btn__text" id="btnSimpanText">Simpan</span>
-              <span class="btn__loader" id="btnSimpanLoader" hidden>
-                <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
-              </span>
-            </button>
-            <button type="reset" class="btn btn--secondary" id="btnReset">Reset</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <section class="page" id="page-jadwal">
-    <div class="page-header"><h1>Penjadwalan Kelas</h1></div>
-  </section>
-
-  <section class="page" id="page-absensi">
-    <div class="page-header"><h1>Absensi Resmi Sekolah</h1></div>
-  </section>
-
-  <section class="page" id="page-nilai">
-    <div class="page-header"><h1>Transkrip & Rekap Nilai</h1></div>
-  </section>
-
-  <section class="page" id="page-kesehatan">
-    <div class="page-header"><h1>Catatan Kesehatan Siswa</h1></div>
-  </section>
-
-  <section class="page" id="page-konseling">
-    <div class="page-header"><h1>Bimbingan & Konseling (BK)</h1></div>
-  </section>
+  </div>
 
   <!-- MODAL EDIT SISWA -->
   <div class="modal" id="modal-siswa" hidden>
@@ -272,7 +108,7 @@
       </div>
       <div class="form-actions">
         <button class="btn btn--primary" onclick="simpanSiswa()">Simpan</button>
-        <button class="btn btn--secondary" onclick="closeModal('modal-siswa')">Batal</button>
+        <button class="btn btn--secondary" onclick="window.closeModal('modal-siswa')">Batal</button>
       </div>
     </div>
   </div>
@@ -303,12 +139,14 @@
       </div>
       <div class="form-actions">
         <button class="btn btn--primary" onclick="simpanGuru()">Simpan</button>
-        <button class="btn btn--secondary" onclick="closeModal('modal-guru')">Batal</button>
+        <button class="btn btn--secondary" onclick="window.closeModal('modal-guru')">Batal</button>
       </div>
     </div>
   </div>
 </main>
 
+<script src="/js/shared.js"></script>
+<script src="/js/router.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/siswa.js"></script>
 <script src="/js/guru.js"></script>
