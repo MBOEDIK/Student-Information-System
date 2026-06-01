@@ -92,3 +92,30 @@ exports.createSiswa = async (req, res) => {
     });
   }
 };
+
+exports.getSiswaById = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });
+    return res.json({ success: true, data: rows[0] });
+  } catch (err) {
+    console.error('[SISWA CONTROLLER] getSiswaById:', err);
+    return res.status(500).json({ success: false, message: 'Gagal mengambil data siswa.' });
+  }
+};
+
+exports.updateSiswa = async (req, res) => {
+  const { id } = req.params;
+  const { nama, nis, jenis_kelamin, alamat, status } = req.body;
+  try {
+    const [result] = await pool.query(
+      'UPDATE students SET nama=?, nis=?, jenis_kelamin=?, alamat=?, status=? WHERE id=?',
+      [nama, nis, jenis_kelamin, alamat, status, id]
+    );
+    if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });
+    return res.json({ success: true, message: 'Data siswa berhasil diupdate.' });
+  } catch (err) {
+    console.error('[SISWA CONTROLLER] updateSiswa:', err);
+    return res.status(500).json({ success: false, message: 'Gagal mengupdate data siswa.' });
+  }
+};

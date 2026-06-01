@@ -180,6 +180,14 @@ thead { background: var(--sidebar-bg); color: white; }
 th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
 tbody tr:hover { background: var(--primary-light); transition: background 0.15s ease; }
 
+/* ===== BUTTON SMALL ===== */
+.btn--sm { padding: 6px 14px; font-size: 12px; border-radius: 6px; }
+
+/* ===== MODAL ===== */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999; }
+.modal__box { background: white; padding: 28px; border-radius: var(--radius); width: 460px; max-width: 94vw; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+.modal__box h3 { margin-bottom: 20px; color: var(--gray-900); font-size: 1.15rem; }
+
 /* ── Responsive ──────────────────────────────────────────── */
 @media(max-width:768px){
   .panel-left { display: none; }
