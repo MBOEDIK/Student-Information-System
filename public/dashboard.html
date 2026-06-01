@@ -1,53 +1,317 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Student Information System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — SIS SMK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
-<body class="bg-light">
+<body class="dashboard-body">
 
-    <div class="container mt-5">
-        <div class="card shadow-sm p-4">
-            <h2 class="mb-4 text-primary">Dashboard Admin - Sistem Informasi Siswa</h2>
-            
-            <div class="search-container mb-4">
-                <form id="formPencarian" class="d-flex gap-2">
-                    <input 
-                        type="text" 
-                        id="inputKeyword" 
-                        class="form-control" 
-                        placeholder="Cari siswa berdasarkan Nama atau NIS..." 
-                        required
-                    >
-                    <button type="submit" class="btn btn-primary" id="tombolCari">Cari</button>
-                </form>
-            </div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar__brand">
+    <i class="bi bi-mortarboard-fill"></i>
+    <span>MiSiS</span>
+  </div>
+  <nav class="sidebar__nav" id="sidebarNav">
+    <a href="#" class="nav-item active" data-page="home" id="navHome">
+      <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a href="#" class="nav-item" data-page="siswa" id="navSiswa">
+      <i class="bi bi-people"></i> Data Siswa
+    </a>
+    <a href="#" class="nav-item" data-page="guru" id="navGuru">
+      <i class="bi bi-person-workspace"></i> Data Guru
+    </a>
 
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>NIS</th>
-                            <th>Nama</th>
-                            <th>Jenis Kelamin</th>
-                            <th>Alamat</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelSiswaBody">
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-3">
-                                Silakan masukkan kata kunci di atas untuk mencari data siswa.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 10px 0;" />
+
+    <a href="#" class="nav-item" data-page="pendaftaran" id="navPendaftaran">
+      <i class="bi bi-person-plus"></i> Pendaftaran Siswa
+    </a>
+    <a href="#" class="nav-item" data-page="jadwal" id="navJadwal">
+      <i class="bi bi-calendar3"></i> Penjadwalan Kelas
+    </a>
+    <a href="#" class="nav-item" data-page="absensi" id="navAbsensi">
+      <i class="bi bi-check2-square"></i> Absensi Resmi
+    </a>
+    <a href="#" class="nav-item" data-page="nilai" id="navNilai">
+      <i class="bi bi-file-earmark-spreadsheet"></i> Transkrip Nilai
+    </a>
+    <a href="#" class="nav-item" data-page="kesehatan" id="navKesehatan">
+      <i class="bi bi-heart-pulse"></i> Catatan Kesehatan
+    </a>
+    <a href="#" class="nav-item" data-page="konseling" id="navKonseling">
+      <i class="bi bi-chat-left-quote"></i> Konseling (BK)
+    </a>
+  </nav>
+  <div class="sidebar__footer">
+    <button class="btn-logout" id="btnLogout">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </button>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <header class="topbar">
+    <button class="topbar__toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="topbar__user" id="topbarUser">
+      <i class="bi bi-person-circle"></i>
+      <span id="userNameDisplay">...</span>
+      <span class="role-badge" id="roleBadge">-</span>
+    </div>
+  </header>
+
+  <section class="page active" id="page-home">
+    <div class="page-header">
+      <h1>Dashboard</h1>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background:#e8f0fe;color:#1a56db;"><i class="bi bi-people"></i></div>
+        <div class="stat-card__info">
+          <span class="stat-card__label">Total Siswa</span>
+          <span class="stat-card__value" id="statTotalSiswa">–</span>
         </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background:#e0f7e8;color:#0e9f6e;"><i class="bi bi-person-check"></i></div>
+        <div class="stat-card__info">
+          <span class="stat-card__label">Siswa Aktif</span>
+          <span class="stat-card__value" id="statAktifSiswa">–</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background:#f3e8ff;color:#7e3af2;"><i class="bi bi-person-workspace"></i></div>
+        <div class="stat-card__info">
+          <span class="stat-card__label">Total Guru</span>
+          <span class="stat-card__value" id="statTotalGuru">–</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon" style="background:#fff4e6;color:#f59e0b;"><i class="bi bi-person-check-fill"></i></div>
+        <div class="stat-card__info">
+          <span class="stat-card__label">Guru Aktif</span>
+          <span class="stat-card__value" id="statAktifGuru">–</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-siswa">
+    <div class="page-header">
+      <h1>Data Siswa</h1>
+    </div>
+    <div class="search-bar" style="margin-bottom: 16px;">
+      <form id="formCariSiswa" style="display:flex; gap:8px;">
+        <input type="text" id="inputCariSiswa" class="form-input" placeholder="Cari siswa berdasarkan Nama atau NIS..." style="flex:1;" />
+        <button type="submit" class="btn btn--primary">Cari</button>
+      </form>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>NIS</th>
+            <th>Nama</th>
+            <th>Jenis Kelamin</th>
+            <th>Alamat</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="siswaTableBody">
+          <tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="page" id="page-guru">
+    <div class="page-header">
+      <h1>Data Guru</h1>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>NIP</th>
+            <th>Nama</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="guruTableBody">
+          <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="page" id="page-pendaftaran">
+    <div class="page-header">
+      <h1>Pendaftaran Siswa Baru</h1>
     </div>
 
-    <script src="js/siswa.js"></script>
+    <div class="alert alert--success" id="alertSuccess" hidden>
+      <i class="bi bi-check-circle-fill"></i>
+      <span id="alertSuccessMsg"></span>
+      <button class="alert__close" onclick="this.parentElement.hidden=true">&times;</button>
+    </div>
+
+    <div class="alert alert--error" id="alertError" hidden>
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span id="alertErrorMsg"></span>
+      <button class="alert__close" onclick="this.parentElement.hidden=true">&times;</button>
+    </div>
+
+    <div class="card">
+      <div class="card__body">
+        <form id="formPendaftaran" novalidate>
+          <div class="form-group" id="group-nis">
+            <label class="form-label" for="nis">NIS <span class="required">*</span></label>
+            <input type="text" class="form-input" id="nis" name="nis" placeholder="Masukkan NIS" maxlength="20" required />
+            <small class="field-error" id="err-nis"></small>
+          </div>
+
+          <div class="form-group" id="group-nama">
+            <label class="form-label" for="nama">Nama Lengkap <span class="required">*</span></label>
+            <input type="text" class="form-input" id="nama" name="nama" placeholder="Masukkan nama lengkap" maxlength="100" required />
+            <small class="field-error" id="err-nama"></small>
+          </div>
+
+          <div class="form-group" id="group-jenis_kelamin">
+            <label class="form-label" for="jenis_kelamin">Jenis Kelamin <span class="required">*</span></label>
+            <select class="form-input" id="jenis_kelamin" name="jenis_kelamin" required>
+              <option value="">— Pilih —</option>
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+            <small class="field-error" id="err-jenis_kelamin"></small>
+          </div>
+
+          <div class="form-group" id="group-alamat">
+            <label class="form-label" for="alamat">Alamat <span class="required">*</span></label>
+            <textarea class="form-input" id="alamat" name="alamat" placeholder="Masukkan alamat lengkap" rows="3" required></textarea>
+            <small class="field-error" id="err-alamat"></small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary" id="btnSimpan">
+              <span class="btn__text" id="btnSimpanText">Simpan</span>
+              <span class="btn__loader" id="btnSimpanLoader" hidden>
+                <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
+              </span>
+            </button>
+            <button type="reset" class="btn btn--secondary" id="btnReset">Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-jadwal">
+    <div class="page-header"><h1>Penjadwalan Kelas</h1></div>
+  </section>
+
+  <section class="page" id="page-absensi">
+    <div class="page-header"><h1>Absensi Resmi Sekolah</h1></div>
+  </section>
+
+  <section class="page" id="page-nilai">
+    <div class="page-header"><h1>Transkrip & Rekap Nilai</h1></div>
+  </section>
+
+  <section class="page" id="page-kesehatan">
+    <div class="page-header"><h1>Catatan Kesehatan Siswa</h1></div>
+  </section>
+
+  <section class="page" id="page-konseling">
+    <div class="page-header"><h1>Bimbingan & Konseling (BK)</h1></div>
+  </section>
+
+  <!-- MODAL EDIT SISWA -->
+  <div class="modal" id="modal-siswa" hidden>
+    <div class="modal__box">
+      <h3>Edit Data Siswa</h3>
+      <input type="hidden" id="edit-siswa-id" />
+      <div class="form-group">
+        <label class="form-label">Nama</label>
+        <input type="text" class="form-input" id="edit-siswa-nama" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">NIS</label>
+        <input type="text" class="form-input" id="edit-siswa-nis" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jenis Kelamin</label>
+        <select class="form-input" id="edit-siswa-jenis_kelamin">
+          <option value="Laki-laki">Laki-laki</option>
+          <option value="Perempuan">Perempuan</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alamat</label>
+        <input type="text" class="form-input" id="edit-siswa-alamat" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="edit-siswa-status">
+          <option value="aktif">Aktif</option>
+          <option value="tidak aktif">Non-Aktif</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn--primary" onclick="simpanSiswa()">Simpan</button>
+        <button class="btn btn--secondary" onclick="closeModal('modal-siswa')">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT GURU -->
+  <div class="modal" id="modal-guru" hidden>
+    <div class="modal__box">
+      <h3>Edit Data Guru</h3>
+      <input type="hidden" id="edit-guru-id" />
+      <div class="form-group">
+        <label class="form-label">Nama</label>
+        <input type="text" class="form-input" id="edit-guru-nama" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">NIP</label>
+        <input type="text" class="form-input" id="edit-guru-nip" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="edit-guru-email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="edit-guru-status">
+          <option value="aktif">Aktif</option>
+          <option value="tidak aktif">Non-Aktif</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn--primary" onclick="simpanGuru()">Simpan</button>
+        <button class="btn btn--secondary" onclick="closeModal('modal-guru')">Batal</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/js/auth.js"></script>
+<script src="/js/siswa.js"></script>
+<script src="/js/guru.js"></script>
+>>>>>>> origin/main
 </body>
 </html>
