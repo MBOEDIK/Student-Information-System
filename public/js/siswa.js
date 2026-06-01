@@ -217,5 +217,9 @@ window.cariSiswa = async function (keyword) {
 document.getElementById('formCariSiswa')?.addEventListener('submit', function (e) {
   e.preventDefault();
   const keyword = document.getElementById('inputCariSiswa').value.trim();
+  if (!keyword) {
+    window.loadSiswa();
+    return;
+  }
   window.cariSiswa(keyword);
 });

@@ -136,4 +136,3 @@ exports.updateSiswa = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Gagal mengupdate data siswa.' });
   }
 };
->>>>>>> origin/main
