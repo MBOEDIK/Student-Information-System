@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "semi": ["error", "always"],
+    "quotes": ["error", "single"],
+    "no-unused-vars": ["warn"],
+    "no-trailing-spaces": "error",
+    "eol-last": ["error", "always"],
+    "comma-dangle": ["error", "never"],
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-undef": "error"
+  }
+}
