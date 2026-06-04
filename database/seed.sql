@@ -39,3 +39,28 @@ INSERT INTO students (nis, nama, jenis_kelamin, alamat, status) VALUES
 ('20240008', 'Dewi Lestari',    'Perempuan', 'Jl. Ijen No. 77, Malang',            'aktif'),
 ('20240009', 'Bayu Aji Saputra','Laki-laki', 'Jl. Bromo No. 12, Batu',             'aktif'),
 ('SMK24010', 'Fitriana Dewi',   'Perempuan', 'Jl. Semeru No. 45, Malang',          'aktif');
+
+-- ── Subjects (Mata Pelajaran) ───────────────────────────────
+TRUNCATE TABLE subjects;
+
+INSERT INTO subjects (id, nama_pelajaran) VALUES
+(1, 'Matematika'),
+(2, 'Bahasa Indonesia'),
+(3, 'Bahasa Inggris'),
+(4, 'Pendidikan Agama'),
+(5, 'Pendidikan Pancasila'),
+(6, 'Olahraga'),
+(7, 'Produk Kreatif & Kewirausahaan'),
+(8, 'Pemrograman Web'),
+(9, 'Basis Data'),
+(10, 'Komputer & Masyarakat');
+
+-- ── Schedules (Jadwal Kelas - contoh) ───────────────────────
+TRUNCATE TABLE schedules;
+
+INSERT INTO schedules (subject_id, teacher_id, hari, jam_mulai, jam_selesai, ruangan) VALUES
+(1,  1, 'Senin', '07:00:00', '08:30:00', 'R-101'),
+(8,  3, 'Senin', '09:00:00', '11:00:00', 'Lab Komputer 1'),
+(2,  2, 'Selasa','07:00:00', '08:30:00', 'R-102'),
+(9,  5, 'Selasa','09:00:00', '11:00:00', 'Lab Komputer 2'),
+(3,  4, 'Rabu',  '07:00:00', '08:30:00', 'R-101');
