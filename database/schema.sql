@@ -85,3 +85,20 @@ CREATE TABLE IF NOT EXISTS schedules (
 CREATE INDEX idx_schedules_hari       ON schedules(hari);
 CREATE INDEX idx_schedules_teacher    ON schedules(teacher_id);
 CREATE INDEX idx_schedules_ruangan    ON schedules(ruangan);
+
+-- ============================================================
+-- TABEL: schedule_students (relasi banyak-ke-banyak siswa & jadwal)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS schedule_students (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  schedule_id INT NOT NULL,
+  student_id  INT NOT NULL,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- INDEX UNIQUE untuk mencegah duplikasi pendaftaran siswa di jadwal yang sama
+-- ============================================================
+CREATE UNIQUE INDEX uq_schedule_student ON schedule_students(schedule_id, student_id);

@@ -252,3 +252,52 @@ exports.updateJadwal = async (req, res) => {
     return responseHelper.error(res, 'Gagal mengubah jadwal kelas.', 500);
   }
 };
+
+exports.getJadwalSiswa = async (req, res) => {
+  const { nis } = req.query;
+
+  if (!nis || !nis.trim()) {
+    return responseHelper.error(res, 'Parameter NIS tidak boleh kosong.', 400);
+  }
+
+  try {
+    // Pastikan siswa dengan NIS tersebut ada
+    const [siswa] = await pool.query(
+      'SELECT id, nama FROM students WHERE nis = ?',
+      [nis.trim()]
+    );
+    if (siswa.length === 0) {
+      return responseHelper.error(res, 'Siswa dengan NIS tersebut tidak ditemukan.', 404);
+    }
+
+    const [rows] = await pool.query(
+      `SELECT
+         sc.id,
+         sc.hari,
+         sc.jam_mulai,
+         sc.jam_selesai,
+         sc.ruangan,
+         sub.nama_pelajaran,
+         t.nama AS nama_guru
+       FROM schedule_students ss
+       JOIN schedules  sc  ON sc.id  = ss.schedule_id
+       JOIN subjects   sub ON sub.id = sc.subject_id
+       JOIN teachers   t   ON t.id   = sc.teacher_id
+       JOIN students   st  ON st.id  = ss.student_id
+       WHERE st.nis = ?
+       ORDER BY
+         FIELD(sc.hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'),
+         sc.jam_mulai ASC`,
+      [nis.trim()]
+    );
+
+    return responseHelper.success(
+      res,
+      rows,
+      `Jadwal untuk siswa ${siswa[0].nama} berhasil diambil`
+    );
+  } catch (err) {
+    console.error('[JADWAL CONTROLLER] getJadwalSiswa:', err.message);
+    return responseHelper.error(res, 'Gagal mengambil jadwal siswa.', 500);
+  }
+};
