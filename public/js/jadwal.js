@@ -1,5 +1,20 @@
 'use strict';
 
+window.hapusJadwal = async function (id) {
+  if (!confirm('Yakin ingin menghapus jadwal ini?')) return;
+  try {
+    const res = await fetch('/api/jadwal/' + id, { method: 'DELETE' });
+    const json = await res.json();
+    if (json.success) {
+      window.loadJadwal();
+    } else {
+      alert(json.message || 'Gagal menghapus jadwal.');
+    }
+  } catch (e) {
+    alert('Tidak dapat terhubung ke server.');
+  }
+};
+
 window.loadJadwal = async function () {
   const tbody = document.getElementById('jadwalTableBody');
   if (!tbody) return;
