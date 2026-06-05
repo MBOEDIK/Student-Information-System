@@ -8,5 +8,7 @@ const jadwalCtrl = require('../controllers/jadwalController');
 router.get('/subjects', jadwalCtrl.getAllSubjects);
 router.get('/',          jadwalCtrl.getAllJadwal);
 router.post('/',         jadwalCtrl.createJadwal);
+router.get('/:id',       jadwalCtrl.getJadwalById);
+router.put('/:id',       jadwalCtrl.updateJadwal);
 
 module.exports = router;
