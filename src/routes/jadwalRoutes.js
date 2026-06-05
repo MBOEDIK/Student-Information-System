@@ -11,4 +11,7 @@ router.post('/',         jadwalCtrl.createJadwal);
 router.get('/:id',       jadwalCtrl.getJadwalById);
 router.put('/:id',       jadwalCtrl.updateJadwal);
 
+// US 2.3 - Hapus jadwal
+router.delete('/:id', jadwalCtrl.deleteJadwal);
+
 module.exports = router;

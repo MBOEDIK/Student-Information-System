@@ -1,5 +1,20 @@
 'use strict';
 
+window.hapusJadwal = async function (id) {
+  if (!confirm('Yakin ingin menghapus jadwal ini?')) return;
+  try {
+    const res = await fetch('/api/jadwal/' + id, { method: 'DELETE' });
+    const json = await res.json();
+    if (json.success) {
+      window.loadJadwal();
+    } else {
+      alert(json.message || 'Gagal menghapus jadwal.');
+    }
+  } catch (e) {
+    alert('Tidak dapat terhubung ke server.');
+  }
+};
+
 window.loadJadwal = async function () {
   const tbody = document.getElementById('jadwalTableBody');
   if (!tbody) return;
@@ -19,7 +34,12 @@ window.loadJadwal = async function () {
         <td>${s.hari}</td>
         <td>${s.jam_mulai.substring(0, 5)} - ${s.jam_selesai.substring(0, 5)}</td>
         <td>${s.ruangan}</td>
-        <td><button class="btn btn--sm btn--primary" onclick="editJadwal(${s.id})">Edit</button></td>
+        <td>
+          <button class="btn btn--sm btn--primary" onclick="editJadwal(${s.id})">Edit</button>
+          <button class="btn btn--danger btn--sm" onclick="hapusJadwal(${s.id})">
+            Hapus
+          </button>
+        </td>
       </tr>
     `).join('');
   } catch (e) {
