@@ -57,3 +57,31 @@ CREATE TABLE IF NOT EXISTS teachers (
 
 CREATE INDEX idx_teachers_nip     ON teachers(nip);
 CREATE INDEX idx_teachers_status  ON teachers(status);
+
+-- ============================================================
+-- TABEL: subjects (mata pelajaran)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS subjects (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  nama_pelajaran VARCHAR(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- TABEL: schedules (jadwal kelas)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS schedules (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  subject_id    INT NOT NULL,
+  teacher_id    INT NOT NULL,
+  hari          ENUM('Senin','Selasa','Rabu','Kamis','Jumat','Sabtu') NOT NULL,
+  jam_mulai     TIME NOT NULL,
+  jam_selesai   TIME NOT NULL,
+  ruangan       VARCHAR(50) NOT NULL,
+  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (subject_id) REFERENCES subjects(id),
+  FOREIGN KEY (teacher_id) REFERENCES teachers(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX idx_schedules_hari       ON schedules(hari);
+CREATE INDEX idx_schedules_teacher    ON schedules(teacher_id);
+CREATE INDEX idx_schedules_ruangan    ON schedules(ruangan);
