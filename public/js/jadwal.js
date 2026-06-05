@@ -3,12 +3,12 @@
 window.loadJadwal = async function () {
   const tbody = document.getElementById('jadwalTableBody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/jadwal');
     const json = await res.json();
     if (!json.success || !json.data.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Belum ada jadwal.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Belum ada jadwal.</td></tr>';
       return;
     }
     tbody.innerHTML = json.data.map((s, i) => `
@@ -19,10 +19,17 @@ window.loadJadwal = async function () {
         <td>${s.hari}</td>
         <td>${s.jam_mulai.substring(0, 5)} - ${s.jam_selesai.substring(0, 5)}</td>
         <td>${s.ruangan}</td>
+<td>
+  <button
+    class="btn btn--danger btn--sm"
+    onclick="hapusJadwal(${s.id})">
+    Hapus
+  </button>
+</td>
       </tr>
     `).join('');
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
   }
 };
 

@@ -9,79 +9,154 @@ exports.getAllSubjects = async (req, res) => {
     const [rows] = await pool.query(
       'SELECT id, nama_pelajaran FROM subjects ORDER BY nama_pelajaran ASC'
     );
-    return responseHelper.success(res, rows, 'Daftar mata pelajaran berhasil diambil');
+
+    return responseHelper.success(
+      res,
+      rows,
+      'Daftar mata pelajaran berhasil diambil'
+    );
   } catch (err) {
     console.error('[JADWAL CONTROLLER] getAllSubjects:', err.message);
-    return responseHelper.error(res, 'Gagal mengambil data mata pelajaran', 500);
+    return responseHelper.error(
+      res,
+      'Gagal mengambil data mata pelajaran',
+      500
+    );
   }
 };
 
 exports.getAllJadwal = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT s.id, s.hari, s.jam_mulai, s.jam_selesai, s.ruangan, s.created_at,
-              sub.nama_pelajaran, t.nama AS nama_guru
+      `SELECT s.id,
+              s.hari,
+              s.jam_mulai,
+              s.jam_selesai,
+              s.ruangan,
+              s.created_at,
+              sub.nama_pelajaran,
+              t.nama AS nama_guru
        FROM schedules s
        JOIN subjects sub ON s.subject_id = sub.id
        JOIN teachers t ON s.teacher_id = t.id
-       ORDER BY s.hari ASC, s.jam_mulai ASC`
+       ORDER BY FIELD(
+         s.hari,
+         'Senin',
+         'Selasa',
+         'Rabu',
+         'Kamis',
+         'Jumat',
+         'Sabtu'
+       ),
+       s.jam_mulai ASC`
     );
-    return responseHelper.success(res, rows, 'Daftar jadwal berhasil diambil');
+
+    return responseHelper.success(
+      res,
+      rows,
+      'Daftar jadwal berhasil diambil'
+    );
   } catch (err) {
     console.error('[JADWAL CONTROLLER] getAllJadwal:', err.message);
-    return responseHelper.error(res, 'Gagal mengambil data jadwal', 500);
+    return responseHelper.error(
+      res,
+      'Gagal mengambil data jadwal',
+      500
+    );
   }
 };
 
 exports.createJadwal = async (req, res) => {
-  const { subject_id, teacher_id, hari, jam_mulai, jam_selesai, ruangan } = req.body;
+  const {
+    subject_id,
+    teacher_id,
+    hari,
+    jam_mulai,
+    jam_selesai,
+    ruangan
+  } = req.body;
 
   const errors = [];
+
   if (!subject_id) errors.push('Mata pelajaran harus dipilih.');
   if (!teacher_id) errors.push('Guru pengampu harus dipilih.');
   if (!hari) errors.push('Hari harus dipilih.');
   if (!jam_mulai) errors.push('Jam mulai harus diisi.');
   if (!jam_selesai) errors.push('Jam selesai harus diisi.');
-  if (!ruangan || !ruangan.trim()) errors.push('Ruangan tidak boleh kosong.');
+  if (!ruangan || !ruangan.trim()) {
+    errors.push('Ruangan tidak boleh kosong.');
+  }
 
   if (jam_mulai && jam_selesai && jam_mulai >= jam_selesai) {
     errors.push('Jam selesai harus lebih besar dari jam mulai.');
   }
 
   if (errors.length > 0) {
-    return responseHelper.error(res, 'Validasi gagal.', 400, errors);
+    return responseHelper.error(
+      res,
+      'Validasi gagal.',
+      400,
+      errors
+    );
   }
 
   try {
     const [existingTeacher] = await pool.query(
-      `SELECT id FROM teachers WHERE id = ? AND status = 'aktif'`,
+      `SELECT id
+       FROM teachers
+       WHERE id = ?
+       AND status = 'aktif'`,
       [teacher_id]
     );
+
     if (existingTeacher.length === 0) {
-      return responseHelper.error(res, 'Guru tidak ditemukan atau tidak aktif.', 400, [
-        'Guru tidak ditemukan atau tidak aktif.'
-      ]);
+      return responseHelper.error(
+        res,
+        'Guru tidak ditemukan atau tidak aktif.',
+        400,
+        ['Guru tidak ditemukan atau tidak aktif.']
+      );
     }
 
     const [existingSubject] = await pool.query(
       'SELECT id FROM subjects WHERE id = ?',
       [subject_id]
     );
+
     if (existingSubject.length === 0) {
-      return responseHelper.error(res, 'Mata pelajaran tidak ditemukan.', 400, [
-        'Mata pelajaran tidak ditemukan.'
-      ]);
+      return responseHelper.error(
+        res,
+        'Mata pelajaran tidak ditemukan.',
+        400,
+        ['Mata pelajaran tidak ditemukan.']
+      );
     }
 
-    const validDays = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const validDays = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu'
+    ];
+
     if (!validDays.includes(hari)) {
-      return responseHelper.error(res, 'Hari tidak valid.', 400, ['Hari tidak valid.']);
+      return responseHelper.error(
+        res,
+        'Hari tidak valid.',
+        400,
+        ['Hari tidak valid.']
+      );
     }
 
-    // Cek bentrok guru (guru yang sama, hari sama, jam overlap)
     const [guruConflict] = await pool.query(
-      `SELECT id FROM schedules
-       WHERE teacher_id = ? AND hari = ? AND jam_mulai < ? AND jam_selesai > ?`,
+      `SELECT id
+       FROM schedules
+       WHERE teacher_id = ?
+       AND hari = ?
+       AND jam_mulai < ?
+       AND jam_selesai > ?`,
       [teacher_id, hari, jam_selesai, jam_mulai]
     );
 
@@ -94,10 +169,13 @@ exports.createJadwal = async (req, res) => {
       );
     }
 
-    // Cek bentrok ruangan (ruangan sama, hari sama, jam overlap)
     const [roomConflict] = await pool.query(
-      `SELECT id FROM schedules
-       WHERE ruangan = ? AND hari = ? AND jam_mulai < ? AND jam_selesai > ?`,
+      `SELECT id
+       FROM schedules
+       WHERE ruangan = ?
+       AND hari = ?
+       AND jam_mulai < ?
+       AND jam_selesai > ?`,
       [ruangan.trim(), hari, jam_selesai, jam_mulai]
     );
 
@@ -111,9 +189,17 @@ exports.createJadwal = async (req, res) => {
     }
 
     const [result] = await pool.query(
-      `INSERT INTO schedules (subject_id, teacher_id, hari, jam_mulai, jam_selesai, ruangan)
+      `INSERT INTO schedules
+       (subject_id, teacher_id, hari, jam_mulai, jam_selesai, ruangan)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [subject_id, teacher_id, hari, jam_mulai, jam_selesai, ruangan.trim()]
+      [
+        subject_id,
+        teacher_id,
+        hari,
+        jam_mulai,
+        jam_selesai,
+        ruangan.trim()
+      ]
     );
 
     return responseHelper.success(
@@ -132,6 +218,42 @@ exports.createJadwal = async (req, res) => {
     );
   } catch (err) {
     console.error('[JADWAL CONTROLLER] createJadwal:', err.message);
-    return responseHelper.error(res, 'Gagal membuat jadwal kelas.', 500);
+    return responseHelper.error(
+      res,
+      'Gagal membuat jadwal kelas.',
+      500
+    );
+  }
+};
+
+exports.deleteJadwal = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await pool.query(
+      'DELETE FROM schedules WHERE id = ?',
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return responseHelper.error(
+        res,
+        'Jadwal tidak ditemukan.',
+        404
+      );
+    }
+
+    return responseHelper.success(
+      res,
+      null,
+      'Jadwal berhasil dihapus.'
+    );
+  } catch (err) {
+    console.error('[JADWAL CONTROLLER] deleteJadwal:', err.message);
+    return responseHelper.error(
+      res,
+      'Gagal menghapus jadwal.',
+      500
+    );
   }
 };
