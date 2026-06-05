@@ -1,6 +1,6 @@
 <div class="page active">
   <div class="page-header">
-    <h1>Buat Jadwal Kelas Baru</h1>
+    <h1>Penjadwalan Kelas</h1>
   </div>
 
   <div class="alert alert--success" id="alertSuccess" hidden>
@@ -15,8 +15,37 @@
     <button class="alert__close" onclick="this.parentElement.hidden=true">&times;</button>
   </div>
 
+  <div class="card" style="margin-bottom: 24px;">
+    <div class="card__body">
+      <div class="page-header">
+        <h2>Daftar Jadwal Kelas</h2>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Mata Pelajaran</th>
+              <th>Guru</th>
+              <th>Hari</th>
+              <th>Jam</th>
+              <th>Ruangan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="jadwalTableBody">
+            <tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card__body">
+      <div class="page-header">
+        <h2>Buat Jadwal Baru</h2>
+      </div>
       <form id="formJadwal" novalidate>
         <div class="form-group" id="group-subject">
           <label class="form-label" for="subject_id">Mata Pelajaran <span class="required">*</span></label>
@@ -80,34 +109,53 @@
       </form>
     </div>
   </div>
+</div>
 
-  <div style="margin-top: 32px;">
-    <div class="page-header">
-      <h2>Daftar Jadwal Kelas</h2>
+<!-- MODAL EDIT JADWAL -->
+<div class="modal" id="modal-jadwal" hidden>
+  <div class="modal__box">
+    <h3>Edit Jadwal Kelas</h3>
+    <input type="hidden" id="edit-jadwal-id" />
+    <div class="form-group">
+      <label class="form-label">Mata Pelajaran <span class="required">*</span></label>
+      <select class="form-input" id="edit-jadwal-subject_id"></select>
+      <small class="field-error" id="err-edit-subject"></small>
     </div>
-    <div class="table-wrapper">
-  <table>
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Mata Pelajaran</th>
-        <th>Guru</th>
-        <th>Hari</th>
-        <th>Jam</th>
-        <th>Ruangan</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-
-    <tbody id="jadwalTableBody">
-      <tr>
-        <td colspan="7" style="text-align:center;color:var(--text-muted);">
-          Memuat data...
-        </td>
-      </tr>
-    </tbody>
-
-  </table>
-</div>
-</div>
+    <div class="form-group">
+      <label class="form-label">Guru Pengampu <span class="required">*</span></label>
+      <select class="form-input" id="edit-jadwal-teacher_id"></select>
+      <small class="field-error" id="err-edit-teacher"></small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Hari <span class="required">*</span></label>
+      <select class="form-input" id="edit-jadwal-hari">
+        <option value="">— Pilih Hari —</option>
+        <option value="Senin">Senin</option>
+        <option value="Selasa">Selasa</option>
+        <option value="Rabu">Rabu</option>
+        <option value="Kamis">Kamis</option>
+        <option value="Jumat">Jumat</option>
+        <option value="Sabtu">Sabtu</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Jam Mulai <span class="required">*</span></label>
+      <input type="time" class="form-input" id="edit-jadwal-jam_mulai" />
+      <small class="field-error" id="err-edit-jam_mulai"></small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Jam Selesai <span class="required">*</span></label>
+      <input type="time" class="form-input" id="edit-jadwal-jam_selesai" />
+      <small class="field-error" id="err-edit-jam_selesai"></small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ruangan <span class="required">*</span></label>
+      <input type="text" class="form-input" id="edit-jadwal-ruangan" placeholder="Contoh: R-101 / Lab Komputer 1" maxlength="50" />
+      <small class="field-error" id="err-edit-ruangan"></small>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn--primary" id="btnSimpanEditJadwal">Simpan</button>
+      <button class="btn btn--secondary" onclick="window.closeModal('modal-jadwal')">Batal</button>
+    </div>
+  </div>
 </div>

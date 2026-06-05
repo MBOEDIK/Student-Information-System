@@ -6,8 +6,10 @@ const router = express.Router();
 const jadwalCtrl = require('../controllers/jadwalController');
 
 router.get('/subjects', jadwalCtrl.getAllSubjects);
-router.get('/', jadwalCtrl.getAllJadwal);
-router.post('/', jadwalCtrl.createJadwal);
+router.get('/',          jadwalCtrl.getAllJadwal);
+router.post('/',         jadwalCtrl.createJadwal);
+router.get('/:id',       jadwalCtrl.getJadwalById);
+router.put('/:id',       jadwalCtrl.updateJadwal);
 
 // US 2.3 - Hapus jadwal
 router.delete('/:id', jadwalCtrl.deleteJadwal);
