@@ -64,3 +64,22 @@ INSERT INTO schedules (subject_id, teacher_id, hari, jam_mulai, jam_selesai, rua
 (2,  2, 'Selasa','07:00:00', '08:30:00', 'R-102'),
 (9,  5, 'Selasa','09:00:00', '11:00:00', 'Lab Komputer 2'),
 (3,  4, 'Rabu',  '07:00:00', '08:30:00', 'R-101');
+
+-- ── Schedule Students (Relasi Siswa & Jadwal) ───────────────
+TRUNCATE TABLE schedule_students;
+
+INSERT INTO schedule_students (schedule_id, student_id) VALUES
+-- Jadwal 1: Senin 07:00 R-101
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 6),
+
+-- Jadwal 2: Senin 09:00 Lab Komputer 1
+(2, 3), (2, 5), (2, 7), (2, 8), (2, 9),
+
+-- Jadwal 3: Selasa 07:00 R-102
+(3, 1), (3, 2), (3, 4), (3, 6), (3, 10),
+
+-- Jadwal 4: Selasa 09:00 Lab Komputer 2
+(4, 5), (4, 7), (4, 8), (4, 9), (4, 10),
+
+-- Jadwal 5: Rabu 07:00 R-101
+(5, 1), (5, 3), (5, 4), (5, 6), (5, 9);

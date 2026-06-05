@@ -6,6 +6,7 @@ const router = express.Router();
 const jadwalCtrl = require('../controllers/jadwalController');
 
 router.get('/subjects', jadwalCtrl.getAllSubjects);
+router.get('/siswa',    jadwalCtrl.getJadwalSiswa);
 router.get('/',          jadwalCtrl.getAllJadwal);
 router.post('/',         jadwalCtrl.createJadwal);
 router.get('/:id',       jadwalCtrl.getJadwalById);

@@ -47,6 +47,37 @@ window.loadJadwal = async function () {
   }
 };
 
+/**
+ * Memuat jadwal pribadi siswa berdasarkan NIS dan merendernya
+ * ke tabel #jadwalSiswaTableBody (read-only, tanpa kolom Aksi).
+ * @param {string} nis - NIS siswa (diambil dari window.currentUser.username)
+ */
+window.loadJadwalSiswa = async function (nis) {
+  const tbody = document.getElementById('jadwalSiswaTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+  try {
+    const res = await fetch('/api/jadwal/siswa?nis=' + encodeURIComponent(nis));
+    const json = await res.json();
+    if (!json.success || !json.data.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Belum ada jadwal untuk akun ini.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = json.data.map((s, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${s.nama_pelajaran}</strong></td>
+        <td>${s.nama_guru}</td>
+        <td>${s.hari}</td>
+        <td>${s.jam_mulai.substring(0, 5)} - ${s.jam_selesai.substring(0, 5)}</td>
+        <td>${s.ruangan}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
+  }
+};
+
 window.editJadwal = async function (id) {
   document.querySelectorAll('#modal-jadwal .field-error').forEach(function (e) { e.textContent = ''; });
 
@@ -174,16 +205,6 @@ window.page_jadwal_init = function () {
     document.querySelectorAll('.form-input').forEach(function (e) { e.classList.remove('input--error'); });
   }
 
-  function clearJadwalFieldError(groupId, errId) {
-    const g = document.getElementById(groupId);
-    const e = document.getElementById(errId);
-    if (e) e.textContent = '';
-    if (g) {
-      const input = g.querySelector('.form-input');
-      if (input) input.classList.remove('input--error');
-    }
-  }
-
   function showJadwalFieldError(groupId, errId, msg) {
     const g = document.getElementById(groupId);
     const e = document.getElementById(errId);
@@ -234,6 +255,28 @@ window.page_jadwal_init = function () {
       showJadwalError('Gagal memuat data guru.');
     }
   }
+
+  // ── Percabangan berdasarkan role ────────────────────────────────────────
+  if (window.currentUser?.role === 'siswa') {
+    // Tampilkan view siswa, sembunyikan view admin
+    const siswaView = document.getElementById('jadwal-siswa-view');
+    const adminView = document.getElementById('jadwal-admin-view');
+    if (siswaView) siswaView.hidden = false;
+    if (adminView) adminView.hidden = true;
+
+    // Muat jadwal pribadi siswa menggunakan NIS (username)
+    const nis = window.currentUser.username;
+    window.loadJadwalSiswa(nis);
+
+    // Tidak perlu inisialisasi form/dropdown/modal untuk siswa
+    return;
+  }
+
+  // ── View Admin (default untuk role selain siswa) ─────────────────────
+  const adminView = document.getElementById('jadwal-admin-view');
+  const siswaView = document.getElementById('jadwal-siswa-view');
+  if (adminView) adminView.hidden = false;
+  if (siswaView) siswaView.hidden = true;
 
   // Isi dropdown form utama
   loadSubjects('subject_id', '— Pilih Mata Pelajaran —');
