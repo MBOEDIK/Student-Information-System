@@ -4,7 +4,9 @@ exports.searchSiswa = async (req, res) => {
   try {
     const keyword = req.query.keyword;
     if (!keyword || !keyword.trim()) {
-      return res.status(400).json({ success: false, message: 'Kata kunci pencarian tidak boleh kosong.' });
+      return res
+        .status(400)
+        .json({ success: false, message: 'Kata kunci pencarian tidak boleh kosong.' });
     }
     const [rows] = await pool.query(
       'SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students WHERE nama LIKE ? OR nis LIKE ? ORDER BY created_at DESC',
@@ -32,7 +34,10 @@ exports.getAllSiswa = async (req, res) => {
 exports.getStats = async (req, res) => {
   try {
     const [[{ total }]] = await pool.query('SELECT COUNT(*) AS total FROM students');
-    const [[{ aktif }]] = await pool.query('SELECT COUNT(*) AS aktif FROM students WHERE status = ?', ['aktif']);
+    const [[{ aktif }]] = await pool.query(
+      'SELECT COUNT(*) AS aktif FROM students WHERE status = ?',
+      ['aktif']
+    );
     return res.json({ success: true, data: { total, aktif } });
   } catch (err) {
     console.error('[SISWA CONTROLLER] getStats:', err);
@@ -70,10 +75,7 @@ exports.createSiswa = async (req, res) => {
   }
 
   try {
-    const [existing] = await pool.query(
-      'SELECT id FROM students WHERE nis = ?',
-      [nis.trim()]
-    );
+    const [existing] = await pool.query('SELECT id FROM students WHERE nis = ?', [nis.trim()]);
 
     if (existing.length > 0) {
       return res.status(409).json({
@@ -112,8 +114,12 @@ exports.createSiswa = async (req, res) => {
 
 exports.getSiswaById = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students WHERE id = ?', [req.params.id]);
-    if (rows.length === 0) return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });
+    const [rows] = await pool.query(
+      'SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students WHERE id = ?',
+      [req.params.id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });
     return res.json({ success: true, data: rows[0] });
   } catch (err) {
     console.error('[SISWA CONTROLLER] getSiswaById:', err);
@@ -129,7 +135,8 @@ exports.updateSiswa = async (req, res) => {
       'UPDATE students SET nama=?, nis=?, jenis_kelamin=?, alamat=?, status=? WHERE id=?',
       [nama, nis, jenis_kelamin, alamat, status, id]
     );
-    if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });
+    if (result.affectedRows === 0)
+      return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });
     return res.json({ success: true, message: 'Data siswa berhasil diupdate.' });
   } catch (err) {
     console.error('[SISWA CONTROLLER] updateSiswa:', err);

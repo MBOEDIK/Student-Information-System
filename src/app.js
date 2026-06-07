@@ -4,11 +4,11 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const path    = require('path');
+const path = require('path');
 
 const routes = require('./routes/index');
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ── Static files (HTML, CSS, JS frontend) ───────────────────
@@ -19,16 +19,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // ── Session Configuration ─────────────────────────────────────
-app.use(session({
-  secret:            process.env.SESSION_SECRET || 'sis_secret_ganti_ini',
-  resave:            false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure:   process.env.NODE_ENV === 'production',
-    maxAge:   1000 * 60 * 60 * 8   // Masa aktif sesi 8 jam
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'sis_secret_ganti_ini',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 60 * 8 // Masa aktif sesi 8 jam
+    }
+  })
+);
 
 // ── API Routes Registration ───────────────────────────────────
 app.use('/api', routes);

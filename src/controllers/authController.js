@@ -2,7 +2,7 @@
 // Menangani logika login, logout, dan verifikasi sesi di sisi server
 
 const crypto = require('crypto');
-const pool   = require('../config/db');
+const pool = require('../config/db');
 
 // ── Helper: Enkripsi Password SHA-256 ─────────────────────────
 function hashPassword(plainText) {
@@ -13,10 +13,10 @@ function hashPassword(plainText) {
 // Memeriksa apakah pengguna masih dalam kondisi login aktif
 exports.checkSession = (req, res) => {
   if (req.session && req.session.user) {
-    return res.json({ 
-      success: true, 
-      loggedIn: true, 
-      user: req.session.user 
+    return res.json({
+      success: true,
+      loggedIn: true,
+      user: req.session.user
     });
   }
   res.status(401).json({ success: false, loggedIn: false, message: 'Belum login.' });
@@ -56,11 +56,11 @@ exports.login = async (req, res) => {
 
     // Siapkan cetakan data profil untuk disimpan di session
     const sessionData = {
-      id:       user.id,
+      id: user.id,
       username: user.username,
-      nama:     user.nama_lengkap,
-      role:     user.role,
-      loginAt:  new Date().toISOString()
+      nama: user.nama_lengkap,
+      role: user.role,
+      loginAt: new Date().toISOString()
     };
 
     // Regenerate session ID (Mencegah celah keamanan Session Fixation)
@@ -81,18 +81,17 @@ exports.login = async (req, res) => {
         }
 
         return res.json({
-          success:  true,
-          message:  'Login berhasil.',
+          success: true,
+          message: 'Login berhasil.',
           user: {
-            id:       user.id,
+            id: user.id,
             username: user.username,
-            nama:     user.nama_lengkap,
-            role:     user.role
+            nama: user.nama_lengkap,
+            role: user.role
           }
         });
       });
     });
-
   } catch (err) {
     console.error('[LOGIN ERROR]', err);
     res.status(500).json({ success: false, message: 'Kesalahan pada server.' });
@@ -107,7 +106,7 @@ exports.logout = (req, res) => {
   req.session.destroy((err) => {
     if (err) console.error('[LOGOUT ERROR]', err);
     console.log(`[LOGOUT] "${username}" logout.`);
-    
+
     // Paksa browser membuang total stempel session cookie kelompok (Lolos AC 2)
     res.clearCookie('connect.sid', { path: '/' });
     res.json({ success: true, message: 'Logout berhasil.' });

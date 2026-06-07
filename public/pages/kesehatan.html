@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -34,3 +35,125 @@
   <script src="../js/kesehatan.js"></script>
 </body>
 </html>
+=======
+<div class="page active">
+  <div class="page-header">
+    <h1>Catatan Kesehatan</h1>
+  </div>
+
+  <div class="alert alert--success" id="alertSuccess" hidden>
+    <i class="bi bi-check-circle-fill"></i>
+    <span id="alertSuccessMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+
+  <div class="alert alert--error" id="alertError" hidden>
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span id="alertErrorMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+
+  <div class="card" style="margin-bottom: 24px">
+    <div class="card__body">
+      <h3 style="margin-bottom: 16px">Daftar Data Kesehatan</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>NIS</th>
+              <th>Nama</th>
+              <th>Gol. Darah</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="kesehatanTableBody">
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-muted)">
+                Memuat data...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <h3 style="margin-bottom: 16px" id="formTitle">Edit Data Kesehatan</h3>
+      <form id="formKesehatan" novalidate>
+        <input type="hidden" id="editStudentId" />
+
+        <div class="form-group" id="group-student">
+          <label class="form-label" for="displaySiswa">Siswa</label>
+          <input
+            type="text"
+            class="form-input"
+            id="displaySiswa"
+            readonly
+            style="background: var(--gray-100)"
+            placeholder="Pilih siswa dari tabel di atas"
+          />
+        </div>
+
+        <div class="form-group" id="group-golongan_darah">
+          <label class="form-label" for="golongan_darah">Golongan Darah</label>
+          <select class="form-input" id="golongan_darah" required>
+            <option value="">— Pilih —</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="AB">AB</option>
+            <option value="O">O</option>
+            <option value="Tidak Diketahui">Tidak Diketahui</option>
+          </select>
+          <small class="field-error" id="err-golongan_darah"></small>
+        </div>
+
+        <div class="form-group" id="group-penyakit_bawaan">
+          <label class="form-label" for="penyakit_bawaan">Penyakit Bawaan</label>
+          <textarea
+            class="form-input"
+            id="penyakit_bawaan"
+            placeholder="Masukkan penyakit bawaan (jika ada)"
+            rows="3"
+          ></textarea>
+          <small class="field-error" id="err-penyakit_bawaan"></small>
+        </div>
+
+        <div class="form-group" id="group-riwayat_vaksin">
+          <label class="form-label" for="riwayat_vaksin">Riwayat Vaksin</label>
+          <textarea
+            class="form-input"
+            id="riwayat_vaksin"
+            placeholder="Masukkan riwayat vaksin"
+            rows="3"
+          ></textarea>
+          <small class="field-error" id="err-riwayat_vaksin"></small>
+        </div>
+
+        <div class="form-group" id="group-alergi">
+          <label class="form-label" for="alergi">Alergi</label>
+          <textarea
+            class="form-input"
+            id="alergi"
+            placeholder="Masukkan alergi (jika ada)"
+            rows="3"
+          ></textarea>
+          <small class="field-error" id="err-alergi"></small>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn--primary" id="btnSimpan">
+            <span class="btn__text" id="btnSimpanText">Perbarui</span>
+            <span class="btn__loader" id="btnSimpanLoader" hidden>
+              <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
+            </span>
+          </button>
+          <button type="reset" class="btn btn--secondary" id="btnReset">Reset</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+>>>>>>> 1376324722d6ec5babc15c7b853629f79ddd04b5

@@ -18,15 +18,19 @@ window.hapusJadwal = async function (id) {
 window.loadJadwal = async function () {
   const tbody = document.getElementById('jadwalTableBody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+  tbody.innerHTML =
+    '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/jadwal');
     const json = await res.json();
     if (!json.success || !json.data.length) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Belum ada jadwal.</td></tr>';
+      tbody.innerHTML =
+        '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Belum ada jadwal.</td></tr>';
       return;
     }
-    tbody.innerHTML = json.data.map((s, i) => `
+    tbody.innerHTML = json.data
+      .map(
+        (s, i) => `
       <tr>
         <td>${i + 1}</td>
         <td><strong>${s.nama_pelajaran}</strong></td>
@@ -41,9 +45,12 @@ window.loadJadwal = async function () {
           </button>
         </td>
       </tr>
-    `).join('');
+    `
+      )
+      .join('');
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
+    tbody.innerHTML =
+      '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
   }
 };
 
@@ -55,15 +62,19 @@ window.loadJadwal = async function () {
 window.loadJadwalSiswa = async function (nis) {
   const tbody = document.getElementById('jadwalSiswaTableBody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+  tbody.innerHTML =
+    '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/jadwal/siswa?nis=' + encodeURIComponent(nis));
     const json = await res.json();
     if (!json.success || !json.data.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Belum ada jadwal untuk akun ini.</td></tr>';
+      tbody.innerHTML =
+        '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Belum ada jadwal untuk akun ini.</td></tr>';
       return;
     }
-    tbody.innerHTML = json.data.map((s, i) => `
+    tbody.innerHTML = json.data
+      .map(
+        (s, i) => `
       <tr>
         <td>${i + 1}</td>
         <td><strong>${s.nama_pelajaran}</strong></td>
@@ -72,14 +83,19 @@ window.loadJadwalSiswa = async function (nis) {
         <td>${s.jam_mulai.substring(0, 5)} - ${s.jam_selesai.substring(0, 5)}</td>
         <td>${s.ruangan}</td>
       </tr>
-    `).join('');
+    `
+      )
+      .join('');
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
+    tbody.innerHTML =
+      '<tr><td colspan="6" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
   }
 };
 
 window.editJadwal = async function (id) {
-  document.querySelectorAll('#modal-jadwal .field-error').forEach(function (e) { e.textContent = ''; });
+  document.querySelectorAll('#modal-jadwal .field-error').forEach(function (e) {
+    e.textContent = '';
+  });
 
   try {
     const res = await fetch('/api/jadwal/' + id);
@@ -119,7 +135,9 @@ window.simpanEditJadwal = async function () {
     if (el) el.textContent = msg;
     hasError = true;
   }
-  document.querySelectorAll('#modal-jadwal .field-error').forEach(function (e) { e.textContent = ''; });
+  document.querySelectorAll('#modal-jadwal .field-error').forEach(function (e) {
+    e.textContent = '';
+  });
 
   if (!subject_id) showEditError('err-edit-subject', 'Mata pelajaran harus dipilih.');
   if (!teacher_id) showEditError('err-edit-teacher', 'Guru pengampu harus dipilih.');
@@ -201,8 +219,12 @@ window.page_jadwal_init = function () {
   function resetJadwalForm() {
     const form = document.getElementById('formJadwal');
     if (form) form.reset();
-    document.querySelectorAll('.field-error').forEach(function (e) { e.textContent = ''; });
-    document.querySelectorAll('.form-input').forEach(function (e) { e.classList.remove('input--error'); });
+    document.querySelectorAll('.field-error').forEach(function (e) {
+      e.textContent = '';
+    });
+    document.querySelectorAll('.form-input').forEach(function (e) {
+      e.classList.remove('input--error');
+    });
   }
 
   function showJadwalFieldError(groupId, errId, msg) {
@@ -287,7 +309,9 @@ window.page_jadwal_init = function () {
   loadTeachers('edit-jadwal-teacher_id', '— Pilih —');
 
   // Tombol simpan edit
-  document.getElementById('btnSimpanEditJadwal')?.addEventListener('click', window.simpanEditJadwal);
+  document
+    .getElementById('btnSimpanEditJadwal')
+    ?.addEventListener('click', window.simpanEditJadwal);
 
   // Tombol reset form
   document.getElementById('btnReset')?.addEventListener('click', function (e) {
@@ -301,8 +325,12 @@ window.page_jadwal_init = function () {
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      document.querySelectorAll('.field-error').forEach(function (el) { el.textContent = ''; });
-      document.querySelectorAll('.form-input').forEach(function (el) { el.classList.remove('input--error'); });
+      document.querySelectorAll('.field-error').forEach(function (el) {
+        el.textContent = '';
+      });
+      document.querySelectorAll('.form-input').forEach(function (el) {
+        el.classList.remove('input--error');
+      });
       document.getElementById('alertSuccess').hidden = true;
       document.getElementById('alertError').hidden = true;
 
@@ -315,15 +343,37 @@ window.page_jadwal_init = function () {
 
       let hasError = false;
 
-      if (!subject_id) { showJadwalFieldError('group-subject', 'err-subject', 'Mata pelajaran harus dipilih.'); hasError = true; }
-      if (!teacher_id) { showJadwalFieldError('group-teacher', 'err-teacher', 'Guru pengampu harus dipilih.'); hasError = true; }
-      if (!hari) { showJadwalFieldError('group-hari', 'err-hari', 'Hari harus dipilih.'); hasError = true; }
-      if (!jam_mulai) { showJadwalFieldError('group-jam_mulai', 'err-jam_mulai', 'Jam mulai harus diisi.'); hasError = true; }
-      if (!jam_selesai) { showJadwalFieldError('group-jam_selesai', 'err-jam_selesai', 'Jam selesai harus diisi.'); hasError = true; }
-      if (!ruangan) { showJadwalFieldError('group-ruangan', 'err-ruangan', 'Ruangan tidak boleh kosong.'); hasError = true; }
+      if (!subject_id) {
+        showJadwalFieldError('group-subject', 'err-subject', 'Mata pelajaran harus dipilih.');
+        hasError = true;
+      }
+      if (!teacher_id) {
+        showJadwalFieldError('group-teacher', 'err-teacher', 'Guru pengampu harus dipilih.');
+        hasError = true;
+      }
+      if (!hari) {
+        showJadwalFieldError('group-hari', 'err-hari', 'Hari harus dipilih.');
+        hasError = true;
+      }
+      if (!jam_mulai) {
+        showJadwalFieldError('group-jam_mulai', 'err-jam_mulai', 'Jam mulai harus diisi.');
+        hasError = true;
+      }
+      if (!jam_selesai) {
+        showJadwalFieldError('group-jam_selesai', 'err-jam_selesai', 'Jam selesai harus diisi.');
+        hasError = true;
+      }
+      if (!ruangan) {
+        showJadwalFieldError('group-ruangan', 'err-ruangan', 'Ruangan tidak boleh kosong.');
+        hasError = true;
+      }
 
       if (jam_mulai && jam_selesai && jam_mulai >= jam_selesai) {
-        showJadwalFieldError('group-jam_selesai', 'err-jam_selesai', 'Jam selesai harus lebih besar dari jam mulai.');
+        showJadwalFieldError(
+          'group-jam_selesai',
+          'err-jam_selesai',
+          'Jam selesai harus lebih besar dari jam mulai.'
+        );
         hasError = true;
       }
 
@@ -335,7 +385,14 @@ window.page_jadwal_init = function () {
         const res = await fetch('/api/jadwal', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ subject_id: Number(subject_id), teacher_id: Number(teacher_id), hari, jam_mulai, jam_selesai, ruangan })
+          body: JSON.stringify({
+            subject_id: Number(subject_id),
+            teacher_id: Number(teacher_id),
+            hari,
+            jam_mulai,
+            jam_selesai,
+            ruangan
+          })
         });
 
         const data = await res.json();

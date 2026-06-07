@@ -83,3 +83,16 @@ INSERT INTO schedule_students (schedule_id, student_id) VALUES
 
 -- Jadwal 5: Rabu 07:00 R-101
 (5, 1), (5, 3), (5, 4), (5, 6), (5, 9);
+
+-- ── Health Records (Riwayat Kesehatan Siswa) ────────────────
+TRUNCATE TABLE health_records;
+
+INSERT INTO health_records (student_id, golongan_darah, penyakit_bawaan, riwayat_vaksin, alergi) VALUES
+(1, 'O', NULL,                                   'Lengkap',                      NULL),
+(2, 'A', 'Asma',                                 'Lengkap',                      'Debu, Bulu kucing'),
+(3, 'B', NULL,                                   'Lengkap',                      NULL),
+(4, 'AB','Hipertensi ringan',                    'Lengkap',                      'Makanan laut'),
+(6, 'O', NULL,                                   'Lengkap',                      'Penisilin'),
+(8, 'A', 'Diabetes tipe 1',                      'Belum lengkap',                NULL),
+(9, 'B', NULL,                                   'Lengkap',                      NULL),
+(10,'O', NULL,                                   'Lengkap',                      'Kacang-kacangan');

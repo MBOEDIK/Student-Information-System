@@ -10,18 +10,10 @@ exports.getAllSubjects = async (req, res) => {
       'SELECT id, nama_pelajaran FROM subjects ORDER BY nama_pelajaran ASC'
     );
 
-    return responseHelper.success(
-      res,
-      rows,
-      'Daftar mata pelajaran berhasil diambil'
-    );
+    return responseHelper.success(res, rows, 'Daftar mata pelajaran berhasil diambil');
   } catch (err) {
     console.error('[JADWAL CONTROLLER] getAllSubjects:', err.message);
-    return responseHelper.error(
-      res,
-      'Gagal mengambil data mata pelajaran',
-      500
-    );
+    return responseHelper.error(res, 'Gagal mengambil data mata pelajaran', 500);
   }
 };
 
@@ -72,30 +64,15 @@ exports.getAllJadwal = async (req, res) => {
        s.jam_mulai ASC`
     );
 
-    return responseHelper.success(
-      res,
-      rows,
-      'Daftar jadwal berhasil diambil'
-    );
+    return responseHelper.success(res, rows, 'Daftar jadwal berhasil diambil');
   } catch (err) {
     console.error('[JADWAL CONTROLLER] getAllJadwal:', err.message);
-    return responseHelper.error(
-      res,
-      'Gagal mengambil data jadwal',
-      500
-    );
+    return responseHelper.error(res, 'Gagal mengambil data jadwal', 500);
   }
 };
 
 exports.createJadwal = async (req, res) => {
-  const {
-    subject_id,
-    teacher_id,
-    hari,
-    jam_mulai,
-    jam_selesai,
-    ruangan
-  } = req.body;
+  const { subject_id, teacher_id, hari, jam_mulai, jam_selesai, ruangan } = req.body;
 
   const errors = [];
 
@@ -113,12 +90,7 @@ exports.createJadwal = async (req, res) => {
   }
 
   if (errors.length > 0) {
-    return responseHelper.error(
-      res,
-      'Validasi gagal.',
-      400,
-      errors
-    );
+    return responseHelper.error(res, 'Validasi gagal.', 400, errors);
   }
 
   try {
@@ -131,44 +103,25 @@ exports.createJadwal = async (req, res) => {
     );
 
     if (existingTeacher.length === 0) {
-      return responseHelper.error(
-        res,
-        'Guru tidak ditemukan atau tidak aktif.',
-        400,
-        ['Guru tidak ditemukan atau tidak aktif.']
-      );
+      return responseHelper.error(res, 'Guru tidak ditemukan atau tidak aktif.', 400, [
+        'Guru tidak ditemukan atau tidak aktif.'
+      ]);
     }
 
-    const [existingSubject] = await pool.query(
-      'SELECT id FROM subjects WHERE id = ?',
-      [subject_id]
-    );
+    const [existingSubject] = await pool.query('SELECT id FROM subjects WHERE id = ?', [
+      subject_id
+    ]);
 
     if (existingSubject.length === 0) {
-      return responseHelper.error(
-        res,
-        'Mata pelajaran tidak ditemukan.',
-        400,
-        ['Mata pelajaran tidak ditemukan.']
-      );
+      return responseHelper.error(res, 'Mata pelajaran tidak ditemukan.', 400, [
+        'Mata pelajaran tidak ditemukan.'
+      ]);
     }
 
-    const validDays = [
-      'Senin',
-      'Selasa',
-      'Rabu',
-      'Kamis',
-      'Jumat',
-      'Sabtu'
-    ];
+    const validDays = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
     if (!validDays.includes(hari)) {
-      return responseHelper.error(
-        res,
-        'Hari tidak valid.',
-        400,
-        ['Hari tidak valid.']
-      );
+      return responseHelper.error(res, 'Hari tidak valid.', 400, ['Hari tidak valid.']);
     }
 
     const [guruConflict] = await pool.query(
@@ -213,14 +166,7 @@ exports.createJadwal = async (req, res) => {
       `INSERT INTO schedules
        (subject_id, teacher_id, hari, jam_mulai, jam_selesai, ruangan)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [
-        subject_id,
-        teacher_id,
-        hari,
-        jam_mulai,
-        jam_selesai,
-        ruangan.trim()
-      ]
+      [subject_id, teacher_id, hari, jam_mulai, jam_selesai, ruangan.trim()]
     );
 
     return responseHelper.success(
@@ -239,11 +185,7 @@ exports.createJadwal = async (req, res) => {
     );
   } catch (err) {
     console.error('[JADWAL CONTROLLER] createJadwal:', err.message);
-    return responseHelper.error(
-      res,
-      'Gagal membuat jadwal kelas.',
-      500
-    );
+    return responseHelper.error(res, 'Gagal membuat jadwal kelas.', 500);
   }
 };
 
@@ -251,31 +193,16 @@ exports.deleteJadwal = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [result] = await pool.query(
-      'DELETE FROM schedules WHERE id = ?',
-      [id]
-    );
+    const [result] = await pool.query('DELETE FROM schedules WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
-      return responseHelper.error(
-        res,
-        'Jadwal tidak ditemukan.',
-        404
-      );
+      return responseHelper.error(res, 'Jadwal tidak ditemukan.', 404);
     }
 
-    return responseHelper.success(
-      res,
-      null,
-      'Jadwal berhasil dihapus.'
-    );
+    return responseHelper.success(res, null, 'Jadwal berhasil dihapus.');
   } catch (err) {
     console.error('[JADWAL CONTROLLER] deleteJadwal:', err.message);
-    return responseHelper.error(
-      res,
-      'Gagal menghapus jadwal.',
-      500
-    );
+    return responseHelper.error(res, 'Gagal menghapus jadwal.', 500);
   }
 };
 
@@ -306,7 +233,7 @@ exports.updateJadwal = async (req, res) => {
     }
 
     const [existingTeacher] = await pool.query(
-      `SELECT id FROM teachers WHERE id = ? AND status = 'aktif'`,
+      "SELECT id FROM teachers WHERE id = ? AND status = 'aktif'",
       [teacher_id]
     );
     if (existingTeacher.length === 0) {
@@ -315,10 +242,9 @@ exports.updateJadwal = async (req, res) => {
       ]);
     }
 
-    const [existingSubject] = await pool.query(
-      'SELECT id FROM subjects WHERE id = ?',
-      [subject_id]
-    );
+    const [existingSubject] = await pool.query('SELECT id FROM subjects WHERE id = ?', [
+      subject_id
+    ]);
     if (existingSubject.length === 0) {
       return responseHelper.error(res, 'Mata pelajaran tidak ditemukan.', 400, [
         'Mata pelajaran tidak ditemukan.'
@@ -384,10 +310,7 @@ exports.getJadwalSiswa = async (req, res) => {
 
   try {
     // Pastikan siswa dengan NIS tersebut ada
-    const [siswa] = await pool.query(
-      'SELECT id, nama FROM students WHERE nis = ?',
-      [nis.trim()]
-    );
+    const [siswa] = await pool.query('SELECT id, nama FROM students WHERE nis = ?', [nis.trim()]);
     if (siswa.length === 0) {
       return responseHelper.error(res, 'Siswa dengan NIS tersebut tidak ditemukan.', 404);
     }

@@ -14,8 +14,12 @@ exports.getAllGuru = async (req, res) => {
 
 exports.getGuruById = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT id, nip, nama, email, status, created_at FROM teachers WHERE id = ?', [req.params.id]);
-    if (rows.length === 0) return res.status(404).json({ success: false, message: 'Guru tidak ditemukan.' });
+    const [rows] = await pool.query(
+      'SELECT id, nip, nama, email, status, created_at FROM teachers WHERE id = ?',
+      [req.params.id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ success: false, message: 'Guru tidak ditemukan.' });
     return res.json({ success: true, data: rows[0] });
   } catch (err) {
     console.error('[GURU CONTROLLER] getGuruById:', err);
@@ -26,7 +30,10 @@ exports.getGuruById = async (req, res) => {
 exports.getStats = async (req, res) => {
   try {
     const [[{ total }]] = await pool.query('SELECT COUNT(*) AS total FROM teachers');
-    const [[{ aktif }]] = await pool.query('SELECT COUNT(*) AS aktif FROM teachers WHERE status = ?', ['aktif']);
+    const [[{ aktif }]] = await pool.query(
+      'SELECT COUNT(*) AS aktif FROM teachers WHERE status = ?',
+      ['aktif']
+    );
     return res.json({ success: true, data: { total, aktif } });
   } catch (err) {
     console.error('[GURU CONTROLLER] getStats:', err);
@@ -42,7 +49,8 @@ exports.updateGuru = async (req, res) => {
       'UPDATE teachers SET nama=?, nip=?, email=?, status=? WHERE id=?',
       [nama, nip, email, status, id]
     );
-    if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Guru tidak ditemukan.' });
+    if (result.affectedRows === 0)
+      return res.status(404).json({ success: false, message: 'Guru tidak ditemukan.' });
     return res.json({ success: true, message: 'Data guru berhasil diupdate.' });
   } catch (err) {
     console.error('[GURU CONTROLLER] updateGuru:', err);
