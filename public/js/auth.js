@@ -27,7 +27,7 @@ if (window.location.pathname.includes('dashboard')) {
       }
 
       if (user.role === 'admin') {
-        document.querySelectorAll('[id^="btnTambah"]').forEach(el => el.hidden = false);
+        document.querySelectorAll('[id^="btnTambah"]').forEach((el) => (el.hidden = false));
       }
 
       router.init();
@@ -45,8 +45,14 @@ window.doLogin = async function () {
   clearFieldError('group-password', 'err-password');
   hideAlert();
 
-  if (!username) { showFieldError('group-username', 'err-username', 'Username tidak boleh kosong.'); return; }
-  if (!password) { showFieldError('group-password', 'err-password', 'Password tidak boleh kosong.'); return; }
+  if (!username) {
+    showFieldError('group-username', 'err-username', 'Username tidak boleh kosong.');
+    return;
+  }
+  if (!password) {
+    showFieldError('group-password', 'err-password', 'Password tidak boleh kosong.');
+    return;
+  }
 
   setLoading(true);
 

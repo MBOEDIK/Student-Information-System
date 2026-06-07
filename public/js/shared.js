@@ -2,9 +2,9 @@
 
 window.statusBadge = function (status) {
   const map = {
-    'aktif': 'badge--green',
-    'lulus': 'badge--gray',
-    'keluar': 'badge--red',
+    aktif: 'badge--green',
+    lulus: 'badge--gray',
+    keluar: 'badge--red',
     'tidak aktif': 'badge--red'
   };
   return `<span class="badge ${map[status] || 'badge--gray'}">${status}</span>`;
