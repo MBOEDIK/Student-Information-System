@@ -1,8 +1,6 @@
-const express = require('express');
-const router = express.Router();
-const absensiController = require('../controllers/absensiController');
+const router = require('express').Router();
+const { createAbsensi } = require('../controllers/absensiController');
 
-router.get('/', absensiController.getAllAbsensi);
-router.post('/', absensiController.createAbsensi);
+router.post('/', createAbsensi);
 
 module.exports = router;

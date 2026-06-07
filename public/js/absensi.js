@@ -15,7 +15,7 @@ const saveAbsensi = async (event) => {
     const result = await response.json();
 
     if (result.success) {
-      alert('Absensi berhasil disimpan!');
+      alert('Data absensi berhasil disimpan!');
     }
   } catch (err) {
     console.error('[FRONTEND] saveAbsensi:', err.message);

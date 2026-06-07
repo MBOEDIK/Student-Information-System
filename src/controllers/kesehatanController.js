@@ -1,22 +1,24 @@
-const db = require('../config/database');
+const pool = require('../config/db');
+const responseHelper = require('../shared/response');
 
 const createKesehatan = async (req, res) => {
   try {
     const { siswa_id, keluhan, tindakan, catatan } = req.body;
     
     if (!siswa_id || !keluhan || !tindakan) {
-      return res.status(400).json({ success: false, message: 'Data tidak lengkap' });
+      return responseHelper.error(res, 'Data tidak lengkap', 400);
     }
 
-    await db.query(
+    // Menggunakan Parameterized Query & Nama Tabel Jamak (Plural)
+    await pool.query(
       'INSERT INTO kesehatan (siswa_id, keluhan, tindakan, catatan) VALUES (?, ?, ?, ?)',
       [siswa_id, keluhan, tindakan, catatan]
     );
 
-    res.status(201).json({ success: true, message: 'Catatan kesehatan berhasil disimpan' });
+    return responseHelper.success(res, null, 'Catatan kesehatan berhasil disimpan', 201);
   } catch (err) {
-    console.error('[BACKEND] createKesehatan:', err.message);
-    res.status(500).json({ success: false, message: 'Server eror' });
+    console.error('[KESEHATAN CONTROLLER] createKesehatan:', err.message);
+    return responseHelper.error(res, 'Gagal menyimpan catatan kesehatan', 500);
   }
 };
 

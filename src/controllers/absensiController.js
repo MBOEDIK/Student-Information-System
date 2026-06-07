@@ -1,30 +1,25 @@
-const pool = require('../config/database');
+const pool = require('../config/db');
 const responseHelper = require('../shared/response');
-
-const getAllAbsensi = async (req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM attendances ORDER BY id DESC');
-    return responseHelper.success(res, rows, 'Data absensi berhasil diambil', 200);
-  } catch (err) {
-    console.error('[ABSENSI] getAllAbsensi:', err.message);
-    return responseHelper.error(res, 'Gagal mengambil data absensi', 500);
-  }
-};
 
 const createAbsensi = async (req, res) => {
   try {
     const { siswa_id, status, keterangan } = req.body;
-    const query = 'INSERT INTO attendances (siswa_id, status, keterangan) VALUES (?, ?, ?)';
-    const [result] = await pool.query(query, [siswa_id, status, keterangan]);
-    const data = { id: result.insertId, siswa_id, status, keterangan };
-    return responseHelper.success(res, data, 'Absensi berhasil dicatat', 201);
+
+    if (!siswa_id || !status) {
+      return responseHelper.error(res, 'Data tidak lengkap', 400);
+    }
+
+    // Menggunakan Parameterized Query & Nama Tabel Jamak (Plural) 'schedules' / 'students'
+    await pool.query(
+      'INSERT INTO absensi (siswa_id, status, keterangan) VALUES (?, ?, ?)',
+      [siswa_id, status, keterangan]
+    );
+
+    return responseHelper.success(res, null, 'Data absensi berhasil disimpan', 201);
   } catch (err) {
-    console.error('[ABSENSI] createAbsensi:', err.message);
-    return responseHelper.error(res, 'Gagal mencatat absensi', 500);
+    console.error('[ABSENSI CONTROLLER] createAbsensi:', err.message);
+    return responseHelper.error(res, 'Gagal menyimpan data absensi', 500);
   }
 };
 
-module.exports = {
-  getAllAbsensi,
-  createAbsensi
-};
+module.exports = { createAbsensi };
