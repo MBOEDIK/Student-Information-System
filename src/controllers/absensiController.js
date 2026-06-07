@@ -1,47 +1,30 @@
-const db = require('../config/db');
+const pool = require('../config/database');
+const responseHelper = require('../shared/response');
 
-// Controller untuk melihat laporan absensi harian
-const getLaporanHarian = async (req, res, next) => {
-    try {
-        const { tanggal } = req.query;
+const getAllAbsensi = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM attendances ORDER BY id DESC');
+    return responseHelper.success(res, rows, 'Data absensi berhasil diambil', 200);
+  } catch (err) {
+    console.error('[ABSENSI] getAllAbsensi:', err.message);
+    return responseHelper.error(res, 'Gagal mengambil data absensi', 500);
+  }
+};
 
-        // Validasi jika user belum memilih tanggal
-        if (!tanggal) {
-            return res.status(400).json({
-                success: false,
-                message: 'Tanggal harus ditentukan.'
-            });
-        }
-
-        // Query untuk mengambil data absensi berdasarkan tanggal tertentu
-        const query = `
-            SELECT 
-                a.id_absensi,
-                s.nama AS nama_siswa,
-                s.nis,
-                a.status,
-                a.keterangan,
-                TIME(a.tanggal) AS jam_absen
-            FROM absensi a
-            JOIN siswa s ON a.id_siswa = s.id_siswa
-            WHERE DATE(a.tanggal) = ?
-            ORDER BY s.nama ASC
-        `;
-
-        const [rows] = await db.query(query, [tanggal]);
-
-        return res.status(200).json({
-            success: true,
-            message: `Berhasil mengambil laporan absensi untuk tanggal ${tanggal}`,
-            data: rows
-        });
-
-    } catch (error) {
-        // Melempar error ke Global Error Handler kelompokmu di app.js
-        next(error);
-    }
+const createAbsensi = async (req, res) => {
+  try {
+    const { siswa_id, status, keterangan } = req.body;
+    const query = 'INSERT INTO attendances (siswa_id, status, keterangan) VALUES (?, ?, ?)';
+    const [result] = await pool.query(query, [siswa_id, status, keterangan]);
+    const data = { id: result.insertId, siswa_id, status, keterangan };
+    return responseHelper.success(res, data, 'Absensi berhasil dicatat', 201);
+  } catch (err) {
+    console.error('[ABSENSI] createAbsensi:', err.message);
+    return responseHelper.error(res, 'Gagal mencatat absensi', 500);
+  }
 };
 
 module.exports = {
-    getLaporanHarian
+  getAllAbsensi,
+  createAbsensi
 };

@@ -1,101 +1,36 @@
-<div class="page active">
-    <div class="page-header">
-        <h1>🩺 Formulir Pencatatan Riwayat Kesehatan Siswa</h1>
-    </div>
-
-    <div style="max-width: 600px; margin: 20px 0; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-        <form id="formKesehatanSiswa">
-            
-            <!-- Input ID Siswa -->
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-weight: bold; margin-bottom: 5px; color: #333;">ID / No Urut Siswa:</label>
-                <input type="number" id="idSiswa" placeholder="Masukkan ID Siswa (Contoh: 1)" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-            </div>
-
-            <!-- Input Keluhan -->
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-weight: bold; margin-bottom: 5px; color: #333;">Keluhan Utama Siswa:</label>
-                <textarea id="keluhanSiswa" rows="3" placeholder="Tulis keluhan (misal: Sakit kepala sebelah, mual-mual)" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: vertical;"></textarea>
-            </div>
-
-            <!-- Input Diagnosis -->
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-weight: bold; margin-bottom: 5px; color: #333;">Diagnosis Awal:</label>
-                <input type="text" id="diagnosisSiswa" placeholder="Misal: Migrain, Kelelahan, Gejala Typus" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-            </div>
-
-            <!-- Input Tindakan Medis -->
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-weight: bold; margin-bottom: 5px; color: #333;">Tindakan / Pertolongan Pertama:</label>
-                <input type="text" id="tindakanSiswa" placeholder="Misal: Istirahat di UKS & diberi obat ibuprofen" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-            </div>
-
-            <!-- Catatan Opsional -->
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: bold; margin-bottom: 5px; color: #333;">Catatan Tambahan (Opsional):</label>
-                <textarea id="catatanMedis" rows="2" placeholder="Misal: Disarankan periksa lanjut ke dokter puskesmas" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: vertical;"></textarea>
-            </div>
-
-            <!-- Tombol Kirim Form -->
-            <button type="submit" style="width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s;">
-                💾 Simpan Rekam Medis
-            </button>
-        </form>
-
-        <!-- Kotak Status Berhasil / Gagal -->
-        <div id="kotakNotifikasi" style="margin-top: 15px; padding: 12px; border-radius: 4px; display: none; text-align: center; font-weight: bold;"></div>
-    </div>
-</div>
-
-<script>
-    (() => {
-        const formKesehatan = document.getElementById('formKesehatanSiswa');
-        const notifikasi = document.getElementById('kotakNotifikasi');
-
-        if (!formKesehatan) return;
-
-        formKesehatan.addEventListener('submit', async (e) => {
-            e.preventDefault(); 
-
-            const payload = {
-                id_siswa: document.getElementById('idSiswa').value,
-                keluhan: document.getElementById('keluhanSiswa').value,
-                diagnosis: document.getElementById('diagnosisSiswa').value,
-                tindakan: document.getElementById('tindakanSiswa').value || null,
-                catatan: document.getElementById('catatanMedis').value || null
-            };
-
-            notifikasi.style.display = 'block';
-            notifikasi.style.backgroundColor = '#e2e3e5';
-            notifikasi.style.color = '#383d41';
-            notifikasi.innerText = '⏳ Sedang menyimpan data ke server...';
-
-            try {
-                const response = await fetch('/api/kesehatan/catat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const dataResult = await response.json();
-
-                if (dataResult.success) {
-                    notifikasi.style.backgroundColor = '#d4edda';
-                    notifikasi.style.color = '#155724';
-                    notifikasi.innerText = '✔️ ' + dataResult.message;
-                    formKesehatan.reset(); 
-                } else {
-                    notifikasi.style.backgroundColor = '#f8d7da';
-                    notifikasi.style.color = '#721c24';
-                    notifikasi.innerText = '❌ Gagal: ' + dataResult.message;
-                }
-
-            } catch (err) {
-                console.error(err);
-                notifikasi.style.backgroundColor = '#f8d7da';
-                notifikasi.style.color = '#721c24';
-                notifikasi.innerText = '❌ Gagal menyambung ke server. Pastikan Node.js aktif.';
-            }
-        });
-    })();
-</script>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiSiS - Catatan Kesehatan Rekam Medis</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="misis-app">
+  <main class="misis-main">
+    <section class="form-card">
+      <h2 class="form-card__title">Pencatatan Rekam Medis Kesehatan</h2>
+      <form id="form-kesehatan" class="form-card__form">
+        <div class="form-card__group">
+          <label for="siswa-id" class="form-card__label">ID Siswa</label>
+          <input type="text" id="siswa-id" class="form-card__input" required>
+        </div>
+        <div class="form-card__group">
+          <label for="keluhan" class="form-card__label">Keluhan</label>
+          <input type="text" id="keluhan" class="form-card__input" required>
+        </div>
+        <div class="form-card__group">
+          <label for="tindakan" class="form-card__label">Tindakan</label>
+          <input type="text" id="tindakan" class="form-card__input" required>
+        </div>
+        <div class="form-card__group">
+          <label for="catatan" class="form-card__label">Catatan Tambahan</label>
+          <textarea id="catatan" class="form-card__input"></textarea>
+        </div>
+        <button type="submit" class="form-card__button">Simpan Catatan Medis</button>
+      </form>
+    </section>
+  </main>
+  <script src="../js/kesehatan.js"></script>
+</body>
+</html>

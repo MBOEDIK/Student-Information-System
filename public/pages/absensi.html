@@ -1,106 +1,37 @@
-<div class="page active">
-    <div class="page-header">
-        <h1>📊 Laporan Absensi Harian Siswa</h1>
-    </div>
-    
-    <div style="margin: 20px 0; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-        <label for="tanggalInput" style="font-weight: bold; margin-right: 10px;">Pilih Tanggal Laporan:</label>
-        <input type="date" id="tanggalInput" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
-        <button id="btnCariAbsensi" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-left: 10px;">
-            🔍 Cari Laporan
-        </button>
-    </div>
-
-    <div style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
-            <thead>
-                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                    <th style="padding: 12px; text-align: left;">No</th>
-                    <th style="padding: 12px; text-align: left;">NIS</th>
-                    <th style="padding: 12px; text-align: left;">Nama Siswa</th>
-                    <th style="padding: 12px; text-align: left;">Jam Absen</th>
-                    <th style="padding: 12px; text-align: left;">Status</th>
-                    <th style="padding: 12px; text-align: left;">Keterangan</th>
-                </tr>
-            </thead>
-            <tbody id="tabelBodyAbsensi">
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 20px; color: #6c757d;">Silakan pilih tanggal terlebih dahulu untuk melihat data laporan harian.</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<script>
-    // Membungkus kode dalam scope agar tidak bertabrakan dengan script halaman lain
-    (() => {
-        const btnCari = document.getElementById('btnCariAbsensi');
-        const tanggalInput = document.getElementById('tanggalInput');
-        const tabelBody = document.getElementById('tabelBodyAbsensi');
-
-        if (!btnCari) return;
-
-        btnCari.addEventListener('click', async () => {
-            const tanggal = tanggalInput.value;
-
-            if (!tanggal) {
-                alert('Tolong tentukan tanggalnya terlebih dahulu ya!');
-                return;
-            }
-
-            // Tampilkan status loading sementara data diambil
-            tabelBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #007bff;">⏳ Sedang memuat data laporan absensi...</td></tr>`;
-
-            try {
-                // Memanggil endpoint API yang kamu buat di backend kemarin
-                const response = await fetch(`/api/absensi/laporan?tanggal=${tanggal}`);
-                const result = await response.json();
-
-                if (!result.success) {
-                    tabelBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #dc3545; font-weight: bold;">❌ Error: ${result.message}</td></tr>`;
-                    return;
-                }
-
-                if (result.data.length === 0) {
-                    tabelBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #6c757d;">⚠️ Tidak ditemukan data absensi untuk tanggal ${tanggal}.</td></tr>`;
-                    return;
-                }
-
-                // Bersihkan baris tabel dan masukkan data baru dari MySQL
-                tabelBody.innerHTML = '';
-                result.data.forEach((row, index) => {
-                    const tr = document.createElement('tr');
-                    tr.style.borderBottom = '1px solid #dee2e6';
-                    
-                    // Pewarnaan teks status badge kecil (Hadir, Sakit, Izin, Alpa)
-                    let badgeColor = '#6c757d';
-                    if (row.status.toLowerCase() === 'hadir') badgeColor = '#28a745';
-                    else if (row.status.toLowerCase() === 'sakit') badgeColor = '#ffc107';
-                    else if (row.status.toLowerCase() === 'izin') badgeColor = '#17a2b8';
-                    else if (row.status.toLowerCase() === 'alpa') badgeColor = '#dc3545';
-
-                    tr.innerHTML = `
-                        <td style="padding: 12px;">${index + 1}</td>
-                        <td style="padding: 12px; font-weight: 500;">${row.nis}</td>
-                        <td style="padding: 12px;">${row.nama_siswa}</td>
-                        <td style="padding: 12px; color: #495057;">${row.jam_absen || '-- : --'}</td>
-                        <td style="padding: 12px;">
-                            <span style="background-color: ${badgeColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase;">
-                                ${row.status}
-                            </span>
-                        </td>
-                        <td style="padding: 12px; color: #6c757d; font-style: ${row.keterangan ? 'normal' : 'italic'};">
-                            ${row.keterangan || '-'}
-                        </td>
-                    `;
-                    tabelBody.appendChild(tr);
-                });
-
-            } catch (error) {
-                console.error('Error Fetch:', error);
-                tabelBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #dc3545;">❌ Gagal mengambil data dari server. Pastikan server backend dalam kondisi aktif.</td></tr>`;
-            }
-        });
-    })();
-</script>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiSiS - Input Absensi Siswa</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="misis-app">
+  <main class="misis-main">
+    <section class="form-card">
+      <h2 class="form-card__title">Pencatatan Absensi Siswa</h2>
+      <form id="form-absensi" class="form-card__form">
+        <div class="form-card__group">
+          <label for="siswa-id" class="form-card__label">ID Siswa</label>
+          <input type="text" id="siswa-id" class="form-card__input" required>
+        </div>
+        <div class="form-card__group">
+          <label for="status" class="form-card__label">Status Kehadiran</label>
+          <select id="status" class="form-card__input" required>
+            <option value="Hadir">Hadir</option>
+            <option value="Izin">Izin</option>
+            <option value="Sakit">Sakit</option>
+            <option value="Alpa">Alpa</option>
+          </select>
+        </div>
+        <div class="form-card__group">
+          <label for="keterangan" class="form-card__label">Keterangan</label>
+          <textarea id="keterangan" class="form-card__input"></textarea>
+        </div>
+        <button type="submit" class="form-card__button">Simpan Absensi</button>
+      </form>
+    </section>
+  </main>
+  <script src="../js/absensi.js"></script>
+</body>
+</html>
