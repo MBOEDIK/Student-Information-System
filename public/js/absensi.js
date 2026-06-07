@@ -1,4 +1,4 @@
-const submitAbsensiData = async (event) => {
+const saveAbsensi = async (event) => {
   event.preventDefault();
   try {
     const siswaId = document.getElementById('siswa-id').value;
@@ -18,13 +18,13 @@ const submitAbsensiData = async (event) => {
       alert('Absensi berhasil disimpan!');
     }
   } catch (err) {
-    console.error('[FRONTEND] submitAbsensiData:', err.message);
+    console.error('[FRONTEND] saveAbsensi:', err.message);
   }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   const formElement = document.getElementById('form-absensi');
   if (formElement) {
-    formElement.addEventListener('submit', submitAbsensiData);
+    formElement.addEventListener('submit', saveAbsensi);
   }
 });

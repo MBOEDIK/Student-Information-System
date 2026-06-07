@@ -1,4 +1,4 @@
-const submitKesehatanData = async (event) => {
+const saveKesehatan = async (event) => {
   event.preventDefault();
   try {
     const siswaId = document.getElementById('siswa-id').value;
@@ -19,13 +19,13 @@ const submitKesehatanData = async (event) => {
       alert('Catatan kesehatan berhasil disimpan!');
     }
   } catch (err) {
-    console.error('[FRONTEND] submitKesehatanData:', err.message);
+    console.error('[FRONTEND] saveKesehatan:', err.message);
   }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   const formElement = document.getElementById('form-kesehatan');
   if (formElement) {
-    formElement.addEventListener('submit', submitKesehatanData);
+    formElement.addEventListener('submit', saveKesehatan);
   }
 });
