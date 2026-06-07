@@ -111,14 +111,38 @@ Pakai `<table>` polos tanpa inline style. `<thead>` otomatis bergaya gelap (`--s
 
 ## 7. Database
 
-### 7a. WAJIB Sertakan DDL untuk Tabel Baru
+### 7a. DDL Tabel Baru → `database/schema.sql`
 
-Buat file SQL DDL di `database/migrations/YYYYMMDD_create_nama_tabel.sql`
+Setiap tabel baru WAJIB ditambahkan ke `database/schema.sql`, bukan ke file terpisah. Buka `schema.sql`, lalu tambahkan `CREATE TABLE IF NOT EXISTS ...` di bagian akhir dengan komentar header yang jelas.
 
-### 7b. Cek Existing Schema Sebelum JOIN
+```sql
+-- ============================================================
+-- TABEL: nama_tabel (deskripsi singkat)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS nama_tabel (
+  id    INT AUTO_INCREMENT PRIMARY KEY,
+  ...
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+### 7b. Seed Data → `database/seed.sql`
+
+Setiap tabel baru WAJIB ditambahkan data contoh ke `database/seed.sql`. Buka `seed.sql`, lalu tambahkan `TRUNCATE TABLE` dan `INSERT INTO` di bagian akhir.
+
+```sql
+-- ── Nama Tabel (Deskripsi) ─────────────────────────────────
+TRUNCATE TABLE nama_tabel;
+
+INSERT INTO nama_tabel (kolom1, kolom2) VALUES
+(nilai1, nilai2),
+(nilai3, nilai4);
+```
+
+### 7c. Cek Existing Schema Sebelum JOIN
 
 - Tabel siswa = `students` (bukan `siswa`)
-- Buka controller existing untuk cek nama tabel & kolom
+- Buka `schema.sql` untuk cek nama tabel & kolom sebelum menulis JOIN
+- Buka controller yang sudah ada untuk lihat pola query
 
 ---
 
