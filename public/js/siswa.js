@@ -3,15 +3,19 @@
 window.loadSiswa = async function () {
   const tbody = document.getElementById('siswaTableBody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+  tbody.innerHTML =
+    '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/siswa');
     const json = await res.json();
     if (!json.success || !json.data.length) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Belum ada data siswa.</td></tr>';
+      tbody.innerHTML =
+        '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Belum ada data siswa.</td></tr>';
       return;
     }
-    tbody.innerHTML = json.data.map((s, i) => `
+    tbody.innerHTML = json.data
+      .map(
+        (s, i) => `
       <tr>
         <td>${i + 1}</td>
         <td><strong>${s.nis}</strong></td>
@@ -21,9 +25,12 @@ window.loadSiswa = async function () {
         <td>${window.statusBadge(s.status)}</td>
         <td><button class="btn btn--sm btn--primary" onclick="editSiswa(${s.id})">Edit</button></td>
       </tr>
-    `).join('');
+    `
+      )
+      .join('');
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Gagal memuat data.</td></tr>';
+    tbody.innerHTML =
+      '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Gagal memuat data.</td></tr>';
   }
 };
 
@@ -76,10 +83,13 @@ window.cariSiswa = async function (keyword) {
     const tbody = document.getElementById('siswaTableBody');
     if (!tbody) return;
     if (!json.success || json.data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Data siswa tidak ditemukan.</td></tr>';
+      tbody.innerHTML =
+        '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Data siswa tidak ditemukan.</td></tr>';
       return;
     }
-    tbody.innerHTML = json.data.map((s, i) => `
+    tbody.innerHTML = json.data
+      .map(
+        (s, i) => `
       <tr>
         <td>${i + 1}</td>
         <td><strong>${s.nis}</strong></td>
@@ -89,7 +99,9 @@ window.cariSiswa = async function (keyword) {
         <td>${window.statusBadge(s.status)}</td>
         <td><button class="btn btn--sm btn--primary" onclick="editSiswa(${s.id})">Edit</button></td>
       </tr>
-    `).join('');
+    `
+      )
+      .join('');
   } catch (e) {
     alert('Gagal mencari data siswa.');
   }
@@ -159,8 +171,8 @@ window.page_pendaftaran_init = function () {
   function resetForm() {
     const form = document.getElementById('formPendaftaran');
     if (form) form.reset();
-    document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
-    document.querySelectorAll('.form-input').forEach(e => e.classList.remove('input--error'));
+    document.querySelectorAll('.field-error').forEach((e) => (e.textContent = ''));
+    document.querySelectorAll('.form-input').forEach((e) => e.classList.remove('input--error'));
   }
 
   const form = document.getElementById('formPendaftaran');
@@ -183,8 +195,8 @@ window.page_pendaftaran_init = function () {
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
-    document.querySelectorAll('.form-input').forEach(el => el.classList.remove('input--error'));
+    document.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''));
+    document.querySelectorAll('.form-input').forEach((el) => el.classList.remove('input--error'));
     const sucEl = document.getElementById('alertSuccess');
     const errEl = document.getElementById('alertError');
     if (sucEl) sucEl.hidden = true;
@@ -197,10 +209,26 @@ window.page_pendaftaran_init = function () {
 
     let hasError = false;
 
-    if (!nis) { pendaftaranShowFieldError('group-nis', 'err-nis', 'NIS tidak boleh kosong.'); hasError = true; }
-    if (!nama) { pendaftaranShowFieldError('group-nama', 'err-nama', 'Nama tidak boleh kosong.'); hasError = true; }
-    if (!jenis_kelamin) { pendaftaranShowFieldError('group-jenis_kelamin', 'err-jenis_kelamin', 'Jenis Kelamin harus dipilih.'); hasError = true; }
-    if (!alamat) { pendaftaranShowFieldError('group-alamat', 'err-alamat', 'Alamat tidak boleh kosong.'); hasError = true; }
+    if (!nis) {
+      pendaftaranShowFieldError('group-nis', 'err-nis', 'NIS tidak boleh kosong.');
+      hasError = true;
+    }
+    if (!nama) {
+      pendaftaranShowFieldError('group-nama', 'err-nama', 'Nama tidak boleh kosong.');
+      hasError = true;
+    }
+    if (!jenis_kelamin) {
+      pendaftaranShowFieldError(
+        'group-jenis_kelamin',
+        'err-jenis_kelamin',
+        'Jenis Kelamin harus dipilih.'
+      );
+      hasError = true;
+    }
+    if (!alamat) {
+      pendaftaranShowFieldError('group-alamat', 'err-alamat', 'Alamat tidak boleh kosong.');
+      hasError = true;
+    }
 
     if (hasError) return;
 

@@ -6,141 +6,165 @@
   <div class="alert alert--success" id="alertSuccess" hidden>
     <i class="bi bi-check-circle-fill"></i>
     <span id="alertSuccessMsg"></span>
-    <button class="alert__close" onclick="this.parentElement.hidden=true">&times;</button>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
   </div>
 
   <div class="alert alert--error" id="alertError" hidden>
     <i class="bi bi-exclamation-triangle-fill"></i>
     <span id="alertErrorMsg"></span>
-    <button class="alert__close" onclick="this.parentElement.hidden=true">&times;</button>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
   </div>
 
   <!-- ===================== VIEW SISWA (read-only) ===================== -->
-    <div id="jadwal-siswa-view" hidden>
-      <div class="card" style="margin-bottom: 24px;">
-        <div class="card__body">
-          <div class="page-header">
-            <h2>Jadwal Kelas Saya</h2>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Mata Pelajaran</th>
-                  <th>Guru</th>
-                  <th>Hari</th>
-                  <th>Jam</th>
-                  <th>Ruangan</th>
-                </tr>
-              </thead>
-              <tbody id="jadwalSiswaTableBody">
-                <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>
-              </tbody>
-            </table>
-          </div>
+  <div id="jadwal-siswa-view" hidden>
+    <div class="card" style="margin-bottom: 24px">
+      <div class="card__body">
+        <div class="page-header">
+          <h2>Jadwal Kelas Saya</h2>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Mata Pelajaran</th>
+                <th>Guru</th>
+                <th>Hari</th>
+                <th>Jam</th>
+                <th>Ruangan</th>
+              </tr>
+            </thead>
+            <tbody id="jadwalSiswaTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted)">
+                  Memuat data...
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
+  </div>
   <!-- ================= END VIEW SISWA ================= -->
 
   <!-- ===================== VIEW ADMIN (tabel + form) ===================== -->
-    <div id="jadwal-admin-view" hidden>
-      <div class="card" style="margin-bottom: 24px;">
-        <div class="card__body">
-          <div class="page-header">
-            <h2>Daftar Jadwal Kelas</h2>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Mata Pelajaran</th>
-                  <th>Guru</th>
-                  <th>Hari</th>
-                  <th>Jam</th>
-                  <th>Ruangan</th>
-                  <th>Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="jadwalTableBody">
-                <tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>
-              </tbody>
-            </table>
-          </div>
+  <div id="jadwal-admin-view" hidden>
+    <div class="card" style="margin-bottom: 24px">
+      <div class="card__body">
+        <div class="page-header">
+          <h2>Daftar Jadwal Kelas</h2>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card__body">
-          <div class="page-header">
-            <h2>Buat Jadwal Baru</h2>
-          </div>
-          <form id="formJadwal" novalidate>
-            <div class="form-group" id="group-subject">
-              <label class="form-label" for="subject_id">Mata Pelajaran <span class="required">*</span></label>
-              <select class="form-input" id="subject_id" name="subject_id" required>
-                <option value="">— Pilih Mata Pelajaran —</option>
-              </select>
-              <small class="field-error" id="err-subject"></small>
-            </div>
-
-            <div class="form-group" id="group-teacher">
-              <label class="form-label" for="teacher_id">Guru Pengampu <span class="required">*</span></label>
-              <select class="form-input" id="teacher_id" name="teacher_id" required>
-                <option value="">— Pilih Guru —</option>
-              </select>
-              <small class="field-error" id="err-teacher"></small>
-            </div>
-
-            <div class="form-group" id="group-hari">
-              <label class="form-label" for="hari">Hari <span class="required">*</span></label>
-              <select class="form-input" id="hari" name="hari" required>
-                <option value="">— Pilih Hari —</option>
-                <option value="Senin">Senin</option>
-                <option value="Selasa">Selasa</option>
-                <option value="Rabu">Rabu</option>
-                <option value="Kamis">Kamis</option>
-                <option value="Jumat">Jumat</option>
-                <option value="Sabtu">Sabtu</option>
-              </select>
-              <small class="field-error" id="err-hari"></small>
-            </div>
-
-            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-              <div class="form-group" style="flex: 1; min-width: 180px;" id="group-jam_mulai">
-                <label class="form-label" for="jam_mulai">Jam Mulai <span class="required">*</span></label>
-                <input type="time" class="form-input" id="jam_mulai" name="jam_mulai" required />
-                <small class="field-error" id="err-jam_mulai"></small>
-              </div>
-
-              <div class="form-group" style="flex: 1; min-width: 180px;" id="group-jam_selesai">
-                <label class="form-label" for="jam_selesai">Jam Selesai <span class="required">*</span></label>
-                <input type="time" class="form-input" id="jam_selesai" name="jam_selesai" required />
-                <small class="field-error" id="err-jam_selesai"></small>
-              </div>
-            </div>
-
-            <div class="form-group" id="group-ruangan">
-              <label class="form-label" for="ruangan">Ruangan <span class="required">*</span></label>
-              <input type="text" class="form-input" id="ruangan" name="ruangan" placeholder="Contoh: R-101 / Lab Komputer 1" maxlength="50" required />
-              <small class="field-error" id="err-ruangan"></small>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="btn btn--primary" id="btnSimpanJadwal">
-                <span class="btn__text" id="btnSimpanText">Simpan Jadwal</span>
-                <span class="btn__loader" id="btnSimpanLoader" hidden>
-                  <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
-                </span>
-              </button>
-              <button type="reset" class="btn btn--secondary" id="btnReset">Reset</button>
-            </div>
-          </form>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Mata Pelajaran</th>
+                <th>Guru</th>
+                <th>Hari</th>
+                <th>Jam</th>
+                <th>Ruangan</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="jadwalTableBody">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted)">
+                  Memuat data...
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
+
+    <div class="card">
+      <div class="card__body">
+        <div class="page-header">
+          <h2>Buat Jadwal Baru</h2>
+        </div>
+        <form id="formJadwal" novalidate>
+          <div class="form-group" id="group-subject">
+            <label class="form-label" for="subject_id"
+              >Mata Pelajaran <span class="required">*</span></label
+            >
+            <select class="form-input" id="subject_id" name="subject_id" required>
+              <option value="">— Pilih Mata Pelajaran —</option>
+            </select>
+            <small class="field-error" id="err-subject"></small>
+          </div>
+
+          <div class="form-group" id="group-teacher">
+            <label class="form-label" for="teacher_id"
+              >Guru Pengampu <span class="required">*</span></label
+            >
+            <select class="form-input" id="teacher_id" name="teacher_id" required>
+              <option value="">— Pilih Guru —</option>
+            </select>
+            <small class="field-error" id="err-teacher"></small>
+          </div>
+
+          <div class="form-group" id="group-hari">
+            <label class="form-label" for="hari">Hari <span class="required">*</span></label>
+            <select class="form-input" id="hari" name="hari" required>
+              <option value="">— Pilih Hari —</option>
+              <option value="Senin">Senin</option>
+              <option value="Selasa">Selasa</option>
+              <option value="Rabu">Rabu</option>
+              <option value="Kamis">Kamis</option>
+              <option value="Jumat">Jumat</option>
+              <option value="Sabtu">Sabtu</option>
+            </select>
+            <small class="field-error" id="err-hari"></small>
+          </div>
+
+          <div style="display: flex; gap: 16px; flex-wrap: wrap">
+            <div class="form-group" style="flex: 1; min-width: 180px" id="group-jam_mulai">
+              <label class="form-label" for="jam_mulai"
+                >Jam Mulai <span class="required">*</span></label
+              >
+              <input type="time" class="form-input" id="jam_mulai" name="jam_mulai" required />
+              <small class="field-error" id="err-jam_mulai"></small>
+            </div>
+
+            <div class="form-group" style="flex: 1; min-width: 180px" id="group-jam_selesai">
+              <label class="form-label" for="jam_selesai"
+                >Jam Selesai <span class="required">*</span></label
+              >
+              <input type="time" class="form-input" id="jam_selesai" name="jam_selesai" required />
+              <small class="field-error" id="err-jam_selesai"></small>
+            </div>
+          </div>
+
+          <div class="form-group" id="group-ruangan">
+            <label class="form-label" for="ruangan">Ruangan <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-input"
+              id="ruangan"
+              name="ruangan"
+              placeholder="Contoh: R-101 / Lab Komputer 1"
+              maxlength="50"
+              required
+            />
+            <small class="field-error" id="err-ruangan"></small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary" id="btnSimpanJadwal">
+              <span class="btn__text" id="btnSimpanText">Simpan Jadwal</span>
+              <span class="btn__loader" id="btnSimpanLoader" hidden>
+                <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
+              </span>
+            </button>
+            <button type="reset" class="btn btn--secondary" id="btnReset">Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
   <!-- ================= END VIEW ADMIN ================= -->
 </div>
 
@@ -183,7 +207,13 @@
     </div>
     <div class="form-group">
       <label class="form-label">Ruangan <span class="required">*</span></label>
-      <input type="text" class="form-input" id="edit-jadwal-ruangan" placeholder="Contoh: R-101 / Lab Komputer 1" maxlength="50" />
+      <input
+        type="text"
+        class="form-input"
+        id="edit-jadwal-ruangan"
+        placeholder="Contoh: R-101 / Lab Komputer 1"
+        maxlength="50"
+      />
       <small class="field-error" id="err-edit-ruangan"></small>
     </div>
     <div class="form-actions">

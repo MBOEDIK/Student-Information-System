@@ -1,15 +1,15 @@
 'use strict';
 
 const menuAccessRule = {
-  home:         ['admin', 'guru'],
-  pendaftaran:  ['admin'],
-  jadwal:       ['admin', 'siswa'],
-  absensi:      ['admin', 'guru'],
-  kesehatan:    ['admin'],
-  konseling:    ['admin', 'guru'],
-  nilai:        ['admin', 'guru', 'siswa'],
-  siswa:        ['admin', 'guru'],
-  guru:         ['admin', 'guru']
+  home: ['admin', 'guru'],
+  pendaftaran: ['admin'],
+  jadwal: ['admin', 'siswa'],
+  absensi: ['admin', 'guru'],
+  kesehatan: ['admin'],
+  konseling: ['admin', 'guru'],
+  nilai: ['admin', 'guru', 'siswa'],
+  siswa: ['admin', 'guru'],
+  guru: ['admin', 'guru']
 };
 
 const router = {
@@ -23,7 +23,7 @@ const router = {
       return;
     }
 
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach((n) => n.classList.remove('active'));
     document.querySelector(`.nav-item[data-page="${pageName}"]`)?.classList.add('active');
 
     const container = document.getElementById('page-container');
@@ -47,7 +47,7 @@ const router = {
   },
 
   init() {
-    document.querySelectorAll('.nav-item[data-page]').forEach(link => {
+    document.querySelectorAll('.nav-item[data-page]').forEach((link) => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         this.navigate(link.dataset.page);
@@ -59,7 +59,9 @@ const router = {
     });
 
     if (window.currentUser?.role === 'siswa') {
-      const firstAllowed = document.querySelector('.nav-item[data-page]:not([style*="display: none"])');
+      const firstAllowed = document.querySelector(
+        '.nav-item[data-page]:not([style*="display: none"])'
+      );
       if (firstAllowed) {
         this.navigate(firstAllowed.dataset.page);
       }
@@ -69,13 +71,15 @@ const router = {
   }
 };
 
-window.page_home_init = function () { window.loadStats(); };
+window.page_home_init = function () {
+  window.loadStats();
+};
 
 window.loadStats = async function () {
   try {
     const [rSiswa, rGuru] = await Promise.all([
-      fetch('/api/siswa/stats').then(r => r.json()),
-      fetch('/api/guru/stats').then(r => r.json())
+      fetch('/api/siswa/stats').then((r) => r.json()),
+      fetch('/api/guru/stats').then((r) => r.json())
     ]);
     if (rSiswa.success) {
       setText('statTotalSiswa', rSiswa.data.total);
