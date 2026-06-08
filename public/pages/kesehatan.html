@@ -1,37 +1,35 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MiSiS - Catatan Kesehatan Siswa</title>
-  <link rel="stylesheet" href="../css/style.css">
-</head>
-<body class="misis-app">
-  <main class="misis-main">
-    <section class="form-card">
-      <h2 class="form-card__title">Catatan Kesehatan Siswa</h2>
-      <form id="form-kesehatan" class="form-card__form">
-        <div class="form-card__group">
-          <label for="siswa-id" class="form-card__label">ID Siswa</label>
-          <input type="text" id="siswa-id" class="form-card__input" required>
+<div class="page active">
+  <div class="page-header">
+    <h1>Catatan Kesehatan Siswa</h1>
+  </div>
+  
+  <div class="card">
+    <div class="card__body">
+      <form id="form-kesehatan" class="form">
+        <div class="form-group">
+          <label for="siswa-id" class="form-label">ID Siswa</label>
+          <input type="text" id="siswa-id" class="form-input" required>
         </div>
-        <div class="form-card__group">
-          <label for="keluhan" class="form-card__label">Keluhan</label>
-          <textarea id="keluhan" class="form-card__input" required></textarea>
+        
+        <div class="form-group">
+          <label for="keluhan" class="form-label">Keluhan</label>
+          <textarea id="keluhan" class="form-input" required></textarea>
         </div>
-        <div class="form-card__group">
-          <label for="tindakan" class="form-card__label">Tindakan</label>
-          <textarea id="tindakan" class="form-card__input" required></textarea>
+        
+        <div class="form-group">
+          <label for="tindakan" class="form-label">Tindakan</label>
+          <textarea id="tindakan" class="form-input" required></textarea>
         </div>
-        <div class="form-card__group">
-          <label for="catatan" class="form-card__label">Catatan Tambahan</label>
-          <textarea id="catatan" class="form-card__input"></textarea>
+        
+        <div class="form-group">
+          <label for="catatan" class="form-label">Catatan Tambahan</label>
+          <textarea id="catatan" class="form-input"></textarea>
         </div>
-        <button type="submit" class="form-card__button">Simpan Catatan</button>
+        
+        <button type="submit" class="btn btn--primary">Simpan Catatan</button>
       </form>
-    </section>
-  </main>
-  <!-- Sesuai nama file di folder kamu: kesehatan.js -->
-  <script src="../js/kesehatan.js"></script>
-</body>
-</html>
+    </div>
+  </div>
+</div>
+
+<script src="../js/kesehatan.js"></script>

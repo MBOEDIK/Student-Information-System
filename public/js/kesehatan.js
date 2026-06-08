@@ -1,4 +1,4 @@
-const saveKesehatan = async (event) => {
+async function saveKesehatan(event) {
   event.preventDefault();
   try {
     const siswaId = document.getElementById('siswa-id').value;
@@ -21,7 +21,7 @@ const saveKesehatan = async (event) => {
   } catch (err) {
     console.error('[FRONTEND] saveKesehatan:', err.message);
   }
-};
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const formElement = document.getElementById('form-kesehatan');

@@ -1,38 +1,35 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MiSiS - Input Absensi Siswa</title>
-  <link rel="stylesheet" href="../css/style.css">
-</head>
-<body class="misis-app">
-  <main class="misis-main">
-    <section class="form-card">
-      <h2 class="form-card__title">Pencatatan Absensi Siswa</h2>
-      <form id="form-absensi" class="form-card__form">
-        <div class="form-card__group">
-          <label for="siswa-id" class="form-card__label">ID Siswa</label>
-          <input type="text" id="siswa-id" class="form-card__input" required>
+<div class="page active">
+  <div class="page-header">
+    <h1>Pencatatan Absensi Siswa</h1>
+  </div>
+  
+  <div class="card">
+    <div class="card__body">
+      <form id="form-absensi" class="form">
+        <div class="form-group">
+          <label for="siswa-id" class="form-label">ID Siswa</label>
+          <input type="text" id="siswa-id" class="form-input" required>
         </div>
-        <div class="form-card__group">
-          <label for="status" class="form-card__label">Status Kehadiran</label>
-          <select id="status" class="form-card__input" required>
+        
+        <div class="form-group">
+          <label for="status" class="form-label">Status Kehadiran</label>
+          <select id="status" class="form-input" required>
             <option value="Hadir">Hadir</option>
             <option value="Izin">Izin</option>
             <option value="Sakit">Sakit</option>
             <option value="Alpa">Alpa</option>
           </select>
         </div>
-        <div class="form-card__group">
-          <label for="keterangan" class="form-card__label">Keterangan</label>
-          <textarea id="keterangan" class="form-card__input"></textarea>
+        
+        <div class="form-group">
+          <label for="keterangan" class="form-label">Keterangan</label>
+          <textarea id="keterangan" class="form-input"></textarea>
         </div>
-        <button type="submit" class="form-card__button">Simpan Absensi</button>
+        
+        <button type="submit" class="btn btn--primary">Simpan Absensi</button>
       </form>
-    </section>
-  </main>
-  <!-- Sesuai nama file di folder kamu: absensi.js -->
-  <script src="../js/absensi.js"></script>
-</body>
-</html>
+    </div>
+  </div>
+</div>
+
+<script src="../js/absensi.js"></script>
