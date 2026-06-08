@@ -12,18 +12,18 @@
     "format:check": "prettier --check \"public/pages/*.html\" \"public/css/*.css\" \"src/**/*.js\""
   },
   "dependencies": {
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.6.1",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "mysql2": "^3.6.5"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2",
     "eslint": "^8.56.0",
-    "prettier": "^3.2.4",
-    "lint-staged": "^15.2.0",
-    "husky": "^9.0.10",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.3"
+    "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.2.4"
   }
 }

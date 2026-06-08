@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
@@ -12,11 +13,10 @@ const pool = mysql.createPool({
   charset: 'utf8mb4'
 });
 
-// Test koneksi saat startup server
 (async () => {
   try {
     const conn = await pool.getConnection();
-    console.log('✅ Berhasil terhubung ke MySQL (XAMPP)');
+    console.log('✅ Berhasil terhubung ke Database MySQL');
     conn.release();
   } catch (err) {
     console.error('❌ Gagal koneksi ke MySQL:', err.message);
