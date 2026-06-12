@@ -370,6 +370,19 @@ tbody tr:hover {
   margin-bottom: 16px;
 }
 
+.toggle-header {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+.toggle-header__icon {
+  font-size: 1.3rem;
+  color: var(--primary);
+  transition: transform 0.2s;
+}
+
 /* ── Helpers ─────────────────────────────── */
 .text-center {
   text-align: center;
