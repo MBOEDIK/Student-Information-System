@@ -54,7 +54,7 @@ function renderTable(data) {
 
   if (!data || !data.length) {
     tbody.innerHTML =
-      '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Belum ada data absensi.</td></tr>';
+      '<tr><td colspan="7" class="text-center text-muted">Belum ada data absensi.</td></tr>';
     return;
   }
 

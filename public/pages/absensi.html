@@ -6,14 +6,14 @@
   <div id="admin-section" class="hidden">
     <div class="card">
       <div class="card__body">
-        <div class="form-group" style="max-width: 240px">
+        <div class="form-group max-w-240">
           <label class="form-label" for="filter-tanggal">Filter Tanggal</label>
           <input type="date" class="form-input" id="filter-tanggal" />
         </div>
       </div>
     </div>
 
-    <div class="stats-row" id="stats-container" style="margin-top: 20px">
+    <div class="stats-row mt-20" id="stats-container">
       <div class="stat-card">
         <div class="stat-card__icon stat-card__icon--blue">
           <i class="bi bi-people"></i>
@@ -76,9 +76,7 @@
         </thead>
         <tbody id="laporan-table-body">
           <tr>
-            <td colspan="7" style="text-align: center; color: var(--text-muted)">
-              Pilih tanggal untuk melihat laporan.
-            </td>
+            <td colspan="7" class="text-center text-muted">Pilih tanggal untuk melihat laporan.</td>
           </tr>
         </tbody>
       </table>
