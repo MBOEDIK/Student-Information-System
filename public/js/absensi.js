@@ -1,33 +1,5 @@
 'use strict';
 
-async function saveAbsensi(event) {
-  event.preventDefault();
-  try {
-    const siswaId = document.getElementById('siswa-select').value;
-    const status = document.getElementById('status').value;
-    const keterangan = document.getElementById('keterangan').value;
-
-    const response = await fetch('/api/absensi', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        siswa_id: parseInt(siswaId, 10),
-        status: status,
-        keterangan: keterangan
-      })
-    });
-    const result = await response.json();
-
-    if (result.success) {
-      alert('Data absensi berhasil disimpan!');
-    }
-  } catch (err) {
-    console.error('[FRONTEND] saveAbsensi:', err.message);
-  }
-}
-
 async function loadLaporan(tanggal) {
   try {
     const [rekap, laporan] = await Promise.all([
@@ -118,48 +90,13 @@ function renderTable(data) {
 }
 
 window.page_absensi_init = function () {
-  const isAdmin = window.currentUser && window.currentUser.role === 'admin';
+  const dateInput = document.getElementById('filter-tanggal');
+  if (!dateInput) return;
 
-  const formSection = document.getElementById('form-section');
-  const adminSection = document.getElementById('admin-section');
+  dateInput.value = new Date().toISOString().split('T')[0];
+  loadLaporan(dateInput.value);
 
-  if (formSection) formSection.classList.toggle('hidden', isAdmin);
-  if (adminSection) adminSection.classList.toggle('hidden', !isAdmin);
-
-  if (isAdmin) {
-    const dateInput = document.getElementById('filter-tanggal');
-    if (dateInput) {
-      dateInput.value = new Date().toISOString().split('T')[0];
-      loadLaporan(dateInput.value);
-      dateInput.addEventListener('change', function () {
-        loadLaporan(this.value);
-      });
-    }
-  } else {
-    const select = document.getElementById('siswa-select');
-    if (select) {
-      fetch('/api/siswa')
-        .then(function (res) {
-          return res.json();
-        })
-        .then(function (json) {
-          if (json.success && json.data) {
-            json.data.forEach(function (siswa) {
-              const opt = document.createElement('option');
-              opt.value = siswa.id;
-              opt.textContent = siswa.nis + ' - ' + siswa.nama;
-              select.appendChild(opt);
-            });
-          }
-        })
-        .catch(function (err) {
-          console.error('[ABSENSI] Gagal memuat daftar siswa:', err.message);
-        });
-    }
-
-    const formElement = document.getElementById('form-absensi');
-    if (formElement) {
-      formElement.addEventListener('submit', saveAbsensi);
-    }
-  }
+  dateInput.addEventListener('change', function () {
+    loadLaporan(this.value);
+  });
 };
