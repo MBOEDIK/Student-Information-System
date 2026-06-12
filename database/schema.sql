@@ -99,6 +99,21 @@ CREATE TABLE IF NOT EXISTS schedule_students (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
+-- TABEL: absensi (pencatatan absensi harian siswa)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS absensi (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  siswa_id    INT NOT NULL,
+  schedule_id INT DEFAULT NULL,
+  status      ENUM('Hadir', 'Izin', 'Sakit', 'Alpa') NOT NULL,
+  keterangan  TEXT,
+  tanggal     DATE NOT NULL DEFAULT (CURRENT_DATE),
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (siswa_id) REFERENCES students(id) ON DELETE CASCADE,
+  FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
 -- INDEX UNIQUE untuk mencegah duplikasi pendaftaran siswa di jadwal yang sama
 -- ============================================================
 CREATE UNIQUE INDEX uq_schedule_student ON schedule_students(schedule_id, student_id);

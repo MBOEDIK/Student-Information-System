@@ -1,4 +1,118 @@
 <div class="page active">
-  <div class="page-header"><h1>Absensi Resmi Sekolah</h1></div>
-  <p style="color: var(--text-muted)">Fitur akan tersedia pada sprint berikutnya.</p>
+  <div class="page-header">
+    <h1>Laporan Absensi Harian</h1>
+  </div>
+
+  <div id="admin-section" class="hidden">
+    <div class="card">
+      <div class="card__body">
+        <div class="form-group" style="max-width: 240px">
+          <label class="form-label" for="filter-tanggal">Filter Tanggal</label>
+          <input type="date" class="form-input" id="filter-tanggal" />
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row" id="stats-container">
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--blue">
+          <i class="bi bi-people"></i>
+        </div>
+        <div class="stat-card__info">
+          <span class="stat-card__label">Total Siswa</span>
+          <span class="stat-card__value" id="stat-total">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--green">
+          <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="stat-card__info">
+          <span class="stat-card__label">Hadir</span>
+          <span class="stat-card__value" id="stat-hadir">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--yellow">
+          <i class="bi bi-exclamation-circle"></i>
+        </div>
+        <div class="stat-card__info">
+          <span class="stat-card__label">Sakit</span>
+          <span class="stat-card__value" id="stat-sakit">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--purple">
+          <i class="bi bi-question-circle"></i>
+        </div>
+        <div class="stat-card__info">
+          <span class="stat-card__label">Izin</span>
+          <span class="stat-card__value" id="stat-izin">0</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--red">
+          <i class="bi bi-x-circle"></i>
+        </div>
+        <div class="stat-card__info">
+          <span class="stat-card__label">Alpa</span>
+          <span class="stat-card__value" id="stat-alpa">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>NIS</th>
+            <th>Nama Siswa</th>
+            <th>Mata Pelajaran</th>
+            <th>Guru</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="laporan-table-body">
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted)">
+              Pilih tanggal untuk melihat laporan.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="form-section">
+    <div class="card">
+      <div class="card__body">
+        <form id="form-absensi" class="form">
+          <div class="form-group">
+            <label for="siswa-id" class="form-label">ID Siswa</label>
+            <input type="text" id="siswa-id" class="form-input" required />
+          </div>
+
+          <div class="form-group">
+            <label for="status" class="form-label">Status Kehadiran</label>
+            <select id="status" class="form-input" required>
+              <option value="Hadir">Hadir</option>
+              <option value="Izin">Izin</option>
+              <option value="Sakit">Sakit</option>
+              <option value="Alpa">Alpa</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="keterangan" class="form-label">Keterangan</label>
+            <textarea id="keterangan" class="form-input"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn--primary">Simpan Absensi</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script src="../js/absensi.js"></script>

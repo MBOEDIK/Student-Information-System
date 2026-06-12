@@ -47,11 +47,13 @@ window.editKesehatan = async function (studentId) {
     const res = await fetch('/api/kesehatan/' + studentId);
     const json = await res.json();
     if (!json.success) {
-      kesehatanShowError(json.message || 'Gagal memuat data kesehatan.');
+      showAlertKesehatan(json.message || 'Gagal memuat data kesehatan.', 'error');
       return;
     }
     const d = json.data;
     document.getElementById('editStudentId').value = d.student_id;
+    document.getElementById('siswa-select').style.display = 'none';
+    document.getElementById('displaySiswa').style.display = 'block';
     document.getElementById('displaySiswa').value = d.nis + ' - ' + d.nama;
     document.getElementById('golongan_darah').value = d.golongan_darah || '';
     document.getElementById('penyakit_bawaan').value = d.penyakit_bawaan || '';
@@ -64,45 +66,47 @@ window.editKesehatan = async function (studentId) {
       behavior: 'smooth'
     });
   } catch (e) {
-    kesehatanShowError('Gagal memuat data kesehatan.');
+    showAlertKesehatan('Gagal memuat data kesehatan.', 'error');
   }
 };
 
-function kesehatanResetForm() {
+function resetFormKesehatan() {
   document.getElementById('editStudentId').value = '';
+  document.getElementById('siswa-select').style.display = 'block';
+  document.getElementById('displaySiswa').style.display = 'none';
   document.getElementById('displaySiswa').value = '';
   document.getElementById('golongan_darah').value = '';
   document.getElementById('penyakit_bawaan').value = '';
   document.getElementById('riwayat_vaksin').value = '';
   document.getElementById('alergi').value = '';
-  document.getElementById('formTitle').textContent = 'Edit Data Kesehatan';
-  document.querySelectorAll('#formKesehatan .field-error').forEach(function (e) {
-    e.textContent = '';
-  });
-  document.querySelectorAll('#formKesehatan .form-input').forEach(function (e) {
-    e.classList.remove('input--error');
-  });
+  document.getElementById('formTitle').textContent = 'Tambah Data Kesehatan';
+  document.getElementById('btnSimpanText').textContent = 'Simpan';
+  const errors = document.querySelectorAll('#formKesehatan .field-error');
+  for (let i = 0; i < errors.length; i++) {
+    errors[i].textContent = '';
+  }
+  const inputs = document.querySelectorAll('#formKesehatan .form-input');
+  for (let j = 0; j < inputs.length; j++) {
+    inputs[j].classList.remove('input--error');
+  }
 }
 
-function kesehatanShowSuccess(msg) {
-  const el = document.getElementById('alertSuccess');
-  const txt = document.getElementById('alertSuccessMsg');
-  const errEl = document.getElementById('alertError');
-  if (errEl) errEl.hidden = true;
-  if (txt) txt.textContent = msg;
-  if (el) el.hidden = false;
-}
-
-function kesehatanShowError(msg) {
-  const el = document.getElementById('alertError');
-  const txt = document.getElementById('alertErrorMsg');
+function showAlertKesehatan(msg, type) {
   const sucEl = document.getElementById('alertSuccess');
-  if (sucEl) sucEl.hidden = true;
-  if (txt) txt.textContent = msg;
-  if (el) el.hidden = false;
+  const errEl = document.getElementById('alertError');
+  const txt = document.getElementById(type === 'error' ? 'alertErrorMsg' : 'alertSuccessMsg');
+  if (type === 'error') {
+    if (sucEl) sucEl.hidden = true;
+    if (txt) txt.textContent = msg;
+    if (errEl) errEl.hidden = false;
+  } else {
+    if (errEl) errEl.hidden = true;
+    if (txt) txt.textContent = msg;
+    if (sucEl) sucEl.hidden = false;
+  }
 }
 
-function kesehatanSetLoading(on) {
+function setLoadingKesehatan(on) {
   const btn = document.getElementById('btnSimpan');
   const textEl = document.getElementById('btnSimpanText');
   const loadEl = document.getElementById('btnSimpanLoader');
@@ -114,60 +118,100 @@ function kesehatanSetLoading(on) {
 window.page_kesehatan_init = function () {
   window.loadDaftarKesehatan();
 
+  const select = document.getElementById('siswa-select');
+  if (select) {
+    fetch('/api/kesehatan/siswa')
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (json) {
+        if (json.success && json.data) {
+          json.data.forEach(function (siswa) {
+            const opt = document.createElement('option');
+            opt.value = siswa.id;
+            opt.textContent = siswa.nama + ' (' + siswa.nis + ')';
+            select.appendChild(opt);
+          });
+        }
+      })
+      .catch(function (err) {
+        console.error('[KESEHATAN] Gagal memuat daftar siswa:', err.message);
+      });
+  }
+
   const form = document.getElementById('formKesehatan');
   if (!form) return;
 
-  document.getElementById('btnReset').addEventListener('click', function (e) {
+  document.getElementById('btnReset')?.addEventListener('click', function (e) {
     e.preventDefault();
-    kesehatanResetForm();
+    resetFormKesehatan();
   });
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    document.querySelectorAll('#formKesehatan .field-error').forEach(function (el) {
-      el.textContent = '';
-    });
-    document.querySelectorAll('#formKesehatan .form-input').forEach(function (el) {
-      el.classList.remove('input--error');
-    });
     document.getElementById('alertSuccess').hidden = true;
     document.getElementById('alertError').hidden = true;
+    const errors = document.querySelectorAll('#formKesehatan .field-error');
+    for (let i = 0; i < errors.length; i++) {
+      errors[i].textContent = '';
+    }
+    const inputs = document.querySelectorAll('#formKesehatan .form-input');
+    for (let j = 0; j < inputs.length; j++) {
+      inputs[j].classList.remove('input--error');
+    }
 
-    const studentId = document.getElementById('editStudentId').value;
-    if (!studentId) {
-      kesehatanShowError('Pilih siswa dari tabel terlebih dahulu.');
-      return;
+    const editStudentId = document.getElementById('editStudentId').value;
+    let student_id, method, url;
+
+    if (editStudentId) {
+      student_id = editStudentId;
+      method = 'PUT';
+      url = '/api/kesehatan/' + student_id;
+    } else {
+      student_id = document.getElementById('siswa-select').value;
+      if (!student_id) {
+        const errField = document.getElementById('err-siswa');
+        if (errField) errField.textContent = 'Silakan pilih siswa.';
+        const group = document.getElementById('group-siswa');
+        if (group) {
+          const inp = group.querySelector('.form-input');
+          if (inp) inp.classList.add('input--error');
+        }
+        return;
+      }
+      method = 'POST';
+      url = '/api/kesehatan';
     }
 
     const golongan_darah = document.getElementById('golongan_darah').value;
-    if (!golongan_darah) {
-      document.getElementById('err-golongan_darah').textContent = 'Golongan darah harus dipilih.';
-      document.getElementById('golongan_darah').classList.add('input--error');
-      return;
-    }
+    const penyakit_bawaan = document.getElementById('penyakit_bawaan').value.trim();
+    const riwayat_vaksin = document.getElementById('riwayat_vaksin').value.trim();
+    const alergi = document.getElementById('alergi').value.trim();
 
-    const body = {
-      golongan_darah: golongan_darah,
-      penyakit_bawaan: document.getElementById('penyakit_bawaan').value.trim(),
-      riwayat_vaksin: document.getElementById('riwayat_vaksin').value.trim(),
-      alergi: document.getElementById('alergi').value.trim()
-    };
-
-    kesehatanSetLoading(true);
+    setLoadingKesehatan(true);
 
     try {
-      const data = await window.api('/api/kesehatan/' + studentId, {
-        method: 'PUT',
-        body: JSON.stringify(body)
+      const data = await window.api(url, {
+        method: method,
+        body: JSON.stringify({
+          student_id: parseInt(student_id, 10),
+          golongan_darah: golongan_darah || null,
+          penyakit_bawaan: penyakit_bawaan || null,
+          riwayat_vaksin: riwayat_vaksin || null,
+          alergi: alergi || null
+        })
       });
-      kesehatanShowSuccess(data.message || 'Data kesehatan berhasil diperbarui.');
-      kesehatanResetForm();
-      window.loadDaftarKesehatan();
+
+      if (data.success) {
+        showAlertKesehatan(data.message, 'success');
+        resetFormKesehatan();
+        window.loadDaftarKesehatan();
+      }
     } catch (err) {
-      kesehatanShowError(err.message || 'Gagal memperbarui data kesehatan.');
+      showAlertKesehatan(err.message || 'Gagal memproses data kesehatan.', 'error');
     } finally {
-      kesehatanSetLoading(false);
+      setLoadingKesehatan(false);
     }
   });
 };

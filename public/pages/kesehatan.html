@@ -1,6 +1,6 @@
 <div class="page active">
   <div class="page-header">
-    <h1>Catatan Kesehatan</h1>
+    <h1>Catatan Kesehatan Siswa</h1>
   </div>
 
   <div class="alert alert--success" id="alertSuccess" hidden>
@@ -43,25 +43,31 @@
 
   <div class="card">
     <div class="card__body">
-      <h3 style="margin-bottom: 16px" id="formTitle">Edit Data Kesehatan</h3>
+      <h3 style="margin-bottom: 16px" id="formTitle">Tambah Data Kesehatan</h3>
       <form id="formKesehatan" novalidate>
         <input type="hidden" id="editStudentId" />
 
-        <div class="form-group" id="group-student">
-          <label class="form-label" for="displaySiswa">Siswa</label>
+        <div class="form-group" id="group-siswa">
+          <label class="form-label" for="siswa-select"
+            >Pilih Siswa <span class="required">*</span></label
+          >
+          <select class="form-input" id="siswa-select" name="student_id" required>
+            <option value="">— Pilih Siswa —</option>
+          </select>
           <input
             type="text"
             class="form-input"
             id="displaySiswa"
             readonly
-            style="background: var(--gray-100)"
+            style="background: var(--gray-100); display: none"
             placeholder="Pilih siswa dari tabel di atas"
           />
+          <small class="field-error" id="err-siswa"></small>
         </div>
 
         <div class="form-group" id="group-golongan_darah">
           <label class="form-label" for="golongan_darah">Golongan Darah</label>
-          <select class="form-input" id="golongan_darah" required>
+          <select class="form-input" id="golongan_darah" name="golongan_darah">
             <option value="">— Pilih —</option>
             <option value="A">A</option>
             <option value="B">B</option>
@@ -77,10 +83,10 @@
           <textarea
             class="form-input"
             id="penyakit_bawaan"
-            placeholder="Masukkan penyakit bawaan (jika ada)"
+            name="penyakit_bawaan"
             rows="3"
+            placeholder="Masukkan penyakit bawaan (jika ada)"
           ></textarea>
-          <small class="field-error" id="err-penyakit_bawaan"></small>
         </div>
 
         <div class="form-group" id="group-riwayat_vaksin">
@@ -88,10 +94,10 @@
           <textarea
             class="form-input"
             id="riwayat_vaksin"
-            placeholder="Masukkan riwayat vaksin"
+            name="riwayat_vaksin"
             rows="3"
+            placeholder="Masukkan riwayat vaksinasi"
           ></textarea>
-          <small class="field-error" id="err-riwayat_vaksin"></small>
         </div>
 
         <div class="form-group" id="group-alergi">
@@ -99,15 +105,15 @@
           <textarea
             class="form-input"
             id="alergi"
-            placeholder="Masukkan alergi (jika ada)"
+            name="alergi"
             rows="3"
+            placeholder="Masukkan alergi (jika ada)"
           ></textarea>
-          <small class="field-error" id="err-alergi"></small>
         </div>
 
         <div class="form-actions">
           <button type="submit" class="btn btn--primary" id="btnSimpan">
-            <span class="btn__text" id="btnSimpanText">Perbarui</span>
+            <span class="btn__text" id="btnSimpanText">Simpan</span>
             <span class="btn__loader" id="btnSimpanLoader" hidden>
               <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
             </span>
@@ -118,3 +124,5 @@
     </div>
   </div>
 </div>
+
+<script src="../js/kesehatan.js"></script>
