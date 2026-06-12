@@ -1,24 +1,22 @@
-const db = require('../config/db');
+const pool = require('../config/db');
+const responseHelper = require('../shared/response');
 
-const createKesehatan = async (req, res, next) => {
+exports.createKesehatan = async (req, res) => {
   try {
     const { siswa_id, keluhan, tindakan, catatan } = req.body;
-    
+
     if (!siswa_id || !keluhan || !tindakan) {
-      return res.status(400).json({ success: false, message: 'Data tidak lengkap' });
+      return responseHelper.error(res, 'Data tidak lengkap', 400);
     }
 
-    // WAJIB: Menggunakan tabel health_records sesuai schema.sql tim
-    await db.query(
+    await pool.query(
       'INSERT INTO health_records (siswa_id, keluhan, tindakan, catatan) VALUES (?, ?, ?, ?)',
       [siswa_id, keluhan, tindakan, catatan]
     );
 
-    return res.status(201).json({ success: true, message: 'Catatan kesehatan berhasil disimpan' });
+    return responseHelper.success(res, null, 'Catatan kesehatan berhasil disimpan', 201);
   } catch (err) {
-    console.error('Error Fetch: [kesehatanController]', err.message);
-    return next(err);
+    console.error('[KESEHATAN] createKesehatan:', err.message);
+    return responseHelper.error(res, 'Gagal memproses permintaan', 500);
   }
 };
-
-module.exports = { createKesehatan };

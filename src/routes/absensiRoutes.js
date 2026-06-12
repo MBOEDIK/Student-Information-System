@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const { createAbsensi } = require('../controllers/absensiController');
+const absensiCtrl = require('../controllers/absensiController');
 
-router.post('/', createAbsensi);
+router.post('/', absensiCtrl.createAbsensi);
 
 module.exports = router;

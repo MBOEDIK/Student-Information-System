@@ -1,23 +1,23 @@
-const db = require('../config/db');
+const pool = require('../config/db');
+const responseHelper = require('../shared/response');
 
-const createAbsensi = async (req, res, next) => {
+exports.createAbsensi = async (req, res) => {
   try {
     const { siswa_id, status, keterangan } = req.body;
 
     if (!siswa_id || !status) {
-      return res.status(400).json({ success: false, message: 'Data tidak lengkap' });
+      return responseHelper.error(res, 'Data tidak lengkap', 400);
     }
 
-    await db.query(
-      'INSERT INTO absensi (siswa_id, status, keterangan) VALUES (?, ?, ?)',
-      [siswa_id, status, keterangan]
-    );
+    await pool.query('INSERT INTO absensi (siswa_id, status, keterangan) VALUES (?, ?, ?)', [
+      siswa_id,
+      status,
+      keterangan
+    ]);
 
-    return res.status(201).json({ success: true, message: 'Data absensi berhasil disimpan' });
+    return responseHelper.success(res, null, 'Data absensi berhasil disimpan', 201);
   } catch (err) {
-    console.error('Error Fetch: [absensiController]', err.message);
-    return next(err);
+    console.error('[ABSENSI] createAbsensi:', err.message);
+    return responseHelper.error(res, 'Gagal memproses permintaan', 500);
   }
 };
-
-module.exports = { createAbsensi };

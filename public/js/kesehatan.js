@@ -11,7 +11,12 @@ async function saveKesehatan(event) {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ siswa_id: siswaId, keluhan: keluhan, tindakan: tindakan, catatan: catatan })
+      body: JSON.stringify({
+        siswa_id: siswaId,
+        keluhan: keluhan,
+        tindakan: tindakan,
+        catatan: catatan
+      })
     });
     const result = await response.json();
 

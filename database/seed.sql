@@ -96,3 +96,16 @@ INSERT INTO health_records (student_id, golongan_darah, penyakit_bawaan, riwayat
 (8, 'A', 'Diabetes tipe 1',                      'Belum lengkap',                NULL),
 (9, 'B', NULL,                                   'Lengkap',                      NULL),
 (10,'O', NULL,                                   'Lengkap',                      'Kacang-kacangan');
+
+-- ── Absensi (Kehadiran Siswa) ────────────────────────────────
+TRUNCATE TABLE absensi;
+
+INSERT INTO absensi (siswa_id, status, keterangan) VALUES
+(1, 'Hadir', NULL),
+(2, 'Hadir', NULL),
+(3, 'Sakit', 'Demam'),
+(4, 'Izin', 'Ada acara keluarga'),
+(6, 'Hadir', NULL),
+(8, 'Alpa', NULL),
+(9, 'Hadir', NULL),
+(10, 'Hadir', NULL);

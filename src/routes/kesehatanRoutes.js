@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const { createKesehatan } = require('../controllers/kesehatanController');
+const kesehatanCtrl = require('../controllers/kesehatanController');
 
-router.post('/', createKesehatan);
+router.post('/', kesehatanCtrl.createKesehatan);
 
 module.exports = router;
