@@ -51,35 +51,36 @@ window.editKesehatan = async function (studentId) {
     }
     const d = json.data;
     document.getElementById('editStudentId').value = d.student_id;
-    document.getElementById('siswa-select').classList.add('d-none');
-    document.getElementById('displaySiswa').classList.remove('d-none');
-    document.getElementById('displaySiswa').value = d.nis + ' - ' + d.nama;
-    document.getElementById('golongan_darah').value = d.golongan_darah || '';
-    document.getElementById('penyakit_bawaan').value = d.penyakit_bawaan || '';
-    document.getElementById('riwayat_vaksin').value = d.riwayat_vaksin || '';
-    document.getElementById('alergi').value = d.alergi || '';
-    document.getElementById('formTitle').textContent = 'Edit Data Kesehatan - ' + d.nama;
-    document.getElementById('btnSimpanText').textContent = 'Perbarui';
-    window.scrollTo({
-      top: document.getElementById('formKesehatan').offsetTop - 20,
-      behavior: 'smooth'
-    });
+    document.getElementById('editDisplaySiswa').value = d.nis + ' - ' + d.nama;
+    document.getElementById('editGolonganDarah').value = d.golongan_darah || '';
+    document.getElementById('editPenyakitBawaan').value = d.penyakit_bawaan || '';
+    document.getElementById('editRiwayatVaksin').value = d.riwayat_vaksin || '';
+    document.getElementById('editAlergi').value = d.alergi || '';
+    document.getElementById('modalFormTitle').textContent = 'Edit Data Kesehatan - ' + d.nama;
+    window.openModal('modal-edit-kesehatan');
   } catch (e) {
     showAlertKesehatan('Gagal memuat data kesehatan.', 'error');
   }
 };
 
+function toggleFormKesehatan(show) {
+  const form = document.getElementById('formKesehatan');
+  const icon = document.getElementById('tambahKesehatanIcon');
+  if (show) {
+    form.classList.remove('d-none');
+    icon.className = 'bi bi-dash-circle toggle-header__icon';
+  } else {
+    form.classList.add('d-none');
+    icon.className = 'bi bi-plus-circle toggle-header__icon';
+  }
+}
+
 function resetFormKesehatan() {
-  document.getElementById('editStudentId').value = '';
-  document.getElementById('siswa-select').classList.remove('d-none');
-  document.getElementById('displaySiswa').classList.add('d-none');
-  document.getElementById('displaySiswa').value = '';
+  document.getElementById('siswa-select').value = '';
   document.getElementById('golongan_darah').value = '';
   document.getElementById('penyakit_bawaan').value = '';
   document.getElementById('riwayat_vaksin').value = '';
   document.getElementById('alergi').value = '';
-  document.getElementById('formTitle').textContent = 'Tambah Data Kesehatan';
-  document.getElementById('btnSimpanText').textContent = 'Simpan';
   const errors = document.querySelectorAll('#formKesehatan .field-error');
   for (let i = 0; i < errors.length; i++) {
     errors[i].textContent = '';
@@ -114,6 +115,15 @@ function setLoadingKesehatan(on) {
   if (loadEl) loadEl.hidden = !on;
 }
 
+function setLoadingEdit(on) {
+  const btn = document.getElementById('btnSimpanEdit');
+  const textEl = document.getElementById('btnSimpanEditText');
+  const loadEl = document.getElementById('btnSimpanEditLoader');
+  if (btn) btn.disabled = on;
+  if (textEl) textEl.hidden = on;
+  if (loadEl) loadEl.hidden = !on;
+}
+
 window.page_kesehatan_init = function () {
   window.loadDaftarKesehatan();
 
@@ -138,13 +148,18 @@ window.page_kesehatan_init = function () {
       });
   }
 
-  const form = document.getElementById('formKesehatan');
-  if (!form) return;
+  document.getElementById('tambahKesehatanToggle').addEventListener('click', function () {
+    const form = document.getElementById('formKesehatan');
+    toggleFormKesehatan(form.classList.contains('d-none'));
+  });
 
   document.getElementById('btnReset')?.addEventListener('click', function (e) {
     e.preventDefault();
     resetFormKesehatan();
   });
+
+  const form = document.getElementById('formKesehatan');
+  if (!form) return;
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -160,27 +175,16 @@ window.page_kesehatan_init = function () {
       inputs[j].classList.remove('input--error');
     }
 
-    const editStudentId = document.getElementById('editStudentId').value;
-    let student_id, method, url;
-
-    if (editStudentId) {
-      student_id = editStudentId;
-      method = 'PUT';
-      url = '/api/kesehatan/' + student_id;
-    } else {
-      student_id = document.getElementById('siswa-select').value;
-      if (!student_id) {
-        const errField = document.getElementById('err-siswa');
-        if (errField) errField.textContent = 'Silakan pilih siswa.';
-        const group = document.getElementById('group-siswa');
-        if (group) {
-          const inp = group.querySelector('.form-input');
-          if (inp) inp.classList.add('input--error');
-        }
-        return;
+    const student_id = document.getElementById('siswa-select').value;
+    if (!student_id) {
+      const errField = document.getElementById('err-siswa');
+      if (errField) errField.textContent = 'Silakan pilih siswa.';
+      const group = document.getElementById('group-siswa');
+      if (group) {
+        const inp = group.querySelector('.form-input');
+        if (inp) inp.classList.add('input--error');
       }
-      method = 'POST';
-      url = '/api/kesehatan';
+      return;
     }
 
     const golongan_darah = document.getElementById('golongan_darah').value;
@@ -191,8 +195,8 @@ window.page_kesehatan_init = function () {
     setLoadingKesehatan(true);
 
     try {
-      const data = await window.api(url, {
-        method: method,
+      const data = await window.api('/api/kesehatan', {
+        method: 'POST',
         body: JSON.stringify({
           student_id: parseInt(student_id, 10),
           golongan_darah: golongan_darah || null,
@@ -205,12 +209,53 @@ window.page_kesehatan_init = function () {
       if (data.success) {
         showAlertKesehatan(data.message, 'success');
         resetFormKesehatan();
+        toggleFormKesehatan(false);
         window.loadDaftarKesehatan();
       }
     } catch (err) {
       showAlertKesehatan(err.message || 'Gagal memproses data kesehatan.', 'error');
     } finally {
       setLoadingKesehatan(false);
+    }
+  });
+
+  const editForm = document.getElementById('formEditKesehatan');
+  if (!editForm) return;
+
+  editForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const studentId = document.getElementById('editStudentId').value;
+    if (!studentId) return;
+
+    const golongan_darah = document.getElementById('editGolonganDarah').value;
+    const penyakit_bawaan = document.getElementById('editPenyakitBawaan').value.trim();
+    const riwayat_vaksin = document.getElementById('editRiwayatVaksin').value.trim();
+    const alergi = document.getElementById('editAlergi').value.trim();
+
+    setLoadingEdit(true);
+
+    try {
+      const data = await window.api('/api/kesehatan/' + studentId, {
+        method: 'PUT',
+        body: JSON.stringify({
+          student_id: parseInt(studentId, 10),
+          golongan_darah: golongan_darah || null,
+          penyakit_bawaan: penyakit_bawaan || null,
+          riwayat_vaksin: riwayat_vaksin || null,
+          alergi: alergi || null
+        })
+      });
+
+      if (data.success) {
+        showAlertKesehatan(data.message, 'success');
+        window.closeModal('modal-edit-kesehatan');
+        window.loadDaftarKesehatan();
+      }
+    } catch (err) {
+      showAlertKesehatan(err.message || 'Gagal memperbarui data kesehatan.', 'error');
+    } finally {
+      setLoadingEdit(false);
     }
   });
 };
