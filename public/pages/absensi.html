@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <div class="stats-row" id="stats-container">
+    <div class="stats-row" id="stats-container" style="margin-top: 20px">
       <div class="stat-card">
         <div class="stat-card__icon stat-card__icon--blue">
           <i class="bi bi-people"></i>
@@ -71,11 +71,12 @@
             <th>Mata Pelajaran</th>
             <th>Guru</th>
             <th>Status</th>
+            <th>Keterangan</th>
           </tr>
         </thead>
         <tbody id="laporan-table-body">
           <tr>
-            <td colspan="6" style="text-align: center; color: var(--text-muted)">
+            <td colspan="7" style="text-align: center; color: var(--text-muted)">
               Pilih tanggal untuk melihat laporan.
             </td>
           </tr>
@@ -87,10 +88,15 @@
   <div id="form-section">
     <div class="card">
       <div class="card__body">
+        <h3 style="margin-bottom: 16px">Catat Absensi Siswa</h3>
         <form id="form-absensi" class="form">
           <div class="form-group">
-            <label for="siswa-id" class="form-label">ID Siswa</label>
-            <input type="text" id="siswa-id" class="form-input" required />
+            <label for="siswa-select" class="form-label"
+              >Pilih Siswa <span class="required">*</span></label
+            >
+            <select id="siswa-select" class="form-input" required>
+              <option value="">— Pilih Siswa —</option>
+            </select>
           </div>
 
           <div class="form-group">
