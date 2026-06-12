@@ -3,14 +3,13 @@
 window.loadDaftarKesehatan = async function () {
   const tbody = document.getElementById('kesehatanTableBody');
   if (!tbody) return;
-  tbody.innerHTML =
-    '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/kesehatan');
     const json = await res.json();
     if (!json.success || !json.data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Belum ada data kesehatan.</td></tr>';
+        '<tr><td colspan="5" class="text-center text-muted">Belum ada data kesehatan.</td></tr>';
       return;
     }
     tbody.innerHTML = json.data
@@ -38,7 +37,7 @@ window.loadDaftarKesehatan = async function () {
       .join('');
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="5" style="text-align:center;color:var(--danger);">Gagal memuat data.</td></tr>';
+      '<tr><td colspan="5" class="text-center text-danger">Gagal memuat data.</td></tr>';
   }
 };
 
@@ -52,8 +51,8 @@ window.editKesehatan = async function (studentId) {
     }
     const d = json.data;
     document.getElementById('editStudentId').value = d.student_id;
-    document.getElementById('siswa-select').style.display = 'none';
-    document.getElementById('displaySiswa').style.display = 'block';
+    document.getElementById('siswa-select').classList.add('d-none');
+    document.getElementById('displaySiswa').classList.remove('d-none');
     document.getElementById('displaySiswa').value = d.nis + ' - ' + d.nama;
     document.getElementById('golongan_darah').value = d.golongan_darah || '';
     document.getElementById('penyakit_bawaan').value = d.penyakit_bawaan || '';
@@ -72,8 +71,8 @@ window.editKesehatan = async function (studentId) {
 
 function resetFormKesehatan() {
   document.getElementById('editStudentId').value = '';
-  document.getElementById('siswa-select').style.display = 'block';
-  document.getElementById('displaySiswa').style.display = 'none';
+  document.getElementById('siswa-select').classList.remove('d-none');
+  document.getElementById('displaySiswa').classList.add('d-none');
   document.getElementById('displaySiswa').value = '';
   document.getElementById('golongan_darah').value = '';
   document.getElementById('penyakit_bawaan').value = '';

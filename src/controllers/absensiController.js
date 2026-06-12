@@ -37,7 +37,8 @@ exports.getLaporanHarian = async (req, res) => {
         s.nama AS nama_siswa,
         sub.nama_pelajaran,
         t.nama AS nama_guru,
-        a.status
+        a.status,
+        a.keterangan
       FROM absensi a
       JOIN students s ON a.siswa_id = s.id
       LEFT JOIN schedules sch ON a.schedule_id = sch.id

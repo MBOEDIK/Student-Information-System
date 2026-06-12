@@ -1,36 +1,12 @@
 'use strict';
 
-async function saveAbsensi(event) {
-  event.preventDefault();
-  try {
-    const siswaId = document.getElementById('siswa-id').value;
-    const status = document.getElementById('status').value;
-    const keterangan = document.getElementById('keterangan').value;
-
-    const response = await fetch('/api/absensi', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ siswa_id: siswaId, status: status, keterangan: keterangan })
-    });
-    const result = await response.json();
-
-    if (result.success) {
-      alert('Data absensi berhasil disimpan!');
-    }
-  } catch (err) {
-    console.error('[FRONTEND] saveAbsensi:', err.message);
-  }
-}
-
 async function loadLaporan(tanggal) {
   try {
     const [rekap, laporan] = await Promise.all([
-      fetch(`/api/absensi/laporan/rekap?tanggal=${tanggal}`).then(function (r) {
+      fetch('/api/absensi/laporan/rekap?tanggal=' + tanggal).then(function (r) {
         return r.json();
       }),
-      fetch(`/api/absensi/laporan?tanggal=${tanggal}`).then(function (r) {
+      fetch('/api/absensi/laporan?tanggal=' + tanggal).then(function (r) {
         return r.json();
       })
     ]);
@@ -78,7 +54,7 @@ function renderTable(data) {
 
   if (!data || !data.length) {
     tbody.innerHTML =
-      '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Belum ada data absensi.</td></tr>';
+      '<tr><td colspan="7" class="text-center text-muted">Belum ada data absensi.</td></tr>';
     return;
   }
 
@@ -104,6 +80,9 @@ function renderTable(data) {
         '<td>' +
         badgeForStatus(row.status) +
         '</td>' +
+        '<td>' +
+        (row.keterangan || '–') +
+        '</td>' +
         '</tr>'
       );
     })
@@ -111,27 +90,13 @@ function renderTable(data) {
 }
 
 window.page_absensi_init = function () {
-  const isAdmin = window.currentUser && window.currentUser.role === 'admin';
+  const dateInput = document.getElementById('filter-tanggal');
+  if (!dateInput) return;
 
-  const formSection = document.getElementById('form-section');
-  const adminSection = document.getElementById('admin-section');
+  dateInput.value = new Date().toISOString().split('T')[0];
+  loadLaporan(dateInput.value);
 
-  if (formSection) formSection.classList.toggle('hidden', isAdmin);
-  if (adminSection) adminSection.classList.toggle('hidden', !isAdmin);
-
-  if (isAdmin) {
-    const dateInput = document.getElementById('filter-tanggal');
-    if (dateInput) {
-      dateInput.value = new Date().toISOString().split('T')[0];
-      loadLaporan(dateInput.value);
-      dateInput.addEventListener('change', function () {
-        loadLaporan(this.value);
-      });
-    }
-  } else {
-    const formElement = document.getElementById('form-absensi');
-    if (formElement) {
-      formElement.addEventListener('submit', saveAbsensi);
-    }
-  }
+  dateInput.addEventListener('change', function () {
+    loadLaporan(this.value);
+  });
 };

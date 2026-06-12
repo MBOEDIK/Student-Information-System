@@ -369,3 +369,38 @@ tbody tr:hover {
 .search-bar {
   margin-bottom: 16px;
 }
+
+/* ── Helpers ─────────────────────────────── */
+.text-center {
+  text-align: center;
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.text-danger {
+  color: var(--danger);
+}
+.d-none {
+  display: none !important;
+}
+.bg-gray-100 {
+  background: var(--gray-100);
+}
+.mb-16 {
+  margin-bottom: 16px;
+}
+.mb-0 {
+  margin-bottom: 0;
+}
+.p-0 {
+  padding: 0;
+}
+.mb-24 {
+  margin-bottom: 24px;
+}
+.mt-20 {
+  margin-top: 20px;
+}
+.max-w-240 {
+  max-width: 240px;
+}

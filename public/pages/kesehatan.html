@@ -15,9 +15,9 @@
     <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
   </div>
 
-  <div class="card" style="margin-bottom: 24px">
+  <div class="card mb-24">
     <div class="card__body">
-      <h3 style="margin-bottom: 16px">Daftar Data Kesehatan</h3>
+      <h3 class="mb-16">Daftar Data Kesehatan</h3>
       <div class="table-wrapper">
         <table>
           <thead>
@@ -31,9 +31,7 @@
           </thead>
           <tbody id="kesehatanTableBody">
             <tr>
-              <td colspan="5" style="text-align: center; color: var(--text-muted)">
-                Memuat data...
-              </td>
+              <td colspan="5" class="text-center text-muted">Memuat data...</td>
             </tr>
           </tbody>
         </table>
@@ -43,7 +41,7 @@
 
   <div class="card">
     <div class="card__body">
-      <h3 style="margin-bottom: 16px" id="formTitle">Tambah Data Kesehatan</h3>
+      <h3 class="mb-16" id="formTitle">Tambah Data Kesehatan</h3>
       <form id="formKesehatan" novalidate>
         <input type="hidden" id="editStudentId" />
 
@@ -56,10 +54,9 @@
           </select>
           <input
             type="text"
-            class="form-input"
+            class="form-input bg-gray-100 d-none"
             id="displaySiswa"
             readonly
-            style="background: var(--gray-100); display: none"
             placeholder="Pilih siswa dari tabel di atas"
           />
           <small class="field-error" id="err-siswa"></small>
