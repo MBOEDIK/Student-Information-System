@@ -100,12 +100,12 @@ INSERT INTO health_records (student_id, golongan_darah, penyakit_bawaan, riwayat
 -- ── Absensi (Kehadiran Siswa) ────────────────────────────────
 TRUNCATE TABLE absensi;
 
-INSERT INTO absensi (siswa_id, status, keterangan) VALUES
-(1, 'Hadir', NULL),
-(2, 'Hadir', NULL),
-(3, 'Sakit', 'Demam'),
-(4, 'Izin', 'Ada acara keluarga'),
-(6, 'Hadir', NULL),
-(8, 'Alpa', NULL),
-(9, 'Hadir', NULL),
-(10, 'Hadir', NULL);
+INSERT INTO absensi (siswa_id, schedule_id, status, keterangan, tanggal) VALUES
+(1, 1, 'Hadir', NULL,            '2026-06-12'),
+(2, 1, 'Hadir', NULL,            '2026-06-12'),
+(3, 1, 'Sakit', 'Demam',         '2026-06-12'),
+(4, 1, 'Izin',  'Acara keluarga','2026-06-12'),
+(6, 1, 'Hadir', NULL,            '2026-06-12'),
+(8, 2, 'Alpa',  NULL,            '2026-06-12'),
+(9, 2, 'Hadir', NULL,            '2026-06-12'),
+(10,2, 'Hadir', NULL,            '2026-06-12');
