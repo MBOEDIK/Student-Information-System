@@ -455,6 +455,24 @@ td .btn--icon {
   margin-right: 4px;
 }
 
+td .absensi-status {
+  min-width: 120px;
+}
+
+td .absensi-keterangan {
+  resize: none;
+  overflow: hidden;
+  min-height: 38px;
+  padding: 8px 10px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+td:has(.absensi-keterangan) {
+  max-width: 220px;
+}
+
 /* ── Empty State ─────────────────────────── */
 .empty-state {
   text-align: center;

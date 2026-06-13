@@ -95,35 +95,29 @@ function renderTable(data) {
 
 const ABSENSI_STATUS_OPTIONS = ['Hadir', 'Sakit', 'Izin', 'Alpa'];
 
-function renderStatusRadios(siswaId, selected) {
+function renderStatusDropdown(siswaId, selected) {
   const current = selected || 'Hadir';
-  return ABSENSI_STATUS_OPTIONS.map(function (s) {
-    const checked = current === s ? 'checked' : '';
-    return (
-      '<label class="radio-inline">' +
-      '<input type="radio" name="status-' +
-      siswaId +
-      '" class="absensi-status" data-siswa-id="' +
-      siswaId +
-      '" value="' +
-      s +
-      '" ' +
-      checked +
-      ' /> ' +
-      s +
-      '</label>'
-    );
+  const options = ABSENSI_STATUS_OPTIONS.map(function (s) {
+    const sel = current === s ? ' selected' : '';
+    return '<option value="' + s + '"' + sel + '>' + s + '</option>';
   }).join('');
+  return (
+    '<select class="form-input absensi-status" data-siswa-id="' +
+    siswaId +
+    '">' +
+    options +
+    '</select>'
+  );
 }
 
-function renderKeteranganInput(siswaId, value) {
+function renderKeteranganTextarea(siswaId, value) {
   const safeValue = value ? String(value).replace(/"/g, '&quot;') : '';
   return (
-    '<input type="text" class="form-input absensi-keterangan" data-siswa-id="' +
+    '<textarea class="form-input absensi-keterangan" data-siswa-id="' +
     siswaId +
-    '" value="' +
+    '" placeholder="Opsional" rows="1">' +
     safeValue +
-    '" placeholder="Opsional" />'
+    '</textarea>'
   );
 }
 
@@ -241,15 +235,24 @@ window.loadSiswaBySchedule = async function (scheduleId) {
           s.nama +
           '</td>' +
           '<td>' +
-          renderStatusRadios(s.id, s.status_absen) +
+          renderStatusDropdown(s.id, s.status_absen) +
           '</td>' +
           '<td>' +
-          renderKeteranganInput(s.id, s.keterangan) +
+          renderKeteranganTextarea(s.id, s.keterangan) +
           '</td>' +
           '</tr>'
         );
       })
       .join('');
+
+    tbody.querySelectorAll('.absensi-keterangan').forEach(function (el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+      el.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+      });
+    });
   } catch (e) {
     tbody.innerHTML =
       '<tr><td colspan="5" class="text-center text-danger">Gagal memuat daftar siswa.</td></tr>';
@@ -285,11 +288,8 @@ window.submitAbsensiGuru = async function () {
   });
 
   const entries = [];
-  const seen = new Set();
-  document.querySelectorAll('.absensi-status:checked').forEach(function (el) {
+  document.querySelectorAll('.absensi-status').forEach(function (el) {
     const siswaId = el.dataset.siswaId;
-    if (seen.has(siswaId)) return;
-    seen.add(siswaId);
     entries.push({
       siswa_id: Number(siswaId),
       status: el.value,
@@ -298,7 +298,7 @@ window.submitAbsensiGuru = async function () {
   });
 
   if (entries.length === 0) {
-    showAbsensiError('Tidak ada status absensi yang dipilih.');
+    showAbsensiError('Tidak ada data absensi yang disimpan.');
     return;
   }
 
