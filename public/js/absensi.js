@@ -264,6 +264,7 @@ window.loadSiswaBySchedule = async function (scheduleId) {
  * 3. Mengumpulkan semua value dari tabel dan mengirim ke /api/absensi/batch
  */
 window.submitAbsensiGuru = async function () {
+  // ── Validasi ─────────────────────────────────────────
   const sel = document.getElementById('guru-schedule-select');
   const errEl = document.getElementById('err-jadwal');
   if (errEl) errEl.textContent = '';
@@ -302,6 +303,36 @@ window.submitAbsensiGuru = async function () {
     return;
   }
 
+  // ── Tampilkan modal konfirmasi ──────────────────────
+  const modalYa = document.getElementById('btnKonfirmasiAbsensiYa');
+  const modalTidak = document.getElementById('btnKonfirmasiAbsensiTidak');
+  if (!modalYa || !modalTidak) return;
+
+  const confirmed = await new Promise(function (resolve) {
+    function cleanup() {
+      modalYa.removeEventListener('click', onYa);
+      modalTidak.removeEventListener('click', onTidak);
+    }
+    function onYa() {
+      cleanup();
+      resolve(true);
+    }
+    function onTidak() {
+      cleanup();
+      resolve(false);
+    }
+    modalYa.addEventListener('click', onYa);
+    modalTidak.addEventListener('click', onTidak);
+    window.openModal('modal-konfirmasi-absensi');
+  });
+
+  if (!confirmed) {
+    window.closeModal('modal-konfirmasi-absensi');
+    return;
+  }
+  window.closeModal('modal-konfirmasi-absensi');
+
+  // ── Kirim data ──────────────────────────────────────
   const tanggal = new Date().toISOString().slice(0, 10);
 
   const btn = document.getElementById('btnSimpanAbsensi');
