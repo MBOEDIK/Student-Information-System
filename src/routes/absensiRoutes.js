@@ -8,5 +8,6 @@ router.get('/laporan', absensiCtrl.getLaporanHarian);
 router.get('/laporan/rekap', absensiCtrl.getRekapHarian);
 router.get('/siswa-by-schedule', absensiCtrl.getSiswaBySchedule);
 router.post('/batch', absensiCtrl.saveAbsensiBatch);
+router.put('/:id', absensiCtrl.updateAbsensi);
 
 module.exports = router;

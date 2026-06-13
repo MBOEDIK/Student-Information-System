@@ -225,3 +225,40 @@ exports.saveAbsensiBatch = async (req, res) => {
     conn.release();
   }
 };
+
+exports.updateAbsensi = async (req, res) => {
+  const { id } = req.params;
+
+  // Validasi id params
+  if (!id || isNaN(Number(id))) {
+    return responseHelper.error(res, 'Parameter id tidak valid', 400);
+  }
+
+  // Validasi body { status, keterangan }
+  const { status, keterangan } = req.body;
+
+  const validStatus = ['Hadir', 'Sakit', 'Izin', 'Alfa'];
+  if (!status || !validStatus.includes(status)) {
+    return responseHelper.error(
+      res,
+      `status wajib diisi dan harus salah satu dari: ${validStatus.join(', ')}`,
+      400
+    );
+  }
+
+  try {
+    const [result] = await pool.query(
+      'UPDATE absensi SET status = ?, keterangan = ? WHERE id = ?',
+      [status, keterangan || null, Number(id)]
+    );
+
+    if (result.affectedRows === 0) {
+      return responseHelper.error(res, 'Data absensi tidak ditemukan', 404);
+    }
+
+    return responseHelper.success(res, null, 'Data absensi berhasil diperbarui');
+  } catch (err) {
+    console.error('[ABSENSI] updateAbsensi:', err.message);
+    return responseHelper.error(res, 'Gagal memproses permintaan', 500);
+  }
+};
