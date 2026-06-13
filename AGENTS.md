@@ -75,20 +75,22 @@ DILARANG response JSON manual. Gunakan `src/shared/response.js`:
 
 ### 6a. DILARANG Inline Styles
 
-Gunakan class dari `public/css/components.css`:
+Gunakan class dari `public/css/components.css`. JANGAN gunakan atribut `style="..."`.
 
-| Komponen                  | Class Wajib                                       |
-| ------------------------- | ------------------------------------------------- |
-| Container halaman         | `class="page active"`                             |
-| Header                    | `class="page-header"` dengan `<h1>`               |
-| Container form            | `<div class="card"><div class="card__body">`      |
-| Label                     | `class="form-label"`                              |
-| Input / Select / Textarea | `class="form-input"`                              |
-| Wrapper form-group        | `class="form-group"`                              |
-| Tombol                    | `class="btn"` + `btn--primary` / `btn--secondary` |
-| Notifikasi                | `class="alert alert--success"` / `alert--error`   |
-| Wrapper tabel             | `class="table-wrapper"`                           |
-| Badge                     | `class="badge badge--green/gray/red"`             |
+| Komponen                  | Class Wajib                                             |
+| ------------------------- | ------------------------------------------------------- |
+| Container halaman         | `class="page active"`                                   |
+| Header                    | `class="page-header"` dengan `<h1>`                     |
+| Container form            | `<div class="card"><div class="card__body">`            |
+| Label                     | `class="form-label"`                                    |
+| Input / Select / Textarea | `class="form-input"`                                    |
+| Wrapper form-group        | `class="form-group"`                                    |
+| Tombol                    | `class="btn"` + `btn--primary` / `btn--secondary`       |
+| Notifikasi                | `class="alert alert--success"` / `alert--error`         |
+| Wrapper tabel             | `class="table-wrapper"`                                 |
+| Badge                     | `class="badge badge--green/gray/red"`                   |
+| Search bar                | `<div class="search-bar"><form>...</form></div>`        |
+| Tabel kosong              | `<tr><td colspan="N" class="empty-state">...</td></tr>` |
 
 ### 6b. DILARANG Hardcode Warna
 
@@ -106,6 +108,55 @@ WAJIB pakai CSS variables dari `public/css/base.css`:
 ### 6d. Tabel
 
 Pakai `<table>` polos tanpa inline style. `<thead>` otomatis bergaya gelap (`--sidebar-bg`). JANGAN timpa dengan `#f8f9fa`.
+
+### 6e. Tombol Aksi Tabel
+
+Gunakan `btn--icon` untuk tombol aksi di baris tabel:
+
+| Aksi  | Class                                                                             |
+| ----- | --------------------------------------------------------------------------------- |
+| Edit  | `<button class="btn btn--icon btn--icon-edit">` + `<i class="bi bi-pencil"></i>`  |
+| Hapus | `<button class="btn btn--icon btn--icon-danger">` + `<i class="bi bi-trash"></i>` |
+| Lihat | `<button class="btn btn--icon btn--icon-view">` + `<i class="bi bi-eye"></i>`     |
+
+### 6f. State Kosong & Loading
+
+- **Empty state**: Gunakan `<div class="empty-state">` dengan icon, title, dan deskripsi.
+- **Loading tabel**: Gunakan class `.skeleton` / `.skeleton-row` untuk placeholder.
+- **Loading tombol**: Gunakan span `.btn__loader` dengan icon `<i class="bi bi-arrow-repeat spin"></i>` di dalam tombol.
+
+### 6g. Form Multi-Kolom
+
+Untuk form yang membutuhkan 2 input bersebelahan, gunakan:
+
+```html
+<div class="form-row">
+  <div class="form-group">
+    <label class="form-label">...</label>
+    <input class="form-input" />
+  </div>
+  <div class="form-group">
+    <label class="form-label">...</label>
+    <input class="form-input" />
+  </div>
+</div>
+```
+
+### 6h. Utility Classes
+
+Gunakan utility class berikut sebagai pengganti inline style:
+
+| Kebutuhan              | Class                                 |
+| ---------------------- | ------------------------------------- |
+| Flex container         | `class="flex"`                        |
+| Flex wrap              | `class="flex flex-wrap"`              |
+| Gap antar item         | `class="gap-8"` / `gap-16` / `gap-24` |
+| Rata tengah vertikal   | `class="items-center"`                |
+| Sebar kiri-kanan       | `class="justify-between"`             |
+| Rata tengah horizontal | `class="justify-center"`              |
+| Flex: 1                | `class="flex-1"`                      |
+| Min width 180px        | `class="min-w-180"`                   |
+| Lebar penuh            | `class="w-full"`                      |
 
 ---
 

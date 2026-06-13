@@ -17,7 +17,7 @@
 
   <!-- ===================== VIEW SISWA (read-only) ===================== -->
   <div id="jadwal-siswa-view" hidden>
-    <div class="card" style="margin-bottom: 24px">
+    <div class="card mb-24">
       <div class="card__body">
         <div class="page-header">
           <h2>Jadwal Kelas Saya</h2>
@@ -36,9 +36,7 @@
             </thead>
             <tbody id="jadwalSiswaTableBody">
               <tr>
-                <td colspan="6" style="text-align: center; color: var(--text-muted)">
-                  Memuat data...
-                </td>
+                <td colspan="6" class="text-center text-muted">Memuat data...</td>
               </tr>
             </tbody>
           </table>
@@ -50,7 +48,7 @@
 
   <!-- ===================== VIEW ADMIN (tabel + form) ===================== -->
   <div id="jadwal-admin-view" hidden>
-    <div class="card" style="margin-bottom: 24px">
+    <div class="card mb-24">
       <div class="card__body">
         <div class="page-header">
           <h2>Daftar Jadwal Kelas</h2>
@@ -70,9 +68,7 @@
             </thead>
             <tbody id="jadwalTableBody">
               <tr>
-                <td colspan="7" style="text-align: center; color: var(--text-muted)">
-                  Memuat data...
-                </td>
+                <td colspan="7" class="text-center text-muted">Memuat data...</td>
               </tr>
             </tbody>
           </table>
@@ -120,8 +116,8 @@
             <small class="field-error" id="err-hari"></small>
           </div>
 
-          <div style="display: flex; gap: 16px; flex-wrap: wrap">
-            <div class="form-group" style="flex: 1; min-width: 180px" id="group-jam_mulai">
+          <div class="form-row">
+            <div class="form-group" id="group-jam_mulai">
               <label class="form-label" for="jam_mulai"
                 >Jam Mulai <span class="required">*</span></label
               >
@@ -129,7 +125,7 @@
               <small class="field-error" id="err-jam_mulai"></small>
             </div>
 
-            <div class="form-group" style="flex: 1; min-width: 180px" id="group-jam_selesai">
+            <div class="form-group" id="group-jam_selesai">
               <label class="form-label" for="jam_selesai"
                 >Jam Selesai <span class="required">*</span></label
               >
