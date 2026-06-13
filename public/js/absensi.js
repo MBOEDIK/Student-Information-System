@@ -306,7 +306,6 @@ window.submitAbsensiGuru = async function () {
   // ── Tampilkan modal konfirmasi ──────────────────────
   const modalYa = document.getElementById('btnKonfirmasiAbsensiYa');
   const modalTidak = document.getElementById('btnKonfirmasiAbsensiTidak');
-  if (!modalYa || !modalTidak) return;
 
   const confirmed = await new Promise(function (resolve) {
     function cleanup() {
