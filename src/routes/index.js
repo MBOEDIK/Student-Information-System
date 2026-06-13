@@ -6,5 +6,6 @@ router.use('/guru', require('./guruRoutes'));
 router.use('/jadwal', require('./jadwalRoutes'));
 router.use('/absensi', require('./absensiRoutes'));
 router.use('/kesehatan', require('./kesehatanRoutes'));
+router.use('/nilai', require('./nilaiRoutes'));
 
 module.exports = router;
