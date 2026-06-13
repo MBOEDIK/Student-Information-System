@@ -49,3 +49,24 @@ exports.updateGuru = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Gagal mengupdate data guru.' });
   }
 };
+
+exports.toggleStatusGuru = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!['aktif', 'tidak aktif'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Status tidak valid.' });
+    }
+    const [result] = await pool.query(
+      'UPDATE teachers SET status = ? WHERE id = ?',
+      [status, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Guru tidak ditemukan.' });
+    }
+    return res.json({ success: true, data: { id, status }, message: 'Status guru berhasil diperbarui.' });
+  } catch (err) {
+    console.error('[GURU CONTROLLER] toggleStatusGuru:', err.message);
+    return res.status(500).json({ success: false, message: 'Gagal mengubah status guru.' });
+  }
+};

@@ -7,4 +7,5 @@ router.get('/stats',  guruCtrl.getStats);
 router.get('/:id',    guruCtrl.getGuruById);
 router.put('/:id',    guruCtrl.updateGuru);
 
+router.patch('/:id/status', guruCtrl.toggleStatusGuru);
 module.exports = router;

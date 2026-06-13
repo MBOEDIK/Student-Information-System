@@ -18,7 +18,17 @@ window.loadSiswa = async function () {
         <td>${s.nama}</td>
         <td>${s.jenis_kelamin}</td>
         <td>${s.alamat || '–'}</td>
-        <td>${window.statusBadge(s.status)}</td>
+        <td>
+  <label class="toggle-switch">
+    <input type="checkbox"
+      data-id="${s.id}"
+      data-type="siswa"
+      ${s.status === 'aktif' ? 'checked' : ''}
+      onchange="window.toggleSiswaStatus(${s.id}, this.checked)">
+    <span class="toggle-slider"></span>
+  </label>
+  <span class="toggle-label">${s.status}</span>
+</td>
         <td><button class="btn btn--sm btn--primary" onclick="editSiswa(${s.id})">Edit</button></td>
       </tr>
     `).join('');
@@ -86,7 +96,17 @@ window.cariSiswa = async function (keyword) {
         <td>${s.nama}</td>
         <td>${s.jenis_kelamin}</td>
         <td>${s.alamat || '–'}</td>
-        <td>${window.statusBadge(s.status)}</td>
+        <td>
+  <label class="toggle-switch">
+    <input type="checkbox"
+      data-id="${s.id}"
+      data-type="siswa"
+      ${s.status === 'aktif' ? 'checked' : ''}
+      onchange="window.toggleSiswaStatus(${s.id}, this.checked)">
+    <span class="toggle-slider"></span>
+  </label>
+  <span class="toggle-label">${s.status}</span>
+</td>
         <td><button class="btn btn--sm btn--primary" onclick="editSiswa(${s.id})">Edit</button></td>
       </tr>
     `).join('');
@@ -240,4 +260,34 @@ window.page_pendaftaran_init = function () {
       setPendaftaranLoading(false);
     }
   });
+};
+
+window.toggleSiswaStatus = async (id, isActive) => {
+  const status = isActive ? 'aktif' : 'tidak aktif';
+  const checkbox = document.querySelector(`input[data-id="${id}"][data-type="siswa"]`);
+  try {
+    await window.api(`/api/siswa/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+    window.loadSiswa();
+  } catch (err) {
+    console.error('[SISWA] toggleSiswaStatus:', err.message);
+    if (checkbox) checkbox.checked = !isActive;
+  }
+};
+
+window.toggleGuruStatus = async (id, isActive) => {
+  const status = isActive ? 'aktif' : 'tidak aktif';
+  const checkbox = document.querySelector(`input[data-id="${id}"][data-type="guru"]`);
+  try {
+    await window.api(`/api/guru/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+    window.loadGuru();
+  } catch (err) {
+    console.error('[GURU] toggleGuruStatus:', err.message);
+    if (checkbox) checkbox.checked = !isActive;
+  }
 };

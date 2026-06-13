@@ -1,3 +1,47 @@
 @import url('base.css');
 @import url('layout.css');
 @import url('components.css');
+
+/* ── Toggle Switch (US 1.7) ────────────────────────── */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  vertical-align: middle;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #ccc;
+  border-radius: 22px;
+  transition: 0.3s;
+}
+.toggle-slider:before {
+  content: '';
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--success, #22c55e);
+}
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(18px);
+}
+.toggle-label {
+  margin-left: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted, #6b7280);
+}

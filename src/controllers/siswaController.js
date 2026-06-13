@@ -136,3 +136,24 @@ exports.updateSiswa = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Gagal mengupdate data siswa.' });
   }
 };
+
+exports.toggleStatusSiswa = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!['aktif', 'tidak aktif'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Status tidak valid.' });
+    }
+    const [result] = await pool.query(
+      'UPDATE students SET status = ? WHERE id = ?',
+      [status, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });
+    }
+    return res.json({ success: true, data: { id, status }, message: 'Status siswa berhasil diperbarui.' });
+  } catch (err) {
+    console.error('[SISWA CONTROLLER] toggleStatusSiswa:', err.message);
+    return res.status(500).json({ success: false, message: 'Gagal mengubah status siswa.' });
+  }
+};

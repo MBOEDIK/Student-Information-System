@@ -9,4 +9,5 @@ router.get('/:id',      siswaCtrl.getSiswaById);
 router.post('/register', siswaCtrl.createSiswa);
 router.put('/:id',      siswaCtrl.updateSiswa);
 
+router.patch('/:id/status', siswaCtrl.toggleStatusSiswa);
 module.exports = router;
