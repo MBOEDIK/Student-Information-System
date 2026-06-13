@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS absensi (
   id          INT AUTO_INCREMENT PRIMARY KEY,
   siswa_id    INT NOT NULL,
   schedule_id INT DEFAULT NULL,
+  schedule_id_key INT AS (IFNULL(schedule_id, 0)) STORED,
   status      ENUM('Hadir', 'Izin', 'Sakit', 'Alpa') NOT NULL,
   keterangan  TEXT,
   tanggal     DATE NOT NULL DEFAULT (CURRENT_DATE),
@@ -112,6 +113,12 @@ CREATE TABLE IF NOT EXISTS absensi (
   FOREIGN KEY (siswa_id) REFERENCES students(id) ON DELETE CASCADE,
   FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- INDEX UNIQUE: mencegah duplikasi absensi
+-- (siswa_id + tanggal + schedule_id)
+-- ============================================================
+CREATE UNIQUE INDEX uq_absensi_siswa_tanggal ON absensi(siswa_id, tanggal, schedule_id_key);
 
 -- ============================================================
 -- INDEX UNIQUE untuk mencegah duplikasi pendaftaran siswa di jadwal yang sama

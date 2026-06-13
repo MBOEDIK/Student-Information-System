@@ -89,263 +89,280 @@ function renderTable(data) {
     .join('');
 }
 
-function showAbsensiAlert(success, msg) {
-  const sucEl = document.getElementById('alertAbsensiSuccess');
-  const errEl = document.getElementById('alertAbsensiError');
-  const sucTxt = document.getElementById('alertAbsensiSuccessMsg');
-  const errTxt = document.getElementById('alertAbsensiErrorMsg');
-  if (success) {
-    if (errEl) errEl.hidden = true;
-    if (sucTxt) sucTxt.textContent = msg;
-    if (sucEl) sucEl.hidden = false;
-  } else {
-    if (sucEl) sucEl.hidden = true;
-    if (errTxt) errTxt.textContent = msg;
-    if (errEl) errEl.hidden = false;
-  }
+// ============================================================
+// ===================== BAGIAN GURU =========================
+// ============================================================
+
+const ABSENSI_STATUS_OPTIONS = ['Hadir', 'Sakit', 'Izin', 'Alpa'];
+
+function renderStatusRadios(siswaId, selected) {
+  const current = selected || 'Hadir';
+  return ABSENSI_STATUS_OPTIONS.map(function (s) {
+    const checked = current === s ? 'checked' : '';
+    return (
+      '<label class="radio-inline">' +
+      '<input type="radio" name="status-' +
+      siswaId +
+      '" class="absensi-status" data-siswa-id="' +
+      siswaId +
+      '" value="' +
+      s +
+      '" ' +
+      checked +
+      ' /> ' +
+      s +
+      '</label>'
+    );
+  }).join('');
 }
 
-function setAbsensiLoading(on) {
+function renderKeteranganInput(siswaId, value) {
+  const safeValue = value ? String(value).replace(/"/g, '&quot;') : '';
+  return (
+    '<input type="text" class="form-input absensi-keterangan" data-siswa-id="' +
+    siswaId +
+    '" value="' +
+    safeValue +
+    '" placeholder="Opsional" />'
+  );
+}
+
+function showAbsensiSuccess(msg) {
+  const el = document.getElementById('alertSuccess');
+  const txt = document.getElementById('alertSuccessMsg');
+  const errEl = document.getElementById('alertError');
+  if (errEl) errEl.hidden = true;
+  if (txt) txt.textContent = msg;
+  if (el) el.hidden = false;
+}
+
+function showAbsensiError(msg) {
+  const el = document.getElementById('alertError');
+  const txt = document.getElementById('alertErrorMsg');
+  const sucEl = document.getElementById('alertSuccess');
+  if (sucEl) sucEl.hidden = true;
+  if (txt) txt.textContent = msg;
+  if (el) el.hidden = false;
+}
+
+/**
+ * 1. Memuat daftar jadwal milik guru yang sedang login ke #guru-schedule-select
+ */
+window.loadGuruSchedules = async function () {
+  const sel = document.getElementById('guru-schedule-select');
+  if (!sel) return;
+
+  const nip = window.currentUser?.username;
+
+  sel.innerHTML = '<option value="">Memuat jadwal...</option>';
+
+  try {
+    const res = await fetch('/api/jadwal/guru?nip=' + encodeURIComponent(nip));
+    const json = await res.json();
+
+    sel.innerHTML = '<option value="">— Pilih Jadwal —</option>';
+
+    if (!json.success || !json.data.length) {
+      sel.innerHTML += '<option value="" disabled>Tidak ada jadwal untuk Anda</option>';
+      return;
+    }
+
+    // Filter hanya jadwal hari ini
+    const hariMap = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const todayName = hariMap[new Date().getDay()];
+    const todaySchedules = json.data.filter(function (s) {
+      return s.hari === todayName;
+    });
+
+    if (todaySchedules.length === 0) {
+      sel.innerHTML += '<option value="" disabled>Tidak ada jadwal mengajar hari ini</option>';
+      return;
+    }
+
+    todaySchedules.forEach(function (s) {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent =
+        s.nama_pelajaran +
+        ' — ' +
+        s.jam_mulai.substring(0, 5) +
+        '-' +
+        s.jam_selesai.substring(0, 5) +
+        ' (' +
+        s.ruangan +
+        ')';
+      sel.appendChild(opt);
+    });
+  } catch (e) {
+    sel.innerHTML = '<option value="">Gagal memuat jadwal</option>';
+    console.error('[ABSENSI] loadGuruSchedules:', e.message);
+  }
+};
+
+/**
+ * 2. Memuat daftar siswa untuk jadwal terpilih dan merender tabel,
+ *    pre-fill status & keterangan jika sudah ada data absensi hari ini.
+ */
+window.loadSiswaBySchedule = async function (scheduleId) {
+  const tbody = document.getElementById('absensi-table-body');
+  if (!tbody) return;
+
+  if (!scheduleId) {
+    tbody.innerHTML =
+      '<tr><td colspan="5" class="text-center text-muted">Pilih jadwal untuk menampilkan daftar siswa.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Memuat data...</td></tr>';
+
+  try {
+    const res = await fetch(
+      '/api/absensi/siswa-by-schedule?schedule_id=' + encodeURIComponent(scheduleId)
+    );
+    const json = await res.json();
+
+    if (!json.success || !json.data.length) {
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="text-center text-muted">Tidak ada siswa terdaftar pada jadwal ini.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = json.data
+      .map(function (s, i) {
+        return (
+          '<tr>' +
+          '<td>' +
+          (i + 1) +
+          '</td>' +
+          '<td>' +
+          s.nis +
+          '</td>' +
+          '<td>' +
+          s.nama +
+          '</td>' +
+          '<td>' +
+          renderStatusRadios(s.id, s.status_absen) +
+          '</td>' +
+          '<td>' +
+          renderKeteranganInput(s.id, s.keterangan) +
+          '</td>' +
+          '</tr>'
+        );
+      })
+      .join('');
+  } catch (e) {
+    tbody.innerHTML =
+      '<tr><td colspan="5" class="text-center text-danger">Gagal memuat daftar siswa.</td></tr>';
+    console.error('[ABSENSI] loadSiswaBySchedule:', e.message);
+  }
+};
+
+/**
+ * 3. Mengumpulkan semua value dari tabel dan mengirim ke /api/absensi/batch
+ */
+window.submitAbsensiGuru = async function () {
+  const sel = document.getElementById('guru-schedule-select');
+  const errEl = document.getElementById('err-jadwal');
+  if (errEl) errEl.textContent = '';
+  document.getElementById('alertSuccess').hidden = true;
+  document.getElementById('alertError').hidden = true;
+
+  const scheduleId = sel ? sel.value : '';
+  if (!scheduleId) {
+    if (errEl) errEl.textContent = 'Pilih jadwal terlebih dahulu.';
+    showAbsensiError('Pilih jadwal terlebih dahulu.');
+    return;
+  }
+
+  if (!document.querySelector('.absensi-status')) {
+    showAbsensiError('Tidak ada data siswa untuk disimpan.');
+    return;
+  }
+
+  const keteranganMap = {};
+  document.querySelectorAll('.absensi-keterangan').forEach(function (el) {
+    keteranganMap[el.dataset.siswaId] = el.value.trim();
+  });
+
+  const entries = [];
+  const seen = new Set();
+  document.querySelectorAll('.absensi-status:checked').forEach(function (el) {
+    const siswaId = el.dataset.siswaId;
+    if (seen.has(siswaId)) return;
+    seen.add(siswaId);
+    entries.push({
+      siswa_id: Number(siswaId),
+      status: el.value,
+      keterangan: keteranganMap[siswaId] || null
+    });
+  });
+
+  if (entries.length === 0) {
+    showAbsensiError('Tidak ada status absensi yang dipilih.');
+    return;
+  }
+
+  const tanggal = new Date().toISOString().slice(0, 10);
+
   const btn = document.getElementById('btnSimpanAbsensi');
   const textEl = document.getElementById('btnSimpanAbsensiText');
   const loadEl = document.getElementById('btnSimpanAbsensiLoader');
-  if (btn) btn.disabled = on;
-  if (textEl) textEl.hidden = on;
-  if (loadEl) loadEl.hidden = !on;
-}
+  if (btn) btn.disabled = true;
+  if (textEl) textEl.hidden = true;
+  if (loadEl) loadEl.hidden = false;
 
-function renderSiswaAbsensi(siswa) {
-  const tbody = document.getElementById('siswa-absensi-body');
-  if (!tbody) return;
+  try {
+    const res = await fetch('/api/absensi/batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        schedule_id: Number(scheduleId),
+        tanggal: tanggal,
+        entries: entries
+      })
+    });
 
-  if (!siswa || !siswa.length) {
-    tbody.innerHTML =
-      '<tr><td colspan="4" class="text-center text-muted">Tidak ada siswa terdaftar di jadwal ini.</td></tr>';
-    return;
+    const data = await res.json();
+
+    if (data.success) {
+      showAbsensiSuccess(data.message || 'Absensi berhasil disimpan.');
+    } else {
+      showAbsensiError(data.message || 'Gagal menyimpan absensi.');
+    }
+  } catch (e) {
+    showAbsensiError('Tidak dapat terhubung ke server.');
+    console.error('[ABSENSI] submitAbsensiGuru:', e.message);
+  } finally {
+    if (btn) btn.disabled = false;
+    if (textEl) textEl.hidden = false;
+    if (loadEl) loadEl.hidden = true;
   }
+};
 
-  tbody.innerHTML = siswa
-    .map(function (s, i) {
-      return (
-        '<tr>' +
-        '<td>' +
-        (i + 1) +
-        '</td>' +
-        '<td><strong>' +
-        s.nis +
-        '</strong></td>' +
-        '<td>' +
-        s.nama +
-        '</td>' +
-        '<td>' +
-        '<select class="form-input status-absensi" data-student-id="' +
-        s.id +
-        '">' +
-        '<option value="Hadir">Hadir</option>' +
-        '<option value="Sakit">Sakit</option>' +
-        '<option value="Izin">Izin</option>' +
-        '<option value="Alpa">Alpa</option>' +
-        '</select>' +
-        '</td>' +
-        '</tr>'
-      );
-    })
-    .join('');
-}
+// ============================================================
+// ===================== INIT (updated) ======================
+// ============================================================
 
 window.page_absensi_init = function () {
-  const guruView = document.getElementById('absensi-guru-view');
-  const adminView = document.getElementById('absensi-admin-view');
-
+  // ── Percabangan berdasarkan role: GURU ─────────────────────
   if (window.currentUser?.role === 'guru') {
-    if (guruView) guruView.hidden = false;
-    if (adminView) adminView.hidden = true;
+    document.getElementById('guru-section').hidden = false;
+    document.getElementById('admin-section').hidden = true;
 
-    const select = document.getElementById('jadwal-guru-select');
-    const container = document.getElementById('absensi-siswa-container');
-    const tanggalInput = document.getElementById('tanggal-absensi');
-    const btnSimpan = document.getElementById('btnSimpanAbsensi');
-    const btnReset = document.getElementById('btnResetAbsensi');
+    window.loadGuruSchedules();
 
-    tanggalInput.value = new Date().toISOString().split('T')[0];
-
-    fetch('/api/absensi/jadwal-guru?nip=' + encodeURIComponent(window.currentUser.username))
-      .then(function (r) {
-        return r.json();
-      })
-      .then(function (json) {
-        if (json.success && json.data.length) {
-          json.data.forEach(function (j) {
-            var opt = document.createElement('option');
-            opt.value = j.id;
-            opt.setAttribute('data-hari', j.hari);
-            opt.textContent =
-              j.nama_pelajaran +
-              ' — ' +
-              j.hari +
-              ' ' +
-              j.jam_mulai.substring(0, 5) +
-              '-' +
-              j.jam_selesai.substring(0, 5) +
-              ' (' +
-              j.ruangan +
-              ')';
-            select.appendChild(opt);
-          });
-        } else {
-          var opt = document.createElement('option');
-          opt.disabled = true;
-          opt.textContent = 'Tidak ada jadwal';
-          select.appendChild(opt);
-        }
-      })
-      .catch(function () {
-        showAbsensiAlert(false, 'Gagal memuat jadwal.');
-      });
-
-    function getNextDateByDay(dayName) {
-      var map = { Senin: 1, Selasa: 2, Rabu: 3, Kamis: 4, Jumat: 5, Sabtu: 6 };
-      var target = map[dayName];
-      var today = new Date();
-      var current = today.getDay();
-      var diff = target - current;
-      if (diff < 0) diff += 7;
-      var next = new Date(today);
-      next.setDate(today.getDate() + diff);
-      return next.toISOString().split('T')[0];
-    }
-
-    select.addEventListener('change', function () {
-      var scheduleId = this.value;
-      if (!scheduleId) {
-        container.hidden = true;
-        return;
-      }
-
-      container.hidden = false;
-
-      var selectedOpt = this.options[this.selectedIndex];
-      var hari = selectedOpt.getAttribute('data-hari');
-      if (hari) {
-        tanggalInput.value = getNextDateByDay(hari);
-      }
-
-      fetch('/api/absensi/siswa/' + scheduleId)
-        .then(function (r) {
-          return r.json();
-        })
-        .then(function (json) {
-          if (json.success) {
-            renderSiswaAbsensi(json.data);
-          } else {
-            showAbsensiAlert(false, json.message || 'Gagal memuat siswa.');
-          }
-        })
-        .catch(function () {
-          showAbsensiAlert(false, 'Gagal memuat daftar siswa.');
-        });
+    document.getElementById('guru-schedule-select')?.addEventListener('change', function (e) {
+      window.loadSiswaBySchedule(e.target.value);
     });
 
-    var pendingSubmit = null;
-
-    document.getElementById('btnKonfirmasiYa').addEventListener('click', async function () {
-      window.closeModal('modal-konfirmasi-absensi');
-      if (!pendingSubmit) return;
-      var data = pendingSubmit;
-      pendingSubmit = null;
-
-      setAbsensiLoading(true);
-
-      try {
-        var res = await fetch('/api/absensi', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        var result = await res.json();
-
-        if (result.success) {
-          showAbsensiAlert(true, result.message);
-          select.value = '';
-          container.hidden = true;
-          tanggalInput.value = new Date().toISOString().split('T')[0];
-          document.getElementById('siswa-absensi-body').innerHTML =
-            '<tr><td colspan="4" class="text-center text-muted">Pilih jadwal terlebih dahulu.</td></tr>';
-        } else {
-          showAbsensiAlert(false, result.message || 'Gagal menyimpan absensi.');
-        }
-      } catch (e) {
-        showAbsensiAlert(false, 'Tidak dapat terhubung ke server.');
-      } finally {
-        setAbsensiLoading(false);
-      }
-    });
-
-    if (btnSimpan) {
-      btnSimpan.addEventListener('click', function () {
-        var scheduleId = select.value;
-        var tanggal = tanggalInput.value;
-
-        if (!scheduleId || !tanggal) {
-          showAbsensiAlert(false, 'Pilih jadwal dan tanggal terlebih dahulu.');
-          return;
-        }
-
-        var selects = document.querySelectorAll('.status-absensi');
-        var records = [];
-        selects.forEach(function (sel) {
-          records.push({
-            student_id: parseInt(sel.dataset.studentId),
-            status: sel.value
-          });
-        });
-
-        if (!records.length) {
-          showAbsensiAlert(false, 'Tidak ada data siswa untuk disimpan.');
-          return;
-        }
-
-        var selectedOpt = select.options[select.selectedIndex];
-        var label = selectedOpt.textContent;
-        document.getElementById('konfirmasi-absensi-text').innerHTML =
-          'Jadwal: <strong>' +
-          label +
-          '</strong><br>' +
-          'Tanggal: <strong>' +
-          tanggal +
-          '</strong><br>' +
-          'Jumlah siswa: <strong>' +
-          records.length +
-          '</strong> orang<br><br>' +
-          'Apakah Anda yakin ingin menyimpan absensi?';
-
-        pendingSubmit = {
-          schedule_id: parseInt(scheduleId),
-          tanggal: tanggal,
-          records: records
-        };
-
-        window.openModal('modal-konfirmasi-absensi');
-      });
-    }
-
-    if (btnReset) {
-      btnReset.addEventListener('click', function () {
-        select.value = '';
-        container.hidden = true;
-        tanggalInput.value = new Date().toISOString().split('T')[0];
-        document.getElementById('siswa-absensi-body').innerHTML =
-          '<tr><td colspan="4" class="text-center text-muted">Pilih jadwal terlebih dahulu.</td></tr>';
-      });
-    }
+    document
+      .getElementById('btnSimpanAbsensi')
+      ?.addEventListener('click', window.submitAbsensiGuru);
 
     return;
   }
 
-  // ── View Admin (laporan absensi) ──────────────────────────────────
-  if (guruView) guruView.hidden = true;
-  if (adminView) adminView.hidden = false;
-
+  // ── Default: tampilan admin (kode asli, tidak diubah) ──────
   const dateInput = document.getElementById('filter-tanggal');
   if (!dateInput) return;
 

@@ -139,3 +139,89 @@ exports.getRekapHarian = async (req, res) => {
     return responseHelper.error(res, 'Gagal memproses permintaan', 500);
   }
 };
+
+exports.getSiswaBySchedule = async (req, res) => {
+  try {
+    const { schedule_id } = req.query;
+    const tanggal = req.query.tanggal || new Date().toISOString().slice(0, 10);
+
+    if (!schedule_id) {
+      return responseHelper.error(res, 'Parameter schedule_id wajib diisi', 400);
+    }
+
+    const [rows] = await pool.query(
+      `SELECT
+        s.id,
+        s.nis,
+        s.nama,
+        a.status AS status_absen,
+        a.keterangan
+      FROM schedule_students ss
+      JOIN students s ON s.id = ss.student_id
+      LEFT JOIN absensi a
+        ON a.siswa_id = s.id
+        AND a.schedule_id = ?
+        AND a.tanggal = ?
+      WHERE ss.schedule_id = ?
+      ORDER BY s.nama`,
+      [schedule_id, tanggal, schedule_id]
+    );
+
+    const data = rows.map((r) => ({
+      id: r.id,
+      nis: r.nis,
+      nama: r.nama,
+      status_absen: r.status_absen || null,
+      keterangan: r.keterangan || null
+    }));
+
+    return responseHelper.success(res, data, 'Daftar siswa berhasil diambil');
+  } catch (err) {
+    console.error('[ABSENSI] getSiswaBySchedule:', err.message);
+    return responseHelper.error(res, 'Gagal memproses permintaan', 500);
+  }
+};
+
+exports.saveAbsensiBatch = async (req, res) => {
+  const { schedule_id, tanggal, entries } = req.body;
+
+  if (!schedule_id || isNaN(Number(schedule_id))) {
+    return responseHelper.error(res, 'schedule_id tidak valid', 400);
+  }
+
+  if (!schedule_id || !tanggal || !Array.isArray(entries) || entries.length === 0) {
+    return responseHelper.error(res, 'Data tidak lengkap', 400);
+  }
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    for (const entry of entries) {
+      const { siswa_id, status, keterangan } = entry;
+
+      if (!siswa_id || !status) {
+        await conn.rollback();
+        return responseHelper.error(res, 'Setiap entri harus memiliki siswa_id dan status', 400);
+      }
+
+      await conn.query(
+        `INSERT INTO absensi (siswa_id, schedule_id, tanggal, status, keterangan)
+         VALUES (?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           status = VALUES(status),
+           keterangan = VALUES(keterangan)`,
+        [siswa_id, schedule_id, tanggal, status, keterangan || null]
+      );
+    }
+
+    await conn.commit();
+    return responseHelper.success(res, null, 'Data absensi berhasil disimpan');
+  } catch (err) {
+    await conn.rollback();
+    console.error(`[ABSENSI] saveAbsensiBatch: ${err.message}`);
+    return responseHelper.error(res, 'Gagal memproses permintaan', 500);
+  } finally {
+    conn.release();
+  }
+};
