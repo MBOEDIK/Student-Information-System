@@ -3,7 +3,7 @@
 const menuAccessRule = {
   home: ['admin', 'guru'],
   pendaftaran: ['admin'],
-  jadwal: ['admin', 'siswa'],
+  jadwal: ['admin', 'guru', 'siswa'],
   absensi: ['admin', 'guru'],
   kesehatan: ['admin'],
   konseling: ['admin', 'guru'],
