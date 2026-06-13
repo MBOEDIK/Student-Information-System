@@ -1,4 +1,36 @@
 <div class="page active">
-  <div class="page-header"><h1>Transkrip & Rekap Nilai</h1></div>
-  <p class="text-muted">Fitur akan tersedia pada sprint berikutnya.</p>
+  <div class="page-header">
+    <h1>Nilai</h1>
+  </div>
+
+  <!-- VIEW GURU/ADMIN -->
+  <div id="nilai-guru-view">
+    <p style="color:var(--text-muted);">Fitur input nilai tersedia untuk guru.</p>
+  </div>
+
+  <!-- VIEW SISWA: Transkrip Nilai (US 6.3) -->
+  <div id="nilai-siswa-view" hidden>
+    <div class="page-header">
+      <h2>Transkrip Nilai Saya</h2>
+    </div>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Semester</th>
+            <th>Mata Pelajaran</th>
+            <th>Tugas</th>
+            <th>UTS</th>
+            <th>UAS</th>
+            <th>Rata-rata</th>
+          </tr>
+        </thead>
+        <tbody id="transkripTableBody"></tbody>
+      </table>
+      <p id="transkripEmpty" class="text-center text-muted" hidden>
+        Belum ada data nilai untuk akun ini.
+      </p>
+    </div>
+  </div>
 </div>
