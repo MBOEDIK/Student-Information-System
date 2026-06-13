@@ -72,6 +72,129 @@ window.simpanGuru = async function () {
   }
 };
 
+window.registerGuru = async function (data) {
+  try {
+    const res = await fetch('/api/guru', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, message: 'Tidak dapat terhubung ke server.' };
+  }
+};
+
+function showGuruAlert(success, msg) {
+  const sucEl = document.getElementById('alertGuruSuccess');
+  const errEl = document.getElementById('alertGuruError');
+  const sucTxt = document.getElementById('alertGuruSuccessMsg');
+  const errTxt = document.getElementById('alertGuruErrorMsg');
+  if (success) {
+    if (errEl) errEl.hidden = true;
+    if (sucTxt) sucTxt.textContent = msg;
+    if (sucEl) sucEl.hidden = false;
+  } else {
+    if (sucEl) sucEl.hidden = true;
+    if (errTxt) errTxt.textContent = msg;
+    if (errEl) errEl.hidden = false;
+  }
+}
+
+function resetFormGuru() {
+  const form = document.getElementById('formRegistrasiGuru');
+  if (form) form.reset();
+  document.querySelectorAll('#formRegistrasiGuru .field-error').forEach(function (el) {
+    el.textContent = '';
+  });
+  document.querySelectorAll('#formRegistrasiGuru .form-input').forEach(function (el) {
+    el.classList.remove('input--error');
+  });
+}
+
+function setRegistrasiGuruLoading(on) {
+  const btn = document.getElementById('btnRegistrasiGuru');
+  const textEl = document.getElementById('btnRegistrasiGuruText');
+  const loadEl = document.getElementById('btnRegistrasiGuruLoader');
+  if (btn) btn.disabled = on;
+  if (textEl) textEl.hidden = on;
+  if (loadEl) loadEl.hidden = !on;
+}
+
+function showGuruFieldError(groupId, errId, msg) {
+  const g = document.getElementById(groupId);
+  const e = document.getElementById(errId);
+  if (e) e.textContent = msg;
+  g?.querySelector('.form-input')?.classList.add('input--error');
+}
+
+function clearGuruFieldErrors() {
+  document.querySelectorAll('#formRegistrasiGuru .field-error').forEach(function (el) {
+    el.textContent = '';
+  });
+  document.querySelectorAll('#formRegistrasiGuru .form-input').forEach(function (el) {
+    el.classList.remove('input--error');
+  });
+}
+
 window.page_guru_init = function () {
+  const form = document.getElementById('formRegistrasiGuru');
+
+  document.getElementById('btnResetRegistrasiGuru')?.addEventListener('click', function (e) {
+    e.preventDefault();
+    resetFormGuru();
+  });
+
+  if (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      clearGuruFieldErrors();
+
+      const nip = document.getElementById('guru-nip')?.value.trim();
+      const nama = document.getElementById('guru-nama')?.value.trim();
+      const email = document.getElementById('guru-email')?.value.trim();
+      const status = document.getElementById('guru-status')?.value;
+
+      let hasError = false;
+
+      if (!nip) {
+        showGuruFieldError('group-guru-nip', 'err-guru-nip', 'NIP tidak boleh kosong.');
+        hasError = true;
+      }
+      if (!nama) {
+        showGuruFieldError('group-guru-nama', 'err-guru-nama', 'Nama tidak boleh kosong.');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      setRegistrasiGuruLoading(true);
+
+      try {
+        const result = await window.registerGuru({ nip, nama, email, status });
+        if (result.success) {
+          showGuruAlert(true, result.message);
+          resetFormGuru();
+          window.loadGuru();
+        } else {
+          if (result.errors && Array.isArray(result.errors)) {
+            result.errors.forEach(function (msg) {
+              if (msg.toLowerCase().includes('nip')) {
+                showGuruFieldError('group-guru-nip', 'err-guru-nip', msg);
+              } else if (msg.toLowerCase().includes('nama')) {
+                showGuruFieldError('group-guru-nama', 'err-guru-nama', msg);
+              }
+            });
+          }
+          showGuruAlert(false, result.message || 'Pendaftaran gagal.');
+        }
+      } catch (err) {
+        showGuruAlert(false, 'Tidak dapat terhubung ke server.');
+      } finally {
+        setRegistrasiGuruLoading(false);
+      }
+    });
+  }
+
   window.loadGuru();
 };
