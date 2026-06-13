@@ -1,9 +1,77 @@
 <div class="page active">
   <div class="page-header">
-    <h1>Laporan Absensi Harian</h1>
+    <h1>Absensi Kelas</h1>
   </div>
 
-  <div id="admin-section" class="hidden">
+  <div class="alert alert--success" id="alertAbsensiSuccess" hidden>
+    <i class="bi bi-check-circle-fill"></i>
+    <span id="alertAbsensiSuccessMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+
+  <div class="alert alert--error" id="alertAbsensiError" hidden>
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span id="alertAbsensiErrorMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+
+  <!-- ===================== VIEW GURU (isi absensi) ===================== -->
+  <div id="absensi-guru-view" hidden>
+    <div class="card mb-24">
+      <div class="card__body">
+        <div class="form-group max-w-240">
+          <label class="form-label" for="jadwal-guru-select">Pilih Jadwal Mengajar</label>
+          <select class="form-input" id="jadwal-guru-select">
+            <option value="">— Pilih Jadwal —</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="absensi-siswa-container" hidden>
+      <div class="card mb-24">
+        <div class="card__body">
+          <div class="page-header">
+            <h2>Daftar Siswa</h2>
+          </div>
+          <div class="form-group max-w-240">
+            <label class="form-label" for="tanggal-absensi">Tanggal</label>
+            <input type="date" class="form-input" id="tanggal-absensi" />
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>NIS</th>
+                  <th>Nama</th>
+                  <th>Status Kehadiran</th>
+                </tr>
+              </thead>
+              <tbody id="siswa-absensi-body">
+                <tr>
+                  <td colspan="4" class="text-center text-muted">Pilih jadwal terlebih dahulu.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn--primary" id="btnSimpanAbsensi">
+              <span class="btn__text" id="btnSimpanAbsensiText">Simpan Absensi</span>
+              <span class="btn__loader" id="btnSimpanAbsensiLoader" hidden>
+                <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
+              </span>
+            </button>
+            <button class="btn btn--secondary" id="btnResetAbsensi">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ================= END VIEW GURU ================= -->
+
+  <!-- ===================== VIEW ADMIN (laporan) ===================== -->
+  <div id="absensi-admin-view" hidden>
     <div class="card">
       <div class="card__body">
         <div class="form-group max-w-240">
@@ -82,6 +150,5 @@
       </table>
     </div>
   </div>
+  <!-- ================= END VIEW ADMIN ================= -->
 </div>
-
-<script src="../js/absensi.js"></script>

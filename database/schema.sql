@@ -119,6 +119,15 @@ CREATE TABLE IF NOT EXISTS absensi (
 CREATE UNIQUE INDEX uq_schedule_student ON schedule_students(schedule_id, student_id);
 
 -- ============================================================
+-- MIGRASI: absensi — tambah UNIQUE KEY & jadikan schedule_id wajib
+-- ============================================================
+ALTER TABLE absensi
+  MODIFY COLUMN schedule_id INT NOT NULL,
+  DROP FOREIGN KEY absensi_ibfk_2,
+  ADD FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+  ADD UNIQUE KEY uq_absensi_siswa_jadwal_tanggal (schedule_id, siswa_id, tanggal);
+
+-- ============================================================
 -- TABEL: health_records (riwayat kesehatan siswa)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS health_records (
