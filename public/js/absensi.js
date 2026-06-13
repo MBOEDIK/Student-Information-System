@@ -178,6 +178,7 @@ window.page_absensi_init = function () {
           json.data.forEach(function (j) {
             var opt = document.createElement('option');
             opt.value = j.id;
+            opt.setAttribute('data-hari', j.hari);
             opt.textContent =
               j.nama_pelajaran +
               ' — ' +
@@ -202,6 +203,18 @@ window.page_absensi_init = function () {
         showAbsensiAlert(false, 'Gagal memuat jadwal.');
       });
 
+    function getNextDateByDay(dayName) {
+      var map = { Senin: 1, Selasa: 2, Rabu: 3, Kamis: 4, Jumat: 5, Sabtu: 6 };
+      var target = map[dayName];
+      var today = new Date();
+      var current = today.getDay();
+      var diff = target - current;
+      if (diff < 0) diff += 7;
+      var next = new Date(today);
+      next.setDate(today.getDate() + diff);
+      return next.toISOString().split('T')[0];
+    }
+
     select.addEventListener('change', function () {
       var scheduleId = this.value;
       if (!scheduleId) {
@@ -210,6 +223,12 @@ window.page_absensi_init = function () {
       }
 
       container.hidden = false;
+
+      var selectedOpt = this.options[this.selectedIndex];
+      var hari = selectedOpt.getAttribute('data-hari');
+      if (hari) {
+        tanggalInput.value = getNextDateByDay(hari);
+      }
 
       fetch('/api/absensi/siswa/' + scheduleId)
         .then(function (r) {
@@ -227,8 +246,43 @@ window.page_absensi_init = function () {
         });
     });
 
+    var pendingSubmit = null;
+
+    document.getElementById('btnKonfirmasiYa').addEventListener('click', async function () {
+      window.closeModal('modal-konfirmasi-absensi');
+      if (!pendingSubmit) return;
+      var data = pendingSubmit;
+      pendingSubmit = null;
+
+      setAbsensiLoading(true);
+
+      try {
+        var res = await fetch('/api/absensi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        var result = await res.json();
+
+        if (result.success) {
+          showAbsensiAlert(true, result.message);
+          select.value = '';
+          container.hidden = true;
+          tanggalInput.value = new Date().toISOString().split('T')[0];
+          document.getElementById('siswa-absensi-body').innerHTML =
+            '<tr><td colspan="4" class="text-center text-muted">Pilih jadwal terlebih dahulu.</td></tr>';
+        } else {
+          showAbsensiAlert(false, result.message || 'Gagal menyimpan absensi.');
+        }
+      } catch (e) {
+        showAbsensiAlert(false, 'Tidak dapat terhubung ke server.');
+      } finally {
+        setAbsensiLoading(false);
+      }
+    });
+
     if (btnSimpan) {
-      btnSimpan.addEventListener('click', async function () {
+      btnSimpan.addEventListener('click', function () {
         var scheduleId = select.value;
         var tanggal = tanggalInput.value;
 
@@ -251,30 +305,27 @@ window.page_absensi_init = function () {
           return;
         }
 
-        setAbsensiLoading(true);
+        var selectedOpt = select.options[select.selectedIndex];
+        var label = selectedOpt.textContent;
+        document.getElementById('konfirmasi-absensi-text').innerHTML =
+          'Jadwal: <strong>' +
+          label +
+          '</strong><br>' +
+          'Tanggal: <strong>' +
+          tanggal +
+          '</strong><br>' +
+          'Jumlah siswa: <strong>' +
+          records.length +
+          '</strong> orang<br><br>' +
+          'Apakah Anda yakin ingin menyimpan absensi?';
 
-        try {
-          var res = await fetch('/api/absensi', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              schedule_id: parseInt(scheduleId),
-              tanggal: tanggal,
-              records: records
-            })
-          });
-          var result = await res.json();
+        pendingSubmit = {
+          schedule_id: parseInt(scheduleId),
+          tanggal: tanggal,
+          records: records
+        };
 
-          if (result.success) {
-            showAbsensiAlert(true, result.message);
-          } else {
-            showAbsensiAlert(false, result.message || 'Gagal menyimpan absensi.');
-          }
-        } catch (e) {
-          showAbsensiAlert(false, 'Tidak dapat terhubung ke server.');
-        } finally {
-          setAbsensiLoading(false);
-        }
+        window.openModal('modal-konfirmasi-absensi');
       });
     }
 
