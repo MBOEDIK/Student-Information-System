@@ -46,6 +46,36 @@
   </div>
   <!-- ================= END VIEW SISWA ================= -->
 
+  <!-- ===================== VIEW GURU (read-only) ===================== -->
+  <div id="jadwal-guru-view" hidden>
+    <div class="card mb-24">
+      <div class="card__body">
+        <div class="page-header">
+          <h2>Jadwal Mengajar Saya</h2>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Mata Pelajaran</th>
+                <th>Hari</th>
+                <th>Jam</th>
+                <th>Ruangan</th>
+              </tr>
+            </thead>
+            <tbody id="jadwalGuruTableBody">
+              <tr>
+                <td colspan="5" class="text-center text-muted">Memuat data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ================= END VIEW GURU ================= -->
+
   <!-- ===================== VIEW ADMIN (tabel + form) ===================== -->
   <div id="jadwal-admin-view" hidden>
     <div class="card mb-24">

@@ -92,6 +92,38 @@ window.loadJadwalSiswa = async function (nis) {
   }
 };
 
+window.loadJadwalGuru = async function (nip) {
+  const tbody = document.getElementById('jadwalGuruTableBody');
+  if (!tbody) return;
+  tbody.innerHTML =
+    '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+  try {
+    const res = await fetch('/api/jadwal/guru?nip=' + encodeURIComponent(nip));
+    const json = await res.json();
+    if (!json.success || !json.data.length) {
+      tbody.innerHTML =
+        '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Belum ada jadwal mengajar.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = json.data
+      .map(
+        (s, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${s.nama_pelajaran}</strong></td>
+        <td>${s.hari}</td>
+        <td>${s.jam_mulai.substring(0, 5)} - ${s.jam_selesai.substring(0, 5)}</td>
+        <td>${s.ruangan}</td>
+      </tr>
+    `
+      )
+      .join('');
+  } catch (e) {
+    tbody.innerHTML =
+      '<tr><td colspan="5" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
+  }
+};
+
 window.editJadwal = async function (id) {
   document.querySelectorAll('#modal-jadwal .field-error').forEach(function (e) {
     e.textContent = '';
@@ -294,7 +326,20 @@ window.page_jadwal_init = function () {
     return;
   }
 
-  // ── View Admin (default untuk role selain siswa) ─────────────────────
+  // ── View Guru (read-only jadwal mengajar pribadi) ──────────────────
+  if (window.currentUser?.role === 'guru') {
+    const guruView = document.getElementById('jadwal-guru-view');
+    const adminView = document.getElementById('jadwal-admin-view');
+    if (guruView) guruView.hidden = false;
+    if (adminView) adminView.hidden = true;
+
+    const nip = window.currentUser.username;
+    window.loadJadwalGuru(nip);
+
+    return;
+  }
+
+  // ── View Admin (default untuk role selain siswa & guru) ─────────────────────
   const adminView = document.getElementById('jadwal-admin-view');
   const siswaView = document.getElementById('jadwal-siswa-view');
   if (adminView) adminView.hidden = false;

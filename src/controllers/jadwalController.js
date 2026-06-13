@@ -346,3 +346,45 @@ exports.getJadwalSiswa = async (req, res) => {
     return responseHelper.error(res, 'Gagal mengambil jadwal siswa.', 500);
   }
 };
+
+exports.getJadwalGuru = async (req, res) => {
+  const { nip } = req.query;
+
+  if (!nip || !nip.trim()) {
+    return responseHelper.error(res, 'Parameter NIP tidak boleh kosong.', 400);
+  }
+
+  try {
+    const [guru] = await pool.query('SELECT id, nama FROM teachers WHERE nip = ?', [nip.trim()]);
+    if (guru.length === 0) {
+      return responseHelper.error(res, 'Guru dengan NIP tersebut tidak ditemukan.', 404);
+    }
+
+    const [rows] = await pool.query(
+      `SELECT
+         s.id,
+         s.hari,
+         s.jam_mulai,
+         s.jam_selesai,
+         s.ruangan,
+         sub.nama_pelajaran
+       FROM schedules s
+       JOIN subjects sub ON sub.id = s.subject_id
+       JOIN teachers t   ON t.id   = s.teacher_id
+       WHERE t.nip = ?
+       ORDER BY
+         FIELD(s.hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'),
+         s.jam_mulai ASC`,
+      [nip.trim()]
+    );
+
+    return responseHelper.success(
+      res,
+      rows,
+      `Jadwal mengajar untuk ${guru[0].nama} berhasil diambil`
+    );
+  } catch (err) {
+    console.error('[JADWAL CONTROLLER] getJadwalGuru:', err.message);
+    return responseHelper.error(res, 'Gagal mengambil jadwal guru.', 500);
+  }
+};
