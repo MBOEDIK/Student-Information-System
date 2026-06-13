@@ -1,4 +1,68 @@
 <div class="page active">
-  <div class="page-header"><h1>Transkrip & Rekap Nilai</h1></div>
-  <p class="text-muted">Fitur akan tersedia pada sprint berikutnya.</p>
+  <div class="page-header">
+    <h1>Input Nilai Siswa</h1>
+  </div>
+
+  <div class="alert alert--success" id="alertSuccess" hidden>
+    <i class="bi bi-check-circle-fill"></i>
+    <span id="alertSuccessMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+  <div class="alert alert--error" id="alertError" hidden>
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span id="alertErrorMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="nilaiMapelSelect">Mata Pelajaran</label>
+          <select class="form-input" id="nilaiMapelSelect">
+            <option value="">-- Pilih Mata Pelajaran --</option>
+          </select>
+          <small class="field-error" id="errMapel"></small>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="nilaiSemester">Semester</label>
+          <input
+            type="text"
+            class="form-input"
+            id="nilaiSemester"
+            value="Ganjil 2025/2026"
+            readonly
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrapper" id="nilaiTableWrapper" style="display: none">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 50px">No</th>
+          <th style="width: 120px">NIS</th>
+          <th>Nama Siswa</th>
+          <th style="width: 120px">Tugas</th>
+          <th style="width: 120px">UTS</th>
+          <th style="width: 120px">UAS</th>
+        </tr>
+      </thead>
+      <tbody id="nilaiTableBody">
+        <tr>
+          <td colspan="6" class="text-center text-muted">Pilih mata pelajaran terlebih dahulu.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="form-actions" style="padding: 16px 0" id="nilaiActions" hidden>
+      <button class="btn btn--primary" id="btnSimpanNilai">
+        <span class="btn__text" id="btnSimpanNilaiText">Simpan Nilai</span>
+        <span class="btn__loader" id="btnSimpanNilaiLoader" hidden>
+          <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
+        </span>
+      </button>
+    </div>
+  </div>
 </div>
