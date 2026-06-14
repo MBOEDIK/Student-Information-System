@@ -2,17 +2,38 @@
   <div class="page-header">
     <h1>Data Siswa</h1>
   </div>
-  <div class="search-bar">
-    <form id="formCariSiswa">
-      <input
-        type="text"
-        id="inputCariSiswa"
-        class="form-input"
-        placeholder="Cari siswa berdasarkan Nama atau NIS..."
-      />
-      <button type="submit" class="btn btn--primary">Cari</button>
-    </form>
+
+  <div class="alert alert--success" id="alertSuccess" hidden>
+    <i class="bi bi-check-circle-fill"></i>
+    <span id="alertSuccessMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
   </div>
+  <div class="alert alert--error" id="alertError" hidden>
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span id="alertErrorMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <form id="formImportCsv" class="flex flex-wrap items-center gap-16">
+        <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px">
+          <label class="form-label" for="csvFile">Import CSV</label>
+          <input type="file" class="form-input" id="csvFile" accept=".csv" />
+        </div>
+        <div class="form-group" style="margin-bottom: 0">
+          <label class="form-label">&nbsp;</label>
+          <button type="submit" class="btn btn--primary" id="btnImportCsv">
+            <span class="btn__text" id="btnImportCsvText">Unggah CSV</span>
+            <span class="btn__loader" id="btnImportCsvLoader" hidden>
+              <i class="bi bi-arrow-repeat spin"></i> Mengupload...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="table-wrapper">
     <table>
       <thead>

@@ -3,14 +3,13 @@
 window.loadSiswa = async function () {
   const tbody = document.getElementById('siswaTableBody');
   if (!tbody) return;
-  tbody.innerHTML =
-    '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/siswa');
     const json = await res.json();
     if (!json.success || !json.data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Belum ada data siswa.</td></tr>';
+        '<tr><td colspan="7" class="text-center text-muted">Belum ada data siswa.</td></tr>';
       return;
     }
     tbody.innerHTML = json.data
@@ -30,7 +29,7 @@ window.loadSiswa = async function () {
       .join('');
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Gagal memuat data.</td></tr>';
+      '<tr><td colspan="7" class="text-center text-danger">Gagal memuat data.</td></tr>';
   }
 };
 
@@ -84,7 +83,7 @@ window.cariSiswa = async function (keyword) {
     if (!tbody) return;
     if (!json.success || json.data.length === 0) {
       tbody.innerHTML =
-        '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Data siswa tidak ditemukan.</td></tr>';
+        '<tr><td colspan="7" class="text-center text-muted" style="padding:32px;">Data siswa tidak ditemukan.</td></tr>';
       return;
     }
     tbody.innerHTML = json.data
@@ -107,6 +106,114 @@ window.cariSiswa = async function (keyword) {
   }
 };
 
+window.showSiswaAlert = function (msg, type) {
+  const sucEl = document.getElementById('alertSuccess');
+  const errEl = document.getElementById('alertError');
+  const txt = document.getElementById(type === 'error' ? 'alertErrorMsg' : 'alertSuccessMsg');
+  if (type === 'error') {
+    if (sucEl) sucEl.hidden = true;
+    if (txt) txt.textContent = msg;
+    if (errEl) errEl.hidden = false;
+  } else {
+    if (errEl) errEl.hidden = true;
+    if (txt) txt.textContent = msg;
+    if (sucEl) sucEl.hidden = false;
+  }
+};
+
+window.downloadCsvErrorLog = function (errors) {
+  let text = '=== Error Log Import CSV ===\n';
+  text += 'Dibuat: ' + new Date().toLocaleString('id-ID') + '\n\n';
+  errors.forEach(function (e) {
+    text += 'Baris ' + (e.baris || '-') + ' | NIS: ' + (e.nis || '-') + '\n';
+    (e.errors || []).forEach(function (msg) {
+      text += '  - ' + msg + '\n';
+    });
+    text += '\n';
+  });
+
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'error-log-import-csv-' + Date.now() + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+window.importCsvHandler = async function (e) {
+  e.preventDefault();
+
+  const fileInput = document.getElementById('csvFile');
+  const file = fileInput ? fileInput.files[0] : null;
+
+  const sucEl = document.getElementById('alertSuccess');
+  const errEl = document.getElementById('alertError');
+  if (sucEl) sucEl.hidden = true;
+  if (errEl) errEl.hidden = true;
+
+  if (!file) {
+    window.showSiswaAlert('Pilih file CSV terlebih dahulu.', 'error');
+    return;
+  }
+
+  if (!file.name.endsWith('.csv')) {
+    window.showSiswaAlert('File harus berformat CSV.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnImportCsv');
+  const textEl = document.getElementById('btnImportCsvText');
+  const loadEl = document.getElementById('btnImportCsvLoader');
+  if (btn) btn.disabled = true;
+  if (textEl) textEl.hidden = true;
+  if (loadEl) loadEl.hidden = false;
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/siswa/import-csv', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      var msg = data.data.inserted + ' data berhasil diupload.';
+      if (data.data.failed > 0) {
+        msg +=
+          ' ' +
+          data.data.failed +
+          ' gagal. <a href="#" onclick="window.downloadCsvErrorLog(\'' +
+          JSON.stringify(data.data.errors).replace(/'/g, "\\'") +
+          '\'); return false;" style="color:var(--danger);">Download error log</a>';
+      }
+      window.showSiswaAlert(msg, 'success');
+      fileInput.value = '';
+      window.loadSiswa();
+    } else {
+      window.showSiswaAlert(data.message || 'Gagal mengupload CSV.', 'error');
+      if (data.data && data.data.errors && data.data.errors.length > 0) {
+        var errMsg =
+          data.message +
+          ' <a href="#" onclick="window.downloadCsvErrorLog(\'' +
+          JSON.stringify(data.data.errors).replace(/'/g, "\\'") +
+          '\'); return false;" style="color:var(--danger);">Download error log</a>';
+        window.showSiswaAlert(errMsg, 'error');
+      }
+    }
+  } catch (err) {
+    window.showSiswaAlert('Gagal mengupload file: ' + (err.message || ''), 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (textEl) textEl.hidden = false;
+    if (loadEl) loadEl.hidden = true;
+  }
+};
+
 window.page_siswa_init = function () {
   document.getElementById('formCariSiswa')?.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -117,155 +224,8 @@ window.page_siswa_init = function () {
     }
     window.cariSiswa(keyword);
   });
+
+  document.getElementById('formImportCsv')?.addEventListener('submit', window.importCsvHandler);
+
   window.loadSiswa();
-};
-
-window.page_pendaftaran_init = function () {
-  function pendaftaranClearFieldError(groupId, errId) {
-    const g = document.getElementById(groupId);
-    const e = document.getElementById(errId);
-    if (e) e.textContent = '';
-    if (g) {
-      const input = g.querySelector('.form-input');
-      if (input) input.classList.remove('input--error');
-    }
-  }
-
-  function pendaftaranShowFieldError(groupId, errId, msg) {
-    const g = document.getElementById(groupId);
-    const e = document.getElementById(errId);
-    if (e) e.textContent = msg;
-    if (g) {
-      const input = g.querySelector('.form-input');
-      if (input) input.classList.add('input--error');
-    }
-  }
-
-  function showSuccess(msg) {
-    const el = document.getElementById('alertSuccess');
-    const txt = document.getElementById('alertSuccessMsg');
-    const errEl = document.getElementById('alertError');
-    if (errEl) errEl.hidden = true;
-    if (txt) txt.textContent = msg;
-    if (el) el.hidden = false;
-  }
-
-  function showError(msg) {
-    const el = document.getElementById('alertError');
-    const txt = document.getElementById('alertErrorMsg');
-    const sucEl = document.getElementById('alertSuccess');
-    if (sucEl) sucEl.hidden = true;
-    if (txt) txt.textContent = msg;
-    if (el) el.hidden = false;
-  }
-
-  function setPendaftaranLoading(on) {
-    const btn = document.getElementById('btnSimpan');
-    const textEl = document.getElementById('btnSimpanText');
-    const loadEl = document.getElementById('btnSimpanLoader');
-    if (btn) btn.disabled = on;
-    if (textEl) textEl.hidden = on;
-    if (loadEl) loadEl.hidden = !on;
-  }
-
-  function resetForm() {
-    const form = document.getElementById('formPendaftaran');
-    if (form) form.reset();
-    document.querySelectorAll('.field-error').forEach((e) => (e.textContent = ''));
-    document.querySelectorAll('.form-input').forEach((e) => e.classList.remove('input--error'));
-  }
-
-  const form = document.getElementById('formPendaftaran');
-  if (!form) return;
-
-  document.getElementById('btnReset')?.addEventListener('click', function (e) {
-    e.preventDefault();
-    resetForm();
-  });
-
-  form.querySelectorAll('input, textarea, select').forEach(function (el) {
-    el.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        form.requestSubmit();
-      }
-    });
-  });
-
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    document.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''));
-    document.querySelectorAll('.form-input').forEach((el) => el.classList.remove('input--error'));
-    const sucEl = document.getElementById('alertSuccess');
-    const errEl = document.getElementById('alertError');
-    if (sucEl) sucEl.hidden = true;
-    if (errEl) errEl.hidden = true;
-
-    const nis = document.getElementById('nis')?.value.trim();
-    const nama = document.getElementById('nama')?.value.trim();
-    const jenis_kelamin = document.getElementById('jenis_kelamin')?.value;
-    const alamat = document.getElementById('alamat')?.value.trim();
-
-    let hasError = false;
-
-    if (!nis) {
-      pendaftaranShowFieldError('group-nis', 'err-nis', 'NIS tidak boleh kosong.');
-      hasError = true;
-    }
-    if (!nama) {
-      pendaftaranShowFieldError('group-nama', 'err-nama', 'Nama tidak boleh kosong.');
-      hasError = true;
-    }
-    if (!jenis_kelamin) {
-      pendaftaranShowFieldError(
-        'group-jenis_kelamin',
-        'err-jenis_kelamin',
-        'Jenis Kelamin harus dipilih.'
-      );
-      hasError = true;
-    }
-    if (!alamat) {
-      pendaftaranShowFieldError('group-alamat', 'err-alamat', 'Alamat tidak boleh kosong.');
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    setPendaftaranLoading(true);
-
-    try {
-      const res = await fetch('/api/siswa/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nis, nama, jenis_kelamin, alamat })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        showSuccess(data.message);
-        resetForm();
-      } else {
-        if (data.errors && Array.isArray(data.errors)) {
-          data.errors.forEach(function (msg) {
-            if (msg.toLowerCase().includes('nis')) {
-              pendaftaranShowFieldError('group-nis', 'err-nis', msg);
-            } else if (msg.toLowerCase().includes('nama')) {
-              pendaftaranShowFieldError('group-nama', 'err-nama', msg);
-            } else if (msg.toLowerCase().includes('kelamin')) {
-              pendaftaranShowFieldError('group-jenis_kelamin', 'err-jenis_kelamin', msg);
-            } else if (msg.toLowerCase().includes('alamat')) {
-              pendaftaranShowFieldError('group-alamat', 'err-alamat', msg);
-            }
-          });
-        }
-        showError(data.message || 'Pendaftaran gagal.');
-      }
-    } catch (err) {
-      showError('Tidak dapat terhubung ke server.');
-    } finally {
-      setPendaftaranLoading(false);
-    }
-  });
 };

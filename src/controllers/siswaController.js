@@ -1,5 +1,7 @@
 const pool = require('../config/db');
 const responseHelper = require('../shared/response');
+const { parse } = require('csv-parse');
+const fs = require('fs');
 
 exports.searchSiswa = async (req, res) => {
   try {
@@ -145,92 +147,112 @@ exports.updateSiswa = async (req, res) => {
   }
 };
 
-exports.uploadSiswaCSV = async (req, res) => {
+exports.importCsvSiswa = async (req, res) => {
   try {
-    const { entries } = req.body;
+    if (!req.file) {
+      return responseHelper.error(res, 'File CSV wajib diupload.', 400);
+    }
 
-    if (!Array.isArray(entries) || entries.length === 0) {
-      return responseHelper.error(res, 'Tidak ada data siswa yang diupload.', 400);
+    const filePath = req.file.path;
+
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+
+    const records = [];
+    const parser = parse(fileContent, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+      bom: true
+    });
+
+    parser.on('readable', function () {
+      let record;
+      while ((record = parser.read()) !== null) {
+        records.push(record);
+      }
+    });
+
+    await new Promise(function (resolve, reject) {
+      parser.on('end', resolve);
+      parser.on('error', reject);
+    });
+
+    if (records.length === 0) {
+      fs.unlinkSync(filePath);
+      return responseHelper.error(res, 'File CSV kosong atau format tidak sesuai.', 400);
+    }
+
+    if (records.length > 500) {
+      fs.unlinkSync(filePath);
+      return responseHelper.error(res, 'Maksimal 500 baris data per upload.', 400);
     }
 
     const allErrors = [];
     const validEntries = [];
 
-    for (let i = 0; i < entries.length; i++) {
-      const row = entries[i];
+    for (let i = 0; i < records.length; i++) {
+      const row = records[i];
       const lineNum = i + 1;
       const rowErrors = [];
 
-      const nis = (row.nis || '').toString().trim();
-      const nama = (row.nama || '').toString().trim();
-      const jenisKelamin = (row.jenis_kelamin || row.jenisKelamin || '').toString().trim();
-      const alamat = (row.alamat || '').toString().trim();
+      const nis = (row.nis || '').trim();
+      const nama = (row.nama || '').trim();
+      const jenisKelamin = (row.jenis_kelamin || '').trim();
+      const alamat = (row.alamat || '').trim();
 
       if (!nis) rowErrors.push('NIS tidak boleh kosong.');
       if (!nama) rowErrors.push('Nama tidak boleh kosong.');
-      if (jenisKelamin && !['Laki-laki', 'Perempuan'].includes(jenisKelamin)) {
+      if (!jenisKelamin) {
+        rowErrors.push('Jenis Kelamin harus diisi (Laki-laki/Perempuan).');
+      } else if (!['Laki-laki', 'Perempuan'].includes(jenisKelamin)) {
         rowErrors.push('Jenis Kelamin harus Laki-laki atau Perempuan.');
       }
+      if (!alamat) rowErrors.push('Alamat tidak boleh kosong.');
 
       if (rowErrors.length > 0) {
         allErrors.push({ baris: lineNum, nis, errors: rowErrors });
         continue;
       }
 
-      validEntries.push({
-        nis,
-        nama,
-        jenis_kelamin: jenisKelamin || 'Laki-laki',
-        alamat: alamat || null
-      });
-    }
-
-    if (validEntries.length === 0) {
-      return responseHelper.error(res, 'Semua baris data gagal validasi.', 400, allErrors);
+      validEntries.push({ nis, nama, jenis_kelamin: jenisKelamin, alamat });
     }
 
     const inserted = [];
-    const duplicateErrors = [];
+    const failErrors = [];
 
     for (const entry of validEntries) {
       try {
         const [existing] = await pool.query('SELECT id FROM students WHERE nis = ?', [entry.nis]);
         if (existing.length > 0) {
-          duplicateErrors.push({ nis: entry.nis, errors: [`NIS "${entry.nis}" sudah terdaftar.`] });
+          failErrors.push({ nis: entry.nis, errors: [`NIS "${entry.nis}" sudah terdaftar.`] });
           continue;
         }
 
         const [result] = await pool.query(
-          "INSERT INTO students (nis, nama, jenis_kelamin, alamat, status) VALUES (?, ?, ?, ?, 'aktif')",
+          `INSERT INTO students (nis, nama, jenis_kelamin, alamat, status) VALUES (?, ?, ?, ?, 'aktif')`,
           [entry.nis, entry.nama, entry.jenis_kelamin, entry.alamat]
         );
-        inserted.push({ id: result.insertId, ...entry });
+        inserted.push({ id: result.insertId, nis: entry.nis, nama: entry.nama });
       } catch (err) {
-        console.error('[SISWA] uploadSiswaCSV insert:', err.message);
-        duplicateErrors.push({ nis: entry.nis, errors: ['Gagal menyimpan data.'] });
+        console.error('[SISWA] importCsvSiswa:', err.message);
+        failErrors.push({ nis: entry.nis, errors: ['Gagal menyimpan data.'] });
       }
     }
 
+    const allFailErrors = [...allErrors, ...failErrors];
+
     const summary = {
-      total: entries.length,
-      berhasil: inserted.length,
-      gagal_validasi: allErrors.length,
-      gagal_duplikat: duplicateErrors.length,
-      errors: [...allErrors, ...duplicateErrors]
+      total: records.length,
+      inserted: inserted.length,
+      failed: allFailErrors.length,
+      errors: allFailErrors
     };
 
-    if (inserted.length === 0) {
-      return responseHelper.error(
-        res,
-        'Tidak ada data yang berhasil diupload.',
-        400,
-        summary.errors
-      );
-    }
+    fs.unlinkSync(filePath);
 
     return responseHelper.success(res, summary, `${inserted.length} data siswa berhasil diupload.`);
   } catch (err) {
-    console.error('[SISWA] uploadSiswaCSV:', err.message);
+    console.error('[SISWA] importCsvSiswa:', err.message);
     return responseHelper.error(res, 'Gagal memproses upload CSV.', 500);
   }
 };
