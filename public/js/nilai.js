@@ -1,12 +1,23 @@
 'use strict';
 
-var guruNip = null;
-var currentSubjectId = null;
+let guruTeacherId = null;
+let currentSubjectId = null;
+
+function hideNilaiAlerts() {
+  const sucEl = document.getElementById('alertSuccess');
+  const errEl = document.getElementById('alertError');
+  if (sucEl) sucEl.hidden = true;
+  if (errEl) errEl.hidden = true;
+}
 
 function showNilaiAlert(msg, type) {
-  var sucEl = document.getElementById('alertSuccess');
-  var errEl = document.getElementById('alertError');
-  var txt = document.getElementById(type === 'error' ? 'alertErrorMsg' : 'alertSuccessMsg');
+  if (!msg) {
+    hideNilaiAlerts();
+    return;
+  }
+  const sucEl = document.getElementById('alertSuccess');
+  const errEl = document.getElementById('alertError');
+  const txt = document.getElementById(type === 'error' ? 'alertErrorMsg' : 'alertSuccessMsg');
   if (type === 'error') {
     if (sucEl) sucEl.hidden = true;
     if (txt) txt.textContent = msg;
@@ -19,25 +30,27 @@ function showNilaiAlert(msg, type) {
 }
 
 function setNilaiLoading(on) {
-  var btn = document.getElementById('btnSimpanNilai');
-  var textEl = document.getElementById('btnSimpanNilaiText');
-  var loadEl = document.getElementById('btnSimpanNilaiLoader');
+  const btn = document.getElementById('btnSimpanNilai');
+  const textEl = document.getElementById('btnSimpanNilaiText');
+  const loadEl = document.getElementById('btnSimpanNilaiLoader');
   if (btn) btn.disabled = on;
   if (textEl) textEl.hidden = on;
   if (loadEl) loadEl.hidden = !on;
 }
 
 window.loadMapelGuru = async function () {
-  if (!guruNip) return;
-  var select = document.getElementById('nilaiMapelSelect');
+  if (!guruTeacherId) return;
+  const select = document.getElementById('nilaiMapelSelect');
   if (!select) return;
   select.innerHTML = '<option value="">-- Pilih Mata Pelajaran --</option>';
   try {
-    var res = await fetch('/api/nilai/mapel-guru?nip=' + encodeURIComponent(guruNip));
-    var json = await res.json();
+    const res = await fetch(
+      '/api/nilai/mapel-guru?teacher_id=' + encodeURIComponent(guruTeacherId)
+    );
+    const json = await res.json();
     if (json.success && json.data) {
       json.data.forEach(function (m) {
-        var opt = document.createElement('option');
+        const opt = document.createElement('option');
         opt.value = m.id;
         opt.textContent = m.nama_pelajaran;
         select.appendChild(opt);
@@ -49,28 +62,43 @@ window.loadMapelGuru = async function () {
 };
 
 window.loadSiswaNilai = async function (subjectId) {
-  var tbody = document.getElementById('nilaiTableBody');
-  var wrapper = document.getElementById('nilaiTableWrapper');
-  var actions = document.getElementById('nilaiActions');
+  const tbody = document.getElementById('nilaiTableBody');
+  const wrapper = document.getElementById('nilaiTableWrapper');
+  const actions = document.getElementById('nilaiActions');
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr>';
+  const semester = document.getElementById('nilaiSemester').value || 'Ganjil 2025/2026';
   try {
-    var res = await fetch(
-      '/api/nilai/siswa-by-mapel?subject_id=' + subjectId + '&nip=' + encodeURIComponent(guruNip)
+    const res = await fetch(
+      '/api/nilai/siswa-by-mapel?subject_id=' +
+        subjectId +
+        '&teacher_id=' +
+        encodeURIComponent(guruTeacherId) +
+        '&semester=' +
+        encodeURIComponent(semester)
     );
-    var json = await res.json();
-    if (!json.success || !json.data.length) {
+    const json = await res.json();
+    if (!json.success) {
+      showNilaiAlert(json.message || 'Gagal memuat data siswa', 'error');
       tbody.innerHTML =
         '<tr><td colspan="6" class="text-center text-muted">Tidak ada siswa terdaftar di mata pelajaran ini.</td></tr>';
-      if (wrapper) wrapper.style.display = '';
+      if (wrapper) wrapper.classList.remove('d-none');
+      if (actions) actions.hidden = true;
+      return;
+    }
+    if (!json.data.length) {
+      hideNilaiAlerts();
+      tbody.innerHTML =
+        '<tr><td colspan="6" class="text-center text-muted">Tidak ada siswa terdaftar di mata pelajaran ini.</td></tr>';
+      if (wrapper) wrapper.classList.remove('d-none');
       if (actions) actions.hidden = true;
       return;
     }
     tbody.innerHTML = json.data
       .map(function (r, i) {
-        var tugasVal = r.tugas !== null ? r.tugas : '';
-        var utsVal = r.uts !== null ? r.uts : '';
-        var uasVal = r.uas !== null ? r.uas : '';
+        const tugasVal = r.tugas !== null ? r.tugas : '';
+        const utsVal = r.uts !== null ? r.uts : '';
+        const uasVal = r.uas !== null ? r.uas : '';
         return (
           '<tr>' +
           '<td>' +
@@ -101,25 +129,26 @@ window.loadSiswaNilai = async function (subjectId) {
         );
       })
       .join('');
-    if (wrapper) wrapper.style.display = '';
+    if (wrapper) wrapper.classList.remove('d-none');
     if (actions) actions.hidden = false;
   } catch (e) {
+    showNilaiAlert('Gagal memuat data siswa: ' + e.message, 'error');
     tbody.innerHTML =
       '<tr><td colspan="6" class="text-center text-danger">Gagal memuat data.</td></tr>';
-    if (wrapper) wrapper.style.display = '';
+    if (wrapper) wrapper.classList.remove('d-none');
   }
 };
 
 window.simpanNilai = async function () {
-  var inputs = document.querySelectorAll('.input-nilai');
-  var entries = {};
-  var semester = document.getElementById('nilaiSemester').value || 'Ganjil 2025/2026';
+  const inputs = document.querySelectorAll('.input-nilai');
+  const entries = {};
+  const semester = document.getElementById('nilaiSemester').value || 'Ganjil 2025/2026';
 
-  for (var i = 0; i < inputs.length; i++) {
-    var inp = inputs[i];
-    var studentId = inp.getAttribute('data-student-id');
-    var field = inp.getAttribute('data-field');
-    var val = inp.value.trim();
+  for (let i = 0; i < inputs.length; i++) {
+    const inp = inputs[i];
+    const studentId = inp.getAttribute('data-student-id');
+    const field = inp.getAttribute('data-field');
+    const val = inp.value.trim();
 
     if (!entries[studentId]) {
       entries[studentId] = { student_id: parseInt(studentId, 10), tugas: '', uts: '', uas: '' };
@@ -127,17 +156,17 @@ window.simpanNilai = async function () {
     entries[studentId][field] = val;
   }
 
-  var entriesArr = Object.keys(entries).map(function (k) {
+  const entriesArr = Object.keys(entries).map(function (k) {
     return entries[k];
   });
 
   setNilaiLoading(true);
   try {
-    var data = await window.api('/api/nilai/batch', {
+    const data = await window.api('/api/nilai/batch', {
       method: 'POST',
       body: JSON.stringify({
         subject_id: parseInt(currentSubjectId, 10),
-        nip: guruNip,
+        teacher_id: parseInt(guruTeacherId, 10),
         semester: semester,
         entries: entriesArr
       })
@@ -148,15 +177,17 @@ window.simpanNilai = async function () {
       window.loadSiswaNilai(currentSubjectId);
     }
   } catch (err) {
-    var msg = err.message || 'Gagal menyimpan nilai.';
+    let msg = err.message || 'Gagal menyimpan nilai.';
     try {
-      var errData = JSON.parse(msg);
+      const errData = JSON.parse(msg);
       if (errData.errors && Array.isArray(errData.errors)) {
         msg = errData.errors.join('<br/>');
       } else if (errData.message) {
         msg = errData.message;
       }
-    } catch (_) {}
+    } catch (_) {
+      // ignore parse error, fallback to raw msg
+    }
     showNilaiAlert(msg, 'error');
   } finally {
     setNilaiLoading(false);
@@ -165,21 +196,21 @@ window.simpanNilai = async function () {
 
 window.page_nilai_init = function () {
   if (window.currentUser && window.currentUser.role === 'guru') {
-    guruNip = window.currentUser.username;
+    guruTeacherId = window.currentUser.teacher_id;
   }
 
-  var select = document.getElementById('nilaiMapelSelect');
+  const select = document.getElementById('nilaiMapelSelect');
   if (!select) return;
 
   window.loadMapelGuru();
 
   select.addEventListener('change', function () {
-    var val = this.value;
+    const val = this.value;
     if (!val) {
-      var wrapper = document.getElementById('nilaiTableWrapper');
-      var actions = document.getElementById('nilaiActions');
-      var tbody = document.getElementById('nilaiTableBody');
-      if (wrapper) wrapper.style.display = 'none';
+      const wrapper = document.getElementById('nilaiTableWrapper');
+      const actions = document.getElementById('nilaiActions');
+      const tbody = document.getElementById('nilaiTableBody');
+      if (wrapper) wrapper.classList.add('d-none');
       if (actions) actions.hidden = true;
       if (tbody)
         tbody.innerHTML =
@@ -188,12 +219,11 @@ window.page_nilai_init = function () {
       return;
     }
     currentSubjectId = val;
-    showNilaiAlert('', 'success');
-    showNilaiAlert('', 'error');
+    hideNilaiAlerts();
     window.loadSiswaNilai(val);
   });
 
-  var btn = document.getElementById('btnSimpanNilai');
+  const btn = document.getElementById('btnSimpanNilai');
   if (btn) {
     btn.addEventListener('click', function (e) {
       e.preventDefault();
