@@ -177,7 +177,7 @@
             />
             <small class="field-error" id="err-ruangan"></small>
           </div>
-
+          <div id="conflict-detail" class="alert alert--error mt-2" hidden></div>
           <div class="form-actions">
             <button type="submit" class="btn btn--primary" id="btnSimpanJadwal">
               <span class="btn__text" id="btnSimpanText">Simpan Jadwal</span>
@@ -242,6 +242,7 @@
       />
       <small class="field-error" id="err-edit-ruangan"></small>
     </div>
+    <div id="conflict-detail-edit" class="alert alert--error mt-2" hidden></div>
     <div class="form-actions">
       <button class="btn btn--primary" id="btnSimpanEditJadwal">Simpan</button>
       <button class="btn btn--secondary" onclick="window.closeModal('modal-jadwal')">Batal</button>
