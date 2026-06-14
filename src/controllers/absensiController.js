@@ -66,15 +66,21 @@ exports.createAbsensi = async (req, res) => {
       );
     }
 
-    const values = records.map(function (r) {
-      return [schedule_id, r.student_id, r.status, tanggal];
-    });
+    for (const r of records) {
+      const [existing] = await pool.query(
+        'SELECT id FROM absensi WHERE siswa_id = ? AND schedule_id = ? AND tanggal = ?',
+        [r.student_id, schedule_id, tanggal]
+      );
 
-    await pool.query(
-      `INSERT INTO absensi (schedule_id, siswa_id, status, tanggal) VALUES ?
-       ON DUPLICATE KEY UPDATE status = VALUES(status)`,
-      [values]
-    );
+      if (existing.length > 0) {
+        await pool.query('UPDATE absensi SET status = ? WHERE id = ?', [r.status, existing[0].id]);
+      } else {
+        await pool.query(
+          'INSERT INTO absensi (schedule_id, siswa_id, status, tanggal) VALUES (?, ?, ?, ?)',
+          [schedule_id, r.student_id, r.status, tanggal]
+        );
+      }
+    }
 
     return responseHelper.success(res, null, 'Data absensi berhasil disimpan', 201);
   } catch (err) {
@@ -205,14 +211,24 @@ exports.saveAbsensiBatch = async (req, res) => {
         return responseHelper.error(res, 'Setiap entri harus memiliki siswa_id dan status', 400);
       }
 
-      await conn.query(
-        `INSERT INTO absensi (siswa_id, schedule_id, tanggal, status, keterangan)
-         VALUES (?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           status = VALUES(status),
-           keterangan = VALUES(keterangan)`,
-        [siswa_id, schedule_id, tanggal, status, keterangan || null]
+      // Cek apakah sudah ada record untuk siswa + jadwal + tanggal ini
+      const [existing] = await conn.query(
+        'SELECT id FROM absensi WHERE siswa_id = ? AND schedule_id = ? AND tanggal = ?',
+        [siswa_id, schedule_id, tanggal]
       );
+
+      if (existing.length > 0) {
+        await conn.query('UPDATE absensi SET status = ?, keterangan = ? WHERE id = ?', [
+          status,
+          keterangan || null,
+          existing[0].id
+        ]);
+      } else {
+        await conn.query(
+          'INSERT INTO absensi (siswa_id, schedule_id, tanggal, status, keterangan) VALUES (?, ?, ?, ?, ?)',
+          [siswa_id, schedule_id, tanggal, status, keterangan || null]
+        );
+      }
     }
 
     await conn.commit();
