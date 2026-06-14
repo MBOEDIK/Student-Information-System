@@ -93,10 +93,8 @@ function renderTable(data) {
 // ===================== BAGIAN GURU =========================
 // ============================================================
 
-const ABSENSI_STATUS_OPTIONS = ['Hadir', 'Sakit', 'Izin', 'Alpa'];
-
 function renderStatusDropdown(siswaId, selected) {
-  const current = selected || 'Hadir';
+  const current = (selected && selected.trim() !== '') ? selected : 'Hadir';
   const options = ABSENSI_STATUS_OPTIONS.map(function (s) {
     const sel = current === s ? ' selected' : '';
     return '<option value="' + s + '"' + sel + '>' + s + '</option>';
