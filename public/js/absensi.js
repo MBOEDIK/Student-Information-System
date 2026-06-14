@@ -121,6 +121,11 @@ function renderKeteranganTextarea(siswaId, value) {
   );
 }
 
+function hideAlertEl(id) {
+  const el = document.getElementById(id);
+  if (el) el.hidden = true;
+}
+
 function showAbsensiSuccess(msg) {
   const el = document.getElementById('alertSuccess');
   const txt = document.getElementById('alertSuccessMsg');
@@ -142,11 +147,19 @@ function showAbsensiError(msg) {
 /**
  * 1. Memuat daftar jadwal milik guru yang sedang login ke #guru-schedule-select
  */
-window.loadGuruSchedules = async function () {
+window.loadGuruSchedules = async function (tanggal) {
   const sel = document.getElementById('guru-schedule-select');
   if (!sel) return;
 
   const nip = window.currentUser?.username;
+  const hariMap = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+  // Tanggal acuan: dari parameter, atau dari input #guru-tanggal-select, atau hari ini
+  const tanggalInput = document.getElementById('guru-tanggal-select');
+  const effectiveTanggal =
+    tanggal || (tanggalInput && tanggalInput.value) || new Date().toISOString().slice(0, 10);
+  const targetDate = new Date(effectiveTanggal + 'T00:00:00');
+  const targetHari = hariMap[targetDate.getDay()];
 
   sel.innerHTML = '<option value="">Memuat jadwal...</option>';
 
@@ -161,19 +174,18 @@ window.loadGuruSchedules = async function () {
       return;
     }
 
-    // Filter hanya jadwal hari ini
-    const hariMap = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const todayName = hariMap[new Date().getDay()];
-    const todaySchedules = json.data.filter(function (s) {
-      return s.hari === todayName;
+    // Filter jadwal berdasarkan hari dari tanggal yang dipilih
+    const filteredSchedules = json.data.filter(function (s) {
+      return s.hari === targetHari;
     });
 
-    if (todaySchedules.length === 0) {
-      sel.innerHTML += '<option value="" disabled>Tidak ada jadwal mengajar hari ini</option>';
+    if (filteredSchedules.length === 0) {
+      sel.innerHTML +=
+        '<option value="" disabled>Tidak ada jadwal mengajar pada hari ' + targetHari + '</option>';
       return;
     }
 
-    todaySchedules.forEach(function (s) {
+    filteredSchedules.forEach(function (s) {
       const opt = document.createElement('option');
       opt.value = s.id;
       opt.textContent =
@@ -197,7 +209,7 @@ window.loadGuruSchedules = async function () {
  * 2. Memuat daftar siswa untuk jadwal terpilih dan merender tabel,
  *    pre-fill status & keterangan jika sudah ada data absensi hari ini.
  */
-window.loadSiswaBySchedule = async function (scheduleId) {
+window.loadSiswaBySchedule = async function (scheduleId, tanggal) {
   const tbody = document.getElementById('absensi-table-body');
   if (!tbody) return;
 
@@ -207,11 +219,18 @@ window.loadSiswaBySchedule = async function (scheduleId) {
     return;
   }
 
+  const tanggalInput = document.getElementById('guru-tanggal-select');
+  const effectiveTanggal =
+    tanggal || (tanggalInput && tanggalInput.value) || new Date().toISOString().slice(0, 10);
+
   tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Memuat data...</td></tr>';
 
   try {
     const res = await fetch(
-      '/api/absensi/siswa-by-schedule?schedule_id=' + encodeURIComponent(scheduleId)
+      '/api/absensi/siswa-by-schedule?schedule_id=' +
+        encodeURIComponent(scheduleId) +
+        '&tanggal=' +
+        encodeURIComponent(effectiveTanggal)
     );
     const json = await res.json();
 
@@ -268,8 +287,8 @@ window.submitAbsensiGuru = async function () {
   const sel = document.getElementById('guru-schedule-select');
   const errEl = document.getElementById('err-jadwal');
   if (errEl) errEl.textContent = '';
-  document.getElementById('alertSuccess').hidden = true;
-  document.getElementById('alertError').hidden = true;
+  hideAlertEl('alertSuccess');
+  hideAlertEl('alertError');
 
   const scheduleId = sel ? sel.value : '';
   if (!scheduleId) {
@@ -332,7 +351,8 @@ window.submitAbsensiGuru = async function () {
   window.closeModal('modal-konfirmasi-absensi');
 
   // ── Kirim data ──────────────────────────────────────
-  const tanggal = new Date().toISOString().slice(0, 10);
+  const tanggalInput = document.getElementById('guru-tanggal-select');
+  const tanggal = (tanggalInput && tanggalInput.value) || new Date().toISOString().slice(0, 10);
 
   const btn = document.getElementById('btnSimpanAbsensi');
   const textEl = document.getElementById('btnSimpanAbsensiText');
@@ -356,6 +376,11 @@ window.submitAbsensiGuru = async function () {
 
     if (data.success) {
       showAbsensiSuccess(data.message || 'Absensi berhasil disimpan.');
+      // Reload tabel untuk menampilkan data terbaru (AC 3.2.3)
+      const scheduleId = sel?.value;
+      if (scheduleId) {
+        window.loadSiswaBySchedule(scheduleId, tanggal);
+      }
     } else {
       showAbsensiError(data.message || 'Gagal menyimpan absensi.');
     }
@@ -379,10 +404,24 @@ window.page_absensi_init = function () {
     document.getElementById('guru-section').hidden = false;
     document.getElementById('admin-section').hidden = true;
 
+    const tanggalInput = document.getElementById('guru-tanggal-select');
+    if (tanggalInput) {
+      tanggalInput.value = new Date().toISOString().slice(0, 10);
+    }
+
     window.loadGuruSchedules();
 
+    tanggalInput?.addEventListener('change', function (e) {
+      // Reset tabel siswa & reload dropdown jadwal sesuai tanggal baru
+      const tbody = document.getElementById('absensi-table-body');
+      if (tbody)
+        tbody.innerHTML =
+          '<tr><td colspan="5" class="text-center text-muted">Pilih jadwal untuk menampilkan daftar siswa.</td></tr>';
+      window.loadGuruSchedules(e.target.value);
+    });
+
     document.getElementById('guru-schedule-select')?.addEventListener('change', function (e) {
-      window.loadSiswaBySchedule(e.target.value);
+      window.loadSiswaBySchedule(e.target.value, tanggalInput && tanggalInput.value);
     });
 
     document
