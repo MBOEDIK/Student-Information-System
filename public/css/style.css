@@ -1,3 +1,11 @@
 @import url('base.css');
 @import url('layout.css');
 @import url('components.css');
+
+/* ── Print Mode (US 6.4) ────────────────────────────── */
+@media print {
+  body.print-mode .sidebar,
+  body.print-mode .topbar,
+  body.print-mode .btn { display: none !important; }
+  body.print-mode .main-content { margin-left: 0; padding: 20px; }
+}
