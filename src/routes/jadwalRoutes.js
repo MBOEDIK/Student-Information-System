@@ -10,6 +10,7 @@ router.get('/siswa', jadwalCtrl.getJadwalSiswa);
 router.get('/guru', jadwalCtrl.getJadwalGuru);
 router.get('/', jadwalCtrl.getAllJadwal);
 router.post('/', jadwalCtrl.createJadwal);
+router.get('/export-ics', jadwalCtrl.exportIcsJadwal);
 router.get('/:id', jadwalCtrl.getJadwalById);
 router.put('/:id', jadwalCtrl.updateJadwal);
 

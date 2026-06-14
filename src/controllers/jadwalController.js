@@ -206,6 +206,116 @@ exports.deleteJadwal = async (req, res) => {
   }
 };
 
+exports.exportIcsJadwal = async (req, res) => {
+  try {
+    const { teacher_id, nip, nis, semester_start } = req.query;
+    const param = teacher_id || nip || nis;
+    const tanggalMulai = semester_start || '20260101';
+
+    if (!param) {
+      return responseHelper.error(res, 'Parameter teacher_id, nip, atau nis wajib diisi', 400);
+    }
+
+    let rows;
+    if (nis) {
+      [rows] = await pool.query(
+        `SELECT s.id, s.hari, s.jam_mulai, s.jam_selesai, s.ruangan,
+                sub.nama_pelajaran, t.nama AS nama_guru
+         FROM schedule_students ss
+         JOIN schedules s ON s.id = ss.schedule_id
+         JOIN subjects sub ON sub.id = s.subject_id
+         JOIN teachers t ON t.id = s.teacher_id
+         JOIN students st ON st.id = ss.student_id
+         WHERE st.nis = ?
+         ORDER BY FIELD(s.hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'), s.jam_mulai ASC`,
+        [nis]
+      );
+    } else if (nip || teacher_id) {
+      const idParam = teacher_id || nip;
+      const isNip = !teacher_id;
+      let query;
+      if (isNip) {
+        query = `SELECT s.id, s.hari, s.jam_mulai, s.jam_selesai, s.ruangan,
+                        sub.nama_pelajaran, t.nama AS nama_guru
+                 FROM schedules s
+                 JOIN subjects sub ON sub.id = s.subject_id
+                 JOIN teachers t ON t.id = s.teacher_id
+                 WHERE t.nip = ?
+                 ORDER BY FIELD(s.hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'), s.jam_mulai ASC`;
+      } else {
+        query = `SELECT s.id, s.hari, s.jam_mulai, s.jam_selesai, s.ruangan,
+                        sub.nama_pelajaran, t.nama AS nama_guru
+                 FROM schedules s
+                 JOIN subjects sub ON sub.id = s.subject_id
+                 JOIN teachers t ON t.id = s.teacher_id
+                 WHERE s.teacher_id = ?
+                 ORDER BY FIELD(s.hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'), s.jam_mulai ASC`;
+      }
+      [rows] = await pool.query(query, [idParam]);
+    }
+
+    if (!rows || rows.length === 0) {
+      return responseHelper.error(res, 'Tidak ada jadwal untuk diekspor.', 404);
+    }
+
+    const hariMap = {
+      Senin: 'MO',
+      Selasa: 'TU',
+      Rabu: 'WE',
+      Kamis: 'TH',
+      Jumat: 'FR',
+      Sabtu: 'SA'
+    };
+
+    const icsLines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//MiSiS//SIS SMK//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH'
+    ];
+
+    for (const r of rows) {
+      const startDate = tanggalMulai.replace(/-/g, '');
+      const jamMulaiStr =
+        typeof r.jam_mulai === 'string'
+          ? r.jam_mulai.substring(0, 2) + r.jam_mulai.substring(3, 5) + '00'
+          : r.jam_mulai.toTimeString().substring(0, 8).replace(/:/g, '');
+      const jamSelesaiStr =
+        typeof r.jam_selesai === 'string'
+          ? r.jam_selesai.substring(0, 2) + r.jam_selesai.substring(3, 5) + '00'
+          : r.jam_selesai.toTimeString().substring(0, 8).replace(/:/g, '');
+
+      const dtStart = startDate + 'T' + jamMulaiStr;
+      const dtEnd = startDate + 'T' + jamSelesaiStr;
+      const dayCode = hariMap[r.hari] || 'MO';
+
+      icsLines.push(
+        'BEGIN:VEVENT',
+        'UID:' + r.id + '-' + Date.now() + '@misis',
+        'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').substring(0, 15) + 'Z',
+        'DTSTART:' + dtStart,
+        'DTEND:' + dtEnd,
+        'RRULE:FREQ=WEEKLY;BYDAY=' + dayCode,
+        'SUMMARY:' + r.nama_pelajaran + (r.ruangan ? ' - ' + r.ruangan : ''),
+        'LOCATION:' + (r.ruangan || ''),
+        'DESCRIPTION:Guru: ' + (r.nama_guru || ''),
+        'END:VEVENT'
+      );
+    }
+
+    icsLines.push('END:VCALENDAR');
+    const icsContent = icsLines.join('\r\n');
+
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="jadwal.ics"');
+    return res.send(icsContent);
+  } catch (err) {
+    console.error('[JADWAL] exportIcsJadwal:', err.message);
+    return responseHelper.error(res, 'Gagal mengekspor jadwal.', 500);
+  }
+};
+
 exports.updateJadwal = async (req, res) => {
   const { id } = req.params;
   const { subject_id, teacher_id, hari, jam_mulai, jam_selesai, ruangan } = req.body;
