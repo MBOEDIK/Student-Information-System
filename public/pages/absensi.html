@@ -3,6 +3,69 @@
     <h1>Laporan Absensi Harian</h1>
   </div>
 
+  <div class="alert alert--success" id="alertSuccess" hidden>
+    <i class="bi bi-check-circle-fill"></i>
+    <span id="alertSuccessMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+
+  <div class="alert alert--error" id="alertError" hidden>
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span id="alertErrorMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+
+  <!-- guru-section -->
+  <div id="guru-section" hidden>
+    <div class="card">
+      <div class="card__body">
+        <div class="form-group max-w-240">
+          <label class="form-label" for="guru-tanggal-select">Tanggal</label>
+          <input type="date" class="form-input" id="guru-tanggal-select" />
+        </div>
+        <div class="form-group max-w-240">
+          <label class="form-label" for="guru-schedule-select">Pilih Jadwal</label>
+          <select class="form-input" id="guru-schedule-select">
+            <option value="">— Pilih Jadwal —</option>
+          </select>
+          <small class="field-error" id="err-jadwal"></small>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrapper mt-20">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>NIS</th>
+            <th>Nama Siswa</th>
+            <th>Status</th>
+            <th>Keterangan</th>
+          </tr>
+        </thead>
+        <tbody id="absensi-table-body">
+          <tr>
+            <td colspan="5" class="text-center text-muted">
+              Pilih jadwal untuk menampilkan daftar siswa.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-actions mt-20">
+      <button type="button" class="btn btn--primary" id="btnSimpanAbsensi">
+        <span class="btn__text" id="btnSimpanAbsensiText">Simpan Absensi</span>
+        <span class="btn__loader" id="btnSimpanAbsensiLoader" hidden>
+          <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
+        </span>
+      </button>
+    </div>
+  </div>
+  <!-- end-guru-section -->
+
+  <!-- admin-section -->
   <div id="admin-section" class="hidden">
     <div class="card">
       <div class="card__body">
@@ -80,6 +143,22 @@
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+<!-- end-admin-section -->
+
+<!-- MODAL KONFIRMASI ABSENSI -->
+<div class="modal" id="modal-konfirmasi-absensi" hidden>
+  <div class="modal__box">
+    <div class="modal-confirm__icon">
+      <i class="bi bi-question-circle" style="color: var(--warning)"></i>
+    </div>
+    <h3 style="text-align: center; margin-bottom: 8px">Konfirmasi Absensi</h3>
+    <div class="modal-confirm__text">Apakah Anda yakin ingin menyimpan data absensi ini?</div>
+    <div class="modal-confirm__actions">
+      <button class="btn btn--primary" id="btnKonfirmasiAbsensiYa">Ya, Simpan</button>
+      <button class="btn btn--secondary" id="btnKonfirmasiAbsensiTidak">Batal</button>
     </div>
   </div>
 </div>

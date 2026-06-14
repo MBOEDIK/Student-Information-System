@@ -38,16 +38,16 @@
     </div>
   </div>
 
-  <div class="table-wrapper" id="nilaiTableWrapper" style="display: none">
+  <div class="table-wrapper d-none mt-20" id="nilaiTableWrapper">
     <table>
       <thead>
         <tr>
-          <th style="width: 50px">No</th>
-          <th style="width: 120px">NIS</th>
+          <th class="col-no">No</th>
+          <th class="col-nis">NIS</th>
           <th>Nama Siswa</th>
-          <th style="width: 120px">Tugas</th>
-          <th style="width: 120px">UTS</th>
-          <th style="width: 120px">UAS</th>
+          <th class="col-nilai">Tugas</th>
+          <th class="col-nilai">UTS</th>
+          <th class="col-nilai">UAS</th>
         </tr>
       </thead>
       <tbody id="nilaiTableBody">
@@ -56,7 +56,7 @@
         </tr>
       </tbody>
     </table>
-    <div class="form-actions" style="padding: 16px 0" id="nilaiActions" hidden>
+    <div class="form-actions" id="nilaiActions" hidden>
       <button class="btn btn--primary" id="btnSimpanNilai">
         <span class="btn__text" id="btnSimpanNilaiText">Simpan Nilai</span>
         <span class="btn__loader" id="btnSimpanNilaiLoader" hidden>

@@ -148,6 +148,21 @@ textarea.form-input {
 }
 select.form-input {
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+select.form-input option {
+  padding: 8px 12px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 0.9rem;
 }
 
 .form-error,
@@ -412,6 +427,17 @@ tbody tr:hover {
   flex: 1;
 }
 
+/* ── Table Column Widths ─────────────────── */
+.col-no {
+  width: 50px;
+}
+.col-nis {
+  width: 120px;
+}
+.col-nilai {
+  width: 120px;
+}
+
 /* ── Table Action Buttons ────────────────── */
 .btn--icon {
   width: 34px;
@@ -453,6 +479,24 @@ tbody tr:hover {
 
 td .btn--icon {
   margin-right: 4px;
+}
+
+td .absensi-status {
+  min-width: 120px;
+}
+
+td .absensi-keterangan {
+  resize: none;
+  overflow: hidden;
+  min-height: 38px;
+  padding: 8px 10px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+td:has(.absensi-keterangan) {
+  max-width: 220px;
 }
 
 /* ── Empty State ─────────────────────────── */

@@ -1,22 +1,48 @@
 const pool = require('../config/db');
 const responseHelper = require('../shared/response');
 
+// ── Auto-migrate: buat tabel grades jika belum ada ──────────
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS grades (
+        id            INT AUTO_INCREMENT PRIMARY KEY,
+        student_id    INT NOT NULL,
+        subject_id    INT NOT NULL,
+        teacher_id    INT NOT NULL,
+        semester      VARCHAR(20) NOT NULL DEFAULT 'Ganjil 2025/2026',
+        tugas         DECIMAL(5,2) DEFAULT NULL,
+        uts           DECIMAL(5,2) DEFAULT NULL,
+        uas           DECIMAL(5,2) DEFAULT NULL,
+        created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+        FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+        FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+        UNIQUE KEY uq_grade_siswa_mapel_semester (student_id, subject_id, semester)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('[NILAI] Tabel grades siap.');
+  } catch (err) {
+    console.error('[NILAI] Migrasi tabel grades:', err.message);
+  }
+})();
+
 exports.getMapelGuru = async (req, res) => {
   try {
-    const { nip } = req.query;
+    const { teacher_id } = req.query;
 
-    if (!nip) {
-      return responseHelper.error(res, 'NIP guru wajib diisi', 400);
+    if (!teacher_id) {
+      return responseHelper.error(res, 'teacher_id wajib diisi', 400);
     }
 
     const [rows] = await pool.query(
       `SELECT DISTINCT sub.id, sub.nama_pelajaran
        FROM schedules s
        JOIN subjects sub ON s.subject_id = sub.id
-       JOIN teachers t ON s.teacher_id = t.id
-       WHERE t.nip = ?
+       WHERE s.teacher_id = ?
        ORDER BY sub.nama_pelajaran ASC`,
-      [nip]
+      [teacher_id]
     );
 
     return responseHelper.success(res, rows, 'Daftar mata pelajaran berhasil diambil');
@@ -28,47 +54,47 @@ exports.getMapelGuru = async (req, res) => {
 
 exports.getSiswaByMapel = async (req, res) => {
   try {
-    const { subject_id, nip } = req.query;
+    const { subject_id, teacher_id, semester } = req.query;
 
-    if (!subject_id || !nip) {
-      return responseHelper.error(res, 'subject_id dan NIP guru wajib diisi', 400);
+    if (!subject_id || !teacher_id) {
+      return responseHelper.error(res, 'subject_id dan teacher_id wajib diisi', 400);
     }
+
+    const activeSemester = semester || 'Ganjil 2025/2026';
 
     const [rows] = await pool.query(
       `SELECT DISTINCT st.id AS student_id, st.nis, st.nama,
-              g.id AS grade_id, g.tugas, g.uts, g.uas
+              g.tugas, g.uts, g.uas
        FROM schedule_students ss
        JOIN students st ON ss.student_id = st.id
        JOIN schedules s ON ss.schedule_id = s.id
-       JOIN teachers t ON s.teacher_id = t.id
        LEFT JOIN grades g ON g.student_id = st.id
          AND g.subject_id = s.subject_id
          AND g.semester = ?
-       WHERE s.subject_id = ? AND t.nip = ?
+       WHERE s.subject_id = ? AND s.teacher_id = ?
        ORDER BY st.nama ASC`,
-      ['Ganjil 2025/2026', subject_id, nip]
+      [activeSemester, subject_id, teacher_id]
     );
 
     return responseHelper.success(res, rows, 'Daftar siswa berhasil diambil');
   } catch (err) {
     console.error('[NILAI] getSiswaByMapel:', err.message);
-    return responseHelper.error(res, 'Gagal memproses permintaan', 500);
+    console.error('[NILAI] getSiswaByMapel SQL:', err.sqlMessage || '(not a query error)');
+    return responseHelper.error(
+      res,
+      err.sqlMessage || err.message || 'Gagal memproses permintaan',
+      500
+    );
   }
 };
 
 exports.saveNilaiBatch = async (req, res) => {
   try {
-    const { subject_id, nip, semester, entries } = req.body;
+    const { subject_id, teacher_id, semester, entries } = req.body;
 
-    if (!subject_id || !nip || !semester || !Array.isArray(entries)) {
+    if (!subject_id || !teacher_id || !semester || !Array.isArray(entries)) {
       return responseHelper.error(res, 'Data tidak lengkap', 400);
     }
-
-    const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE nip = ?', [nip]);
-    if (teacherRows.length === 0) {
-      return responseHelper.error(res, 'Guru tidak ditemukan', 404);
-    }
-    const teacher_id = teacherRows[0].id;
 
     const errors = [];
     for (let i = 0; i < entries.length; i++) {
