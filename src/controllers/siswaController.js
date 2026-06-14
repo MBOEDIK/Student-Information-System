@@ -9,7 +9,7 @@ exports.searchSiswa = async (req, res) => {
         .json({ success: false, message: 'Kata kunci pencarian tidak boleh kosong.' });
     }
     const [rows] = await pool.query(
-      'SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students WHERE nama LIKE ? OR nis LIKE ? ORDER BY created_at DESC',
+      'SELECT id, nis, nama, jenis_kelamin, alamat, nama_wali, no_hp_wali, status, created_at FROM students WHERE nama LIKE ? OR nis LIKE ? ORDER BY created_at DESC',
       [`%${keyword}%`, `%${keyword}%`]
     );
     return res.json({ success: true, data: rows });
@@ -22,7 +22,7 @@ exports.searchSiswa = async (req, res) => {
 exports.getAllSiswa = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students ORDER BY created_at DESC'
+      'SELECT id, nis, nama, jenis_kelamin, alamat, nama_wali, no_hp_wali, status, created_at FROM students ORDER BY created_at DESC'
     );
     return res.json({ success: true, data: rows });
   } catch (err) {
@@ -115,7 +115,7 @@ exports.createSiswa = async (req, res) => {
 exports.getSiswaById = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students WHERE id = ?',
+      'SELECT id, nis, nama, jenis_kelamin, alamat, nama_wali, no_hp_wali, status, created_at FROM students WHERE id = ?',
       [req.params.id]
     );
     if (rows.length === 0)
@@ -129,11 +129,11 @@ exports.getSiswaById = async (req, res) => {
 
 exports.updateSiswa = async (req, res) => {
   const { id } = req.params;
-  const { nama, nis, jenis_kelamin, alamat, status } = req.body;
+  const { nama, nis, jenis_kelamin, alamat, nama_wali, no_hp_wali, status } = req.body;
   try {
     const [result] = await pool.query(
-      'UPDATE students SET nama=?, nis=?, jenis_kelamin=?, alamat=?, status=? WHERE id=?',
-      [nama, nis, jenis_kelamin, alamat, status, id]
+      'UPDATE students SET nama=?, nis=?, jenis_kelamin=?, alamat=?, nama_wali=?, no_hp_wali=?, status=? WHERE id=?',
+      [nama, nis, jenis_kelamin, alamat, nama_wali || null, no_hp_wali || null, status, id]
     );
     if (result.affectedRows === 0)
       return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });

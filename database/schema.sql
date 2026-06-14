@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS students (
   nama          VARCHAR(100) NOT NULL,
   jenis_kelamin ENUM('Laki-laki','Perempuan') NOT NULL,
   alamat        TEXT,
+  nama_wali     VARCHAR(100) DEFAULT NULL,
+  no_hp_wali    VARCHAR(20)  DEFAULT NULL,
   status        ENUM('aktif','tidak aktif','lulus') DEFAULT 'aktif',
   created_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -133,6 +135,13 @@ ALTER TABLE absensi
   DROP FOREIGN KEY absensi_ibfk_2,
   ADD FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
   ADD UNIQUE KEY uq_absensi_siswa_jadwal_tanggal (schedule_id, siswa_id, tanggal);
+
+-- ============================================================
+-- MIGRASI: students — tambah kolom nama_wali & no_hp_wali (US 4.3)
+-- ============================================================
+ALTER TABLE students
+  ADD COLUMN nama_wali  VARCHAR(100) DEFAULT NULL AFTER alamat,
+  ADD COLUMN no_hp_wali VARCHAR(20)  DEFAULT NULL AFTER nama_wali;
 
 -- ============================================================
 -- TABEL: health_records (riwayat kesehatan siswa)
