@@ -54,11 +54,6 @@ window.loadJadwal = async function () {
   }
 };
 
-/**
- * Memuat jadwal pribadi siswa berdasarkan NIS dan merendernya
- * ke tabel #jadwalSiswaTableBody (read-only, tanpa kolom Aksi).
- * @param {string} nis - NIS siswa (diambil dari window.currentUser.username)
- */
 window.loadJadwalSiswa = async function (nis) {
   const tbody = document.getElementById('jadwalSiswaTableBody');
   if (!tbody) return;
@@ -129,6 +124,12 @@ window.editJadwal = async function (id) {
     e.textContent = '';
   });
 
+  const conflictEdit = document.getElementById('conflict-detail-edit');
+  if (conflictEdit) {
+    conflictEdit.innerHTML = '';
+    conflictEdit.hidden = true;
+  }
+
   try {
     const res = await fetch('/api/jadwal/' + id);
     const json = await res.json();
@@ -171,6 +172,12 @@ window.simpanEditJadwal = async function () {
     e.textContent = '';
   });
 
+  const conflictEdit = document.getElementById('conflict-detail-edit');
+  if (conflictEdit) {
+    conflictEdit.innerHTML = '';
+    conflictEdit.hidden = true;
+  }
+
   if (!subject_id) showEditError('err-edit-subject', 'Mata pelajaran harus dipilih.');
   if (!teacher_id) showEditError('err-edit-teacher', 'Guru pengampu harus dipilih.');
   if (!jam_mulai) showEditError('err-edit-jam_mulai', 'Jam mulai harus diisi.');
@@ -200,12 +207,30 @@ window.simpanEditJadwal = async function () {
     });
 
     const data = await res.json();
-    alert(data.message);
+
     if (data.success) {
       window.closeModal('modal-jadwal');
       window.loadJadwal();
     } else {
-      if (data.errors && Array.isArray(data.errors)) {
+      if (data.errors?.conflicts?.length) {
+        const conflictHtml = data.errors.conflicts
+          .map(
+            (c) =>
+              `<strong>${c.nama_pelajaran}</strong> — ${c.hari} ${c.jam_mulai.substring(0, 5)}-${c.jam_selesai.substring(0, 5)}, ${c.ruangan} (${c.nama_guru})`
+          )
+          .join('');
+        if (conflictEdit) {
+          conflictEdit.innerHTML = `<p>Gagal menyimpan, jadwal bentrok dengan Kelas:</p> ${conflictHtml}`;
+          conflictEdit.hidden = false;
+        }
+      } else if (Array.isArray(data.errors) && data.errors[0]?.konflik) {
+        const c = data.errors[0].konflik;
+        const conflictHtml = `<strong>${c.mata_pelajaran}</strong> — ${c.hari} ${c.jam_mulai.substring(0, 5)}-${c.jam_selesai.substring(0, 5)}, ${c.ruangan} (${c.nama_guru})`;
+        if (conflictEdit) {
+          conflictEdit.innerHTML = `<p>Gagal menyimpan, jadwal bentrok dengan Kelas:</p> ${conflictHtml}`;
+          conflictEdit.hidden = false;
+        }
+      } else if (data.errors && Array.isArray(data.errors)) {
         data.errors.forEach(function (msg) {
           if (msg.toLowerCase().includes('pelajaran')) showEditError('err-edit-subject', msg);
           else if (msg.toLowerCase().includes('guru')) showEditError('err-edit-teacher', msg);
@@ -257,6 +282,11 @@ window.page_jadwal_init = function () {
     document.querySelectorAll('.form-input').forEach(function (e) {
       e.classList.remove('input--error');
     });
+    const conflictDetail = document.getElementById('conflict-detail');
+    if (conflictDetail) {
+      conflictDetail.innerHTML = '';
+      conflictDetail.hidden = true;
+    }
   }
 
   function showJadwalFieldError(groupId, errId, msg) {
@@ -310,61 +340,43 @@ window.page_jadwal_init = function () {
     }
   }
 
-  // ── Percabangan berdasarkan role ────────────────────────────────────────
   if (window.currentUser?.role === 'siswa') {
-    // Tampilkan view siswa, sembunyikan view admin
     const siswaView = document.getElementById('jadwal-siswa-view');
     const adminView = document.getElementById('jadwal-admin-view');
     if (siswaView) siswaView.hidden = false;
     if (adminView) adminView.hidden = true;
-
-    // Muat jadwal pribadi siswa menggunakan NIS (username)
-    const nis = window.currentUser.username;
-    window.loadJadwalSiswa(nis);
-
-    // Tidak perlu inisialisasi form/dropdown/modal untuk siswa
+    window.loadJadwalSiswa(window.currentUser.username);
     return;
   }
 
-  // ── View Guru (read-only jadwal mengajar pribadi) ──────────────────
   if (window.currentUser?.role === 'guru') {
     const guruView = document.getElementById('jadwal-guru-view');
     const adminView = document.getElementById('jadwal-admin-view');
     if (guruView) guruView.hidden = false;
     if (adminView) adminView.hidden = true;
-
-    const nip = window.currentUser.username;
-    window.loadJadwalGuru(nip);
-
+    window.loadJadwalGuru(window.currentUser.username);
     return;
   }
 
-  // ── View Admin (default untuk role selain siswa & guru) ─────────────────────
   const adminView = document.getElementById('jadwal-admin-view');
   const siswaView = document.getElementById('jadwal-siswa-view');
   if (adminView) adminView.hidden = false;
   if (siswaView) siswaView.hidden = true;
 
-  // Isi dropdown form utama
   loadSubjects('subject_id', '— Pilih Mata Pelajaran —');
   loadTeachers('teacher_id', '— Pilih Guru —');
-
-  // Isi dropdown modal edit
   loadSubjects('edit-jadwal-subject_id', '— Pilih —');
   loadTeachers('edit-jadwal-teacher_id', '— Pilih —');
 
-  // Tombol simpan edit
   document
     .getElementById('btnSimpanEditJadwal')
     ?.addEventListener('click', window.simpanEditJadwal);
 
-  // Tombol reset form
   document.getElementById('btnReset')?.addEventListener('click', function (e) {
     e.preventDefault();
     resetJadwalForm();
   });
 
-  // Submit form baru
   const form = document.getElementById('formJadwal');
   if (form) {
     form.addEventListener('submit', async function (e) {
@@ -376,8 +388,16 @@ window.page_jadwal_init = function () {
       document.querySelectorAll('.form-input').forEach(function (el) {
         el.classList.remove('input--error');
       });
-      document.getElementById('alertSuccess').hidden = true;
-      document.getElementById('alertError').hidden = true;
+      if (document.getElementById('alertSuccess'))
+        document.getElementById('alertSuccess').hidden = true;
+      if (document.getElementById('alertError'))
+        document.getElementById('alertError').hidden = true;
+
+      const conflictDetail = document.getElementById('conflict-detail');
+      if (conflictDetail) {
+        conflictDetail.innerHTML = '';
+        conflictDetail.hidden = true;
+      }
 
       const subject_id = document.getElementById('subject_id')?.value;
       const teacher_id = document.getElementById('teacher_id')?.value;
@@ -412,7 +432,6 @@ window.page_jadwal_init = function () {
         showJadwalFieldError('group-ruangan', 'err-ruangan', 'Ruangan tidak boleh kosong.');
         hasError = true;
       }
-
       if (jam_mulai && jam_selesai && jam_mulai >= jam_selesai) {
         showJadwalFieldError(
           'group-jam_selesai',
@@ -447,7 +466,25 @@ window.page_jadwal_init = function () {
           resetJadwalForm();
           window.loadJadwal();
         } else {
-          if (data.errors && Array.isArray(data.errors)) {
+          if (data.errors?.conflicts?.length) {
+            const conflictHtml = data.errors.conflicts
+              .map(
+                (c) =>
+                  `<strong>${c.nama_pelajaran}</strong> — ${c.hari} ${c.jam_mulai.substring(0, 5)}-${c.jam_selesai.substring(0, 5)}, ${c.ruangan} (${c.nama_guru})`
+              )
+              .join('');
+            if (conflictDetail) {
+              conflictDetail.innerHTML = `<p>Gagal menyimpan, jadwal bentrok dengan Kelas:</p>${conflictHtml}`;
+              conflictDetail.hidden = false;
+            }
+          } else if (Array.isArray(data.errors) && data.errors[0]?.konflik) {
+            const c = data.errors[0].konflik;
+            const conflictHtml = `<strong>${c.mata_pelajaran}</strong> — ${c.hari} ${c.jam_mulai.substring(0, 5)}-${c.jam_selesai.substring(0, 5)}, ${c.ruangan} (${c.nama_guru})`;
+            if (conflictDetail) {
+              conflictDetail.innerHTML = `<p>Gagal menyimpan, jadwal bentrok dengan kelas:</p>${conflictHtml}`;
+              conflictDetail.hidden = false;
+            }
+          } else if (Array.isArray(data.errors)) {
             data.errors.forEach(function (msg) {
               if (msg.toLowerCase().includes('pelajaran')) {
                 showJadwalFieldError('group-subject', 'err-subject', msg);
