@@ -376,6 +376,11 @@ window.submitAbsensiGuru = async function () {
 
     if (data.success) {
       showAbsensiSuccess(data.message || 'Absensi berhasil disimpan.');
+      // Reload tabel untuk menampilkan data terbaru (AC 3.2.3)
+      const scheduleId = sel?.value;
+      if (scheduleId) {
+        window.loadSiswaBySchedule(scheduleId);
+      }
     } else {
       showAbsensiError(data.message || 'Gagal menyimpan absensi.');
     }

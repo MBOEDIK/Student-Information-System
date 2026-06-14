@@ -237,7 +237,7 @@ exports.updateAbsensi = async (req, res) => {
   // Validasi body { status, keterangan }
   const { status, keterangan } = req.body;
 
-  const validStatus = ['Hadir', 'Sakit', 'Izin', 'Alfa'];
+  const validStatus = ['Hadir', 'Sakit', 'Izin', 'Alpa'];
   if (!status || !validStatus.includes(status)) {
     return responseHelper.error(
       res,
