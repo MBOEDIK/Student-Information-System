@@ -106,19 +106,19 @@ exports.saveNilaiBatch = async (req, res) => {
       if (entry.tugas !== undefined && entry.tugas !== null && entry.tugas !== '') {
         const num = Number(entry.tugas);
         if (isNaN(num) || num < 0 || num > 100) {
-          errors.push('Baris ke-' + (i + 1) + ': nilai Tugas harus angka 0–100.');
+          errors.push('Baris ke-' + (i + 1) + ': nilai Tugas harus angka 0\u2013100.');
         }
       }
       if (entry.uts !== undefined && entry.uts !== null && entry.uts !== '') {
         const num = Number(entry.uts);
         if (isNaN(num) || num < 0 || num > 100) {
-          errors.push('Baris ke-' + (i + 1) + ': nilai UTS harus angka 0–100.');
+          errors.push('Baris ke-' + (i + 1) + ': nilai UTS harus angka 0\u2013100.');
         }
       }
       if (entry.uas !== undefined && entry.uas !== null && entry.uas !== '') {
         const num = Number(entry.uas);
         if (isNaN(num) || num < 0 || num > 100) {
-          errors.push('Baris ke-' + (i + 1) + ': nilai UAS harus angka 0–100.');
+          errors.push('Baris ke-' + (i + 1) + ': nilai UAS harus angka 0\u2013100.');
         }
       }
     }
@@ -155,5 +155,54 @@ exports.saveNilaiBatch = async (req, res) => {
   } catch (err) {
     console.error('[NILAI] saveNilaiBatch:', err.message);
     return responseHelper.error(res, 'Gagal memproses permintaan', 500);
+  }
+};
+
+exports.updateNilai = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { tugas, uts, uas } = req.body;
+
+    if (!id) {
+      return responseHelper.error(res, 'ID nilai wajib diisi', 400);
+    }
+
+    const errors = [];
+    if (tugas !== undefined && tugas !== null && tugas !== '') {
+      const num = Number(tugas);
+      if (isNaN(num) || num < 0 || num > 100) {
+        errors.push('Nilai Tugas harus angka 0\u2013100.');
+      }
+    }
+    if (uts !== undefined && uts !== null && uts !== '') {
+      const num = Number(uts);
+      if (isNaN(num) || num < 0 || num > 100) {
+        errors.push('Nilai UTS harus angka 0\u2013100.');
+      }
+    }
+    if (uas !== undefined && uas !== null && uas !== '') {
+      const num = Number(uas);
+      if (isNaN(num) || num < 0 || num > 100) {
+        errors.push('Nilai UAS harus angka 0\u2013100.');
+      }
+    }
+
+    if (errors.length > 0) {
+      return responseHelper.error(res, 'Validasi gagal.', 400, errors);
+    }
+
+    const tugasVal = tugas !== undefined && tugas !== '' ? tugas : null;
+    const utsVal = uts !== undefined && uts !== '' ? uts : null;
+    const uasVal = uas !== undefined && uas !== '' ? uas : null;
+
+    await pool.query(
+      'UPDATE grades SET tugas = ?, uts = ?, uas = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [tugasVal, utsVal, uasVal, id]
+    );
+
+    return responseHelper.success(res, null, 'Nilai berhasil diperbarui', 200);
+  } catch (err) {
+    console.error('[NILAI] updateNilai:', err.message);
+    return responseHelper.error(res, 'Gagal memperbarui nilai', 500);
   }
 };
