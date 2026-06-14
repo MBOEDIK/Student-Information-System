@@ -173,20 +173,15 @@ window.simpanNilai = async function () {
     });
 
     if (data.success) {
-      showNilaiAlert(data.message, 'success');
+      showNilaiAlert(data.message || 'Nilai berhasil disimpan', 'success');
       window.loadSiswaNilai(currentSubjectId);
+    } else {
+      showNilaiAlert(data.message || 'Gagal menyimpan nilai', 'error');
     }
   } catch (err) {
     let msg = err.message || 'Gagal menyimpan nilai.';
-    try {
-      const errData = JSON.parse(msg);
-      if (errData.errors && Array.isArray(errData.errors)) {
-        msg = errData.errors.join('<br/>');
-      } else if (errData.message) {
-        msg = errData.message;
-      }
-    } catch (_) {
-      // ignore parse error, fallback to raw msg
+    if (err.data && err.data.errors && Array.isArray(err.data.errors)) {
+      msg = err.data.errors.join('<br/>');
     }
     showNilaiAlert(msg, 'error');
   } finally {
