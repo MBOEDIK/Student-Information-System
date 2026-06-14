@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const responseHelper = require('../shared/response');
 
 exports.searchSiswa = async (req, res) => {
   try {
@@ -141,5 +142,95 @@ exports.updateSiswa = async (req, res) => {
   } catch (err) {
     console.error('[SISWA CONTROLLER] updateSiswa:', err);
     return res.status(500).json({ success: false, message: 'Gagal mengupdate data siswa.' });
+  }
+};
+
+exports.uploadSiswaCSV = async (req, res) => {
+  try {
+    const { entries } = req.body;
+
+    if (!Array.isArray(entries) || entries.length === 0) {
+      return responseHelper.error(res, 'Tidak ada data siswa yang diupload.', 400);
+    }
+
+    const allErrors = [];
+    const validEntries = [];
+
+    for (let i = 0; i < entries.length; i++) {
+      const row = entries[i];
+      const lineNum = i + 1;
+      const rowErrors = [];
+
+      const nis = (row.nis || '').toString().trim();
+      const nama = (row.nama || '').toString().trim();
+      const jenisKelamin = (row.jenis_kelamin || row.jenisKelamin || '').toString().trim();
+      const alamat = (row.alamat || '').toString().trim();
+
+      if (!nis) rowErrors.push('NIS tidak boleh kosong.');
+      if (!nama) rowErrors.push('Nama tidak boleh kosong.');
+      if (jenisKelamin && !['Laki-laki', 'Perempuan'].includes(jenisKelamin)) {
+        rowErrors.push('Jenis Kelamin harus Laki-laki atau Perempuan.');
+      }
+
+      if (rowErrors.length > 0) {
+        allErrors.push({ baris: lineNum, nis, errors: rowErrors });
+        continue;
+      }
+
+      validEntries.push({
+        nis,
+        nama,
+        jenis_kelamin: jenisKelamin || 'Laki-laki',
+        alamat: alamat || null
+      });
+    }
+
+    if (validEntries.length === 0) {
+      return responseHelper.error(res, 'Semua baris data gagal validasi.', 400, allErrors);
+    }
+
+    const inserted = [];
+    const duplicateErrors = [];
+
+    for (const entry of validEntries) {
+      try {
+        const [existing] = await pool.query('SELECT id FROM students WHERE nis = ?', [entry.nis]);
+        if (existing.length > 0) {
+          duplicateErrors.push({ nis: entry.nis, errors: [`NIS "${entry.nis}" sudah terdaftar.`] });
+          continue;
+        }
+
+        const [result] = await pool.query(
+          "INSERT INTO students (nis, nama, jenis_kelamin, alamat, status) VALUES (?, ?, ?, ?, 'aktif')",
+          [entry.nis, entry.nama, entry.jenis_kelamin, entry.alamat]
+        );
+        inserted.push({ id: result.insertId, ...entry });
+      } catch (err) {
+        console.error('[SISWA] uploadSiswaCSV insert:', err.message);
+        duplicateErrors.push({ nis: entry.nis, errors: ['Gagal menyimpan data.'] });
+      }
+    }
+
+    const summary = {
+      total: entries.length,
+      berhasil: inserted.length,
+      gagal_validasi: allErrors.length,
+      gagal_duplikat: duplicateErrors.length,
+      errors: [...allErrors, ...duplicateErrors]
+    };
+
+    if (inserted.length === 0) {
+      return responseHelper.error(
+        res,
+        'Tidak ada data yang berhasil diupload.',
+        400,
+        summary.errors
+      );
+    }
+
+    return responseHelper.success(res, summary, `${inserted.length} data siswa berhasil diupload.`);
+  } catch (err) {
+    console.error('[SISWA] uploadSiswaCSV:', err.message);
+    return responseHelper.error(res, 'Gagal memproses upload CSV.', 500);
   }
 };

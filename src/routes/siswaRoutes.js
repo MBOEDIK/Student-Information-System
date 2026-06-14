@@ -7,6 +7,7 @@ router.get('/search', siswaCtrl.searchSiswa);
 router.get('/stats', siswaCtrl.getStats);
 router.get('/:id', siswaCtrl.getSiswaById);
 router.post('/register', siswaCtrl.createSiswa);
+router.post('/upload-csv', siswaCtrl.uploadSiswaCSV);
 router.put('/:id', siswaCtrl.updateSiswa);
 
 module.exports = router;
