@@ -13,13 +13,67 @@ async function loadLaporan(tanggal) {
 
     if (rekap.success) {
       renderStatCards(rekap.data);
+      renderChartAbsensi(rekap.data);
     }
     if (laporan.success) {
       renderTable(laporan.data);
     }
   } catch (err) {
     console.error('[ABSENSI] loadLaporan:', err.message);
+    renderChartAbsensi([]);
   }
+}
+
+window._chartAbsensi = null;
+
+function renderChartAbsensi(data) {
+  const canvas = document.getElementById('chartAbsensi');
+  const emptyEl = document.getElementById('chart-empty');
+  if (!canvas || !emptyEl) return;
+
+  const isEmpty =
+    !data ||
+    data.length === 0 ||
+    data.every(function (d) {
+      return d.total === 0;
+    });
+
+  if (isEmpty) {
+    canvas.style.display = 'none';
+    emptyEl.hidden = false;
+    return;
+  }
+
+  canvas.style.display = 'block';
+  emptyEl.hidden = true;
+
+  if (window._chartAbsensi) {
+    window._chartAbsensi.destroy();
+    window._chartAbsensi = null;
+  }
+
+  window._chartAbsensi = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: data.map(function (d) {
+        return d.status;
+      }),
+      datasets: [
+        {
+          data: data.map(function (d) {
+            return d.total;
+          }),
+          backgroundColor: ['#22c55e', '#eab308', '#3b82f6', '#ef4444']
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
 }
 
 function renderStatCards(data) {
