@@ -164,10 +164,16 @@ exports.getSiswaBySchedule = async (req, res) => {
         a.keterangan
       FROM schedule_students ss
       JOIN students s ON s.id = ss.student_id
-      LEFT JOIN absensi a
-        ON a.siswa_id = s.id
-        AND a.schedule_id = ?
-        AND a.tanggal = ?
+      LEFT JOIN (
+        SELECT siswa_id, status, keterangan
+        FROM absensi
+        WHERE (siswa_id, schedule_id, tanggal, id) IN (
+          SELECT siswa_id, schedule_id, tanggal, MAX(id)
+          FROM absensi
+          WHERE schedule_id = ? AND tanggal = ?
+          GROUP BY siswa_id, schedule_id, tanggal
+        )
+      ) a ON a.siswa_id = s.id
       WHERE ss.schedule_id = ?
       ORDER BY s.nama`,
       [schedule_id, tanggal, schedule_id]
@@ -213,16 +219,22 @@ exports.saveAbsensiBatch = async (req, res) => {
 
       // Cek apakah sudah ada record untuk siswa + jadwal + tanggal ini
       const [existing] = await conn.query(
-        'SELECT id FROM absensi WHERE siswa_id = ? AND schedule_id = ? AND tanggal = ?',
+        'SELECT id FROM absensi WHERE siswa_id = ? AND schedule_id = ? AND tanggal = ? ORDER BY id DESC',
         [siswa_id, schedule_id, tanggal]
       );
 
       if (existing.length > 0) {
+        // Update record terbaru
         await conn.query('UPDATE absensi SET status = ?, keterangan = ? WHERE id = ?', [
           status,
           keterangan || null,
           existing[0].id
         ]);
+        // Hapus duplikat lama jika ada (sisa bug sebelumnya)
+        if (existing.length > 1) {
+          const idsToDelete = existing.slice(1).map((r) => r.id);
+          await conn.query('DELETE FROM absensi WHERE id IN (?)', [idsToDelete]);
+        }
       } else {
         await conn.query(
           'INSERT INTO absensi (siswa_id, schedule_id, tanggal, status, keterangan) VALUES (?, ?, ?, ?, ?)',
