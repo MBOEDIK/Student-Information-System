@@ -99,6 +99,25 @@ CREATE TABLE IF NOT EXISTS schedule_students (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
+-- TABEL: grades (nilai / transkrip siswa)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS grades (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  student_id  INT NOT NULL,
+  subject_id  INT NOT NULL,
+  semester    VARCHAR(10) NOT NULL,
+  tugas       DECIMAL(5,2) DEFAULT NULL,
+  uts         DECIMAL(5,2) DEFAULT NULL,
+  uas         DECIMAL(5,2) DEFAULT NULL,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE INDEX idx_grades_student ON grades(student_id);
+CREATE INDEX idx_grades_subject ON grades(subject_id);
+
+-- ============================================================
 -- TABEL: absensi (pencatatan absensi harian siswa)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS absensi (

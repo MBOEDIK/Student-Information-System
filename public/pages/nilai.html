@@ -5,7 +5,7 @@
 
   <!-- VIEW GURU/ADMIN -->
   <div id="nilai-guru-view">
-    <p style="color:var(--text-muted);">Fitur input nilai tersedia untuk guru.</p>
+    <p class="text-muted">Fitur input nilai tersedia untuk guru.</p>
   </div>
 
   <!-- VIEW SISWA: Transkrip Nilai (US 6.3) -->
@@ -28,9 +28,11 @@
         </thead>
         <tbody id="transkripTableBody"></tbody>
       </table>
-      <p id="transkripEmpty" class="text-center text-muted" hidden>
-        Belum ada data nilai untuk akun ini.
-      </p>
+      <div id="transkripEmpty" class="empty-state" hidden>
+        <div class="empty-state__icon"><i class="bi bi-journal-text"></i></div>
+        <div class="empty-state__title">Belum ada data nilai</div>
+        <div class="empty-state__desc">Belum ada data nilai untuk akun ini.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -40,17 +42,14 @@
     <h2>Rangkuman Transkrip Nilai Siswa</h2>
   </div>
   <div id="admin-cari-siswa">
-    <select id="selectSiswa" class="form-input"
-      onchange="window.loadTranskripAdmin(this.value)">
+    <select id="selectSiswa" class="form-input" onchange="window.loadTranskripAdmin(this.value)">
       <option value="">-- Pilih Siswa --</option>
     </select>
   </div>
   <div id="adminTranskripResult" hidden>
     <div class="page-header">
       <h3 id="adminSiswaInfo"></h3>
-      <button class="btn btn--primary" onclick="window.cetakTranskrip()">
-        Cetak Transkrip
-      </button>
+      <button class="btn btn--primary" onclick="window.cetakTranskrip()">Cetak Transkrip</button>
     </div>
     <div class="table-wrapper">
       <table class="table">
@@ -67,9 +66,11 @@
         </thead>
         <tbody id="adminTranskripTableBody"></tbody>
       </table>
-      <p id="adminTranskripEmpty" class="text-center text-muted" hidden>
-        Belum ada data nilai untuk siswa ini.
-      </p>
+      <div id="adminTranskripEmpty" class="empty-state" hidden>
+        <div class="empty-state__icon"><i class="bi bi-journal-text"></i></div>
+        <div class="empty-state__title">Belum ada data nilai</div>
+        <div class="empty-state__desc">Belum ada data nilai untuk siswa ini.</div>
+      </div>
     </div>
   </div>
 </div>

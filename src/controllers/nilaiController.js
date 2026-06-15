@@ -1,12 +1,13 @@
 'use strict';
 
 const pool = require('../config/db');
+const responseHelper = require('../shared/response');
 
 exports.getTranskripSiswa = async (req, res) => {
   try {
     const { nis } = req.query;
     if (!nis) {
-      return res.status(400).json({ success: false, message: 'Parameter NIS wajib diisi.' });
+      return responseHelper.error(res, 'Parameter NIS wajib diisi.', 400);
     }
     const [rows] = await pool.query(
       `SELECT
@@ -30,10 +31,10 @@ exports.getTranskripSiswa = async (req, res) => {
       ORDER BY g.semester, sub.nama_pelajaran`,
       [nis]
     );
-    return res.json({ success: true, data: rows, message: 'Transkrip nilai berhasil diambil.' });
+    return responseHelper.success(res, rows, 'Transkrip nilai berhasil diambil.');
   } catch (err) {
     console.error('[NILAI] getTranskripSiswa:', err.message);
-    return res.status(500).json({ success: false, message: 'Gagal mengambil transkrip nilai.' });
+    return responseHelper.error(res, 'Gagal mengambil transkrip nilai.', 500);
   }
 };
 
@@ -41,14 +42,13 @@ exports.getTranskripAdmin = async (req, res) => {
   try {
     const { siswaId } = req.query;
     if (!siswaId) {
-      return res.status(400).json({ success: false, message: 'Parameter siswaId wajib diisi.' });
+      return responseHelper.error(res, 'Parameter siswaId wajib diisi.', 400);
     }
-    const [[siswa]] = await pool.query(
-      'SELECT id, nis, nama FROM students WHERE id = ?',
-      [siswaId]
-    );
+    const [[siswa]] = await pool.query('SELECT id, nis, nama FROM students WHERE id = ?', [
+      siswaId
+    ]);
     if (!siswa) {
-      return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });
+      return responseHelper.error(res, 'Siswa tidak ditemukan.', 404);
     }
     const [grades] = await pool.query(
       `SELECT
@@ -71,9 +71,9 @@ exports.getTranskripAdmin = async (req, res) => {
       ORDER BY g.semester, sub.nama_pelajaran`,
       [siswaId]
     );
-    return res.json({ success: true, data: { siswa, grades }, message: 'Transkrip admin berhasil diambil.' });
+    return responseHelper.success(res, { siswa, grades }, 'Transkrip admin berhasil diambil.');
   } catch (err) {
     console.error('[NILAI] getTranskripAdmin:', err.message);
-    return res.status(500).json({ success: false, message: 'Gagal mengambil transkrip admin.' });
+    return responseHelper.error(res, 'Gagal mengambil transkrip admin.', 500);
   }
 };

@@ -6,6 +6,11 @@
 @media print {
   body.print-mode .sidebar,
   body.print-mode .topbar,
-  body.print-mode .btn { display: none !important; }
-  body.print-mode .main-content { margin-left: 0; padding: 20px; }
+  body.print-mode .btn {
+    display: none !important;
+  }
+  body.print-mode .main-content {
+    margin-left: 0;
+    padding: 20px;
+  }
 }
