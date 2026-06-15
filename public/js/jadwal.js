@@ -248,6 +248,18 @@ window.page_jadwal_init = function () {
     if (loadEl) loadEl.hidden = !on;
   }
 
+  function toggleFormJadwal(show) {
+    const form = document.getElementById('formJadwal');
+    const icon = document.getElementById('tambahJadwalIcon');
+    if (show) {
+      form.classList.remove('d-none');
+      icon.className = 'bi bi-dash-circle toggle-header__icon';
+    } else {
+      form.classList.add('d-none');
+      icon.className = 'bi bi-plus-circle toggle-header__icon';
+    }
+  }
+
   function resetJadwalForm() {
     const form = document.getElementById('formJadwal');
     if (form) form.reset();
@@ -344,6 +356,12 @@ window.page_jadwal_init = function () {
   const siswaView = document.getElementById('jadwal-siswa-view');
   if (adminView) adminView.hidden = false;
   if (siswaView) siswaView.hidden = true;
+
+  // Toggle form tambah jadwal
+  document.getElementById('tambahJadwalToggle')?.addEventListener('click', function () {
+    const form = document.getElementById('formJadwal');
+    toggleFormJadwal(form.classList.contains('d-none'));
+  });
 
   // Isi dropdown form utama
   loadSubjects('subject_id', '— Pilih Mata Pelajaran —');
@@ -445,6 +463,7 @@ window.page_jadwal_init = function () {
         if (data.success) {
           showJadwalSuccess(data.message);
           resetJadwalForm();
+          toggleFormJadwal(false);
           window.loadJadwal();
         } else {
           if (data.errors && Array.isArray(data.errors)) {
