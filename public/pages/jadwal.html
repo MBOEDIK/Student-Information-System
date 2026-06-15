@@ -76,42 +76,15 @@
   </div>
   <!-- ================= END VIEW GURU ================= -->
 
-  <!-- ===================== VIEW ADMIN (tabel + form) ===================== -->
+  <!-- ===================== VIEW ADMIN (form + tabel) ===================== -->
   <div id="jadwal-admin-view" hidden>
     <div class="card mb-24">
       <div class="card__body">
-        <div class="page-header">
-          <h2>Daftar Jadwal Kelas</h2>
+        <div class="toggle-header" id="tambahJadwalToggle">
+          <h3 class="mb-0">Buat Jadwal Baru</h3>
+          <i class="bi bi-plus-circle toggle-header__icon" id="tambahJadwalIcon"></i>
         </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Mata Pelajaran</th>
-                <th>Guru</th>
-                <th>Hari</th>
-                <th>Jam</th>
-                <th>Ruangan</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="jadwalTableBody">
-              <tr>
-                <td colspan="7" class="text-center text-muted">Memuat data...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card__body">
-        <div class="page-header">
-          <h2>Buat Jadwal Baru</h2>
-        </div>
-        <form id="formJadwal" novalidate>
+        <form id="formJadwal" novalidate class="d-none">
           <div class="form-group" id="group-subject">
             <label class="form-label" for="subject_id"
               >Mata Pelajaran <span class="required">*</span></label
@@ -188,6 +161,32 @@
             <button type="reset" class="btn btn--secondary" id="btnReset">Reset</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card__body">
+        <h3 class="mb-16">Daftar Jadwal Kelas</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Mata Pelajaran</th>
+                <th>Guru</th>
+                <th>Hari</th>
+                <th>Jam</th>
+                <th>Ruangan</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="jadwalTableBody">
+              <tr>
+                <td colspan="7" class="text-center text-muted">Memuat data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

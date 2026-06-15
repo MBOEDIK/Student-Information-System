@@ -101,6 +101,18 @@ function showGuruAlert(success, msg) {
   }
 }
 
+function toggleFormGuru(show) {
+  const form = document.getElementById('formRegistrasiGuru');
+  const icon = document.getElementById('tambahGuruIcon');
+  if (show) {
+    form.classList.remove('d-none');
+    icon.className = 'bi bi-dash-circle toggle-header__icon';
+  } else {
+    form.classList.add('d-none');
+    icon.className = 'bi bi-plus-circle toggle-header__icon';
+  }
+}
+
 function resetFormGuru() {
   const form = document.getElementById('formRegistrasiGuru');
   if (form) form.reset();
@@ -140,6 +152,12 @@ function clearGuruFieldErrors() {
 window.page_guru_init = function () {
   const form = document.getElementById('formRegistrasiGuru');
 
+  // Toggle form tambah guru
+  document.getElementById('tambahGuruToggle')?.addEventListener('click', function () {
+    const form = document.getElementById('formRegistrasiGuru');
+    toggleFormGuru(form.classList.contains('d-none'));
+  });
+
   document.getElementById('btnResetRegistrasiGuru')?.addEventListener('click', function (e) {
     e.preventDefault();
     resetFormGuru();
@@ -175,6 +193,7 @@ window.page_guru_init = function () {
         if (result.success) {
           showGuruAlert(true, result.message);
           resetFormGuru();
+          toggleFormGuru(false);
           window.loadGuru();
         } else {
           if (result.errors && Array.isArray(result.errors)) {
