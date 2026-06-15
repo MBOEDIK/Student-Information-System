@@ -166,27 +166,40 @@ function setLoadingKonseling(on) {
 }
 
 window.page_konseling_init = function () {
-  const tanggalInput = document.getElementById('tanggalKonseling');
-  if (tanggalInput) {
-    tanggalInput.value = new Date().toISOString().slice(0, 10);
+  const isGuru = window.currentUser?.role === 'guru';
+
+  if (!isGuru) {
+    const formCard = document.getElementById('formKonselingCard');
+    if (formCard) formCard.hidden = true;
+  }
+
+  if (isGuru) {
+    const tanggalInput = document.getElementById('tanggalKonseling');
+    if (tanggalInput) {
+      tanggalInput.value = new Date().toISOString().slice(0, 10);
+    }
   }
 
   window.loadSiswaKonseling();
   window.loadRiwayatKonseling();
 
-  document.getElementById('tambahKonselingToggle')?.addEventListener('click', function () {
-    const form = document.getElementById('formKonseling');
-    toggleFormKonseling(form.classList.contains('d-none'));
-  });
+  if (isGuru) {
+    document.getElementById('tambahKonselingToggle')?.addEventListener('click', function () {
+      const form = document.getElementById('formKonseling');
+      toggleFormKonseling(form.classList.contains('d-none'));
+    });
 
-  document.getElementById('btnResetKonseling')?.addEventListener('click', function (e) {
-    e.preventDefault();
-    resetFormKonseling();
-  });
+    document.getElementById('btnResetKonseling')?.addEventListener('click', function (e) {
+      e.preventDefault();
+      resetFormKonseling();
+    });
+  }
 
   document.getElementById('filterSiswa')?.addEventListener('change', function () {
     window.loadRiwayatKonseling(this.value);
   });
+
+  if (!isGuru) return;
 
   const form = document.getElementById('formKonseling');
   if (!form) return;
