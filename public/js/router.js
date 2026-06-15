@@ -9,7 +9,7 @@ const menuAccessRule = {
   konseling: ['admin', 'guru'],
   nilai: ['admin', 'guru', 'siswa'],
   siswa: ['admin', 'guru'],
-  guru: ['admin', 'guru']
+  guru: ['admin']
 };
 
 const router = {
