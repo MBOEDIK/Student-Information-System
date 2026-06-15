@@ -119,3 +119,10 @@ INSERT INTO grades (student_id, subject_id, teacher_id, semester, tugas, uts, ua
 (3, 1, 1, 'Ganjil 2025/2026', 70.0, 75.0, 80.0),
 (4, 1, 1, 'Ganjil 2025/2026', 88.0, 82.0, 91.0),
 (6, 1, 1, 'Ganjil 2025/2026', 76.0, 80.0, 78.0);
+
+-- ── Counseling Records (Catatan Konseling) ──────────────────
+TRUNCATE TABLE counseling_records;
+
+INSERT INTO counseling_records (student_id, teacher_id, tanggal, topik, deskripsi, tindak_lanjut) VALUES
+(2, 2, '2026-06-10', 'Motivasi belajar menurun', 'Siswa mengaku sulit fokus di kelas karena masalah keluarga.', 'Rencana konseling lanjutan 2 minggu lagi.'),
+(4, 2, '2026-06-11', 'Konflik dengan teman sebangku', 'Siswa merasa tidak nyaman duduk dengan teman sekelas.', 'Pindah tempat duduk sementara.');

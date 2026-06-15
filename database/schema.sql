@@ -99,6 +99,22 @@ CREATE TABLE IF NOT EXISTS schedule_students (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
+-- TABEL: counseling_records (catatan konseling siswa)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS counseling_records (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  student_id    INT NOT NULL,
+  teacher_id    INT NOT NULL,
+  tanggal       DATE NOT NULL DEFAULT (CURRENT_DATE),
+  topik         VARCHAR(150) NOT NULL,
+  deskripsi     TEXT,
+  tindak_lanjut TEXT,
+  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
 -- TABEL: absensi (pencatatan absensi harian siswa)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS absensi (
@@ -167,4 +183,20 @@ CREATE TABLE IF NOT EXISTS grades (
   FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
   FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
   UNIQUE KEY uq_grade_siswa_mapel_semester (student_id, subject_id, semester)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- TABEL: counseling_records (catatan konseling siswa)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS counseling_records (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  student_id    INT NOT NULL,
+  teacher_id    INT NOT NULL,
+  tanggal       DATE NOT NULL DEFAULT (CURRENT_DATE),
+  topik         VARCHAR(150) NOT NULL,
+  deskripsi     TEXT,
+  tindak_lanjut TEXT,
+  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
