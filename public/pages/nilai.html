@@ -36,42 +36,43 @@
       </div>
     </div>
   </div>
-</div>
-<!-- VIEW ADMIN: Rangkuman Transkrip (US 6.4) -->
-<div id="nilai-admin-view" hidden>
-  <div class="page-header">
-    <h2>Rangkuman Transkrip Nilai Siswa</h2>
-  </div>
-  <div id="admin-cari-siswa">
-    <select id="selectSiswa" class="form-input" onchange="window.loadTranskripAdmin(this.value)">
-      <option value="">-- Pilih Siswa --</option>
-    </select>
-  </div>
-  <div id="adminTranskripResult" hidden>
+
+  <!-- VIEW ADMIN: Rangkuman Transkrip (US 6.4) -->
+  <div id="nilai-admin-view" hidden>
     <div class="page-header">
-      <h3 id="adminSiswaInfo"></h3>
-      <button class="btn btn--primary" onclick="window.cetakTranskrip()">Cetak Transkrip</button>
+      <h2>Rangkuman Transkrip Nilai Siswa</h2>
     </div>
-    <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Semester</th>
-            <th>Mata Pelajaran</th>
-            <th>Tugas</th>
-            <th>UTS</th>
-            <th>UAS</th>
-            <th>Rata-rata</th>
-            <th>Nilai Akhir</th>
-          </tr>
-        </thead>
-        <tbody id="adminTranskripTableBody"></tbody>
-      </table>
-      <div id="adminTranskripEmpty" class="empty-state" hidden>
-        <div class="empty-state__icon"><i class="bi bi-journal-text"></i></div>
-        <div class="empty-state__title">Belum ada data nilai</div>
-        <div class="empty-state__desc">Belum ada data nilai untuk siswa ini.</div>
+    <div id="admin-cari-siswa">
+      <select id="selectSiswa" class="form-input" onchange="window.loadTranskripAdmin(this.value)">
+        <option value="">-- Pilih Siswa --</option>
+      </select>
+    </div>
+    <div id="adminTranskripResult" hidden>
+      <div class="page-header">
+        <h3 id="adminSiswaInfo"></h3>
+        <button class="btn btn--primary" onclick="window.cetakTranskrip()">Cetak Transkrip</button>
+      </div>
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Semester</th>
+              <th>Mata Pelajaran</th>
+              <th>Tugas</th>
+              <th>UTS</th>
+              <th>UAS</th>
+              <th>Rata-rata</th>
+              <th>Nilai Akhir</th>
+            </tr>
+          </thead>
+          <tbody id="adminTranskripTableBody"></tbody>
+        </table>
+        <div id="adminTranskripEmpty" class="empty-state" hidden>
+          <div class="empty-state__icon"><i class="bi bi-journal-text"></i></div>
+          <div class="empty-state__title">Belum ada data nilai</div>
+          <div class="empty-state__desc">Belum ada data nilai untuk siswa ini.</div>
+        </div>
       </div>
     </div>
   </div>
