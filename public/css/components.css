@@ -427,6 +427,17 @@ tbody tr:hover {
   flex: 1;
 }
 
+/* ── Table Column Widths ─────────────────── */
+.col-no {
+  width: 50px;
+}
+.col-nis {
+  width: 120px;
+}
+.col-nilai {
+  width: 120px;
+}
+
 /* ── Table Action Buttons ────────────────── */
 .btn--icon {
   width: 34px;

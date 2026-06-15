@@ -110,13 +110,12 @@ INSERT INTO absensi (siswa_id, schedule_id, status, keterangan, tanggal) VALUES
 (9, 2, 'Hadir', NULL,            '2026-06-12'),
 (10,2, 'Hadir', NULL,            '2026-06-12');
 
--- ── Grades (Nilai / Transkrip Siswa) ─────────────────────────
+-- ── Grades (Nilai Siswa) ──────────────────────────────────────
 TRUNCATE TABLE grades;
 
-INSERT INTO grades (student_id, subject_id, semester, tugas, uts, uas) VALUES
-(1, 1, 'Ganjil 2025/2026', 85, 90, 88),
-(1, 2, 'Ganjil 2025/2026', 78, 82, 80),
-(1, 3, 'Ganjil 2025/2026', 92, 88, 95),
-(2, 1, 'Ganjil 2025/2026', 75, 80, 78),
-(2, 2, 'Ganjil 2025/2026', 88, 85, 90),
-(2, 3, 'Ganjil 2025/2026', 70, 75, 72);
+INSERT INTO grades (student_id, subject_id, teacher_id, semester, tugas, uts, uas) VALUES
+(1, 1, 1, 'Ganjil 2025/2026', 85.0, 78.0, 90.0),
+(2, 1, 1, 'Ganjil 2025/2026', 92.0, 88.0, 85.0),
+(3, 1, 1, 'Ganjil 2025/2026', 70.0, 75.0, 80.0),
+(4, 1, 1, 'Ganjil 2025/2026', 88.0, 82.0, 91.0),
+(6, 1, 1, 'Ganjil 2025/2026', 76.0, 80.0, 78.0);
