@@ -1,4 +1,155 @@
 <div class="page active">
-  <div class="page-header"><h1>Bimbingan & Konseling (BK)</h1></div>
-  <p class="text-muted">Fitur akan tersedia pada sprint berikutnya.</p>
+  <div class="page-header">
+    <h1>Catatan Konseling BK</h1>
+  </div>
+
+  <div class="alert alert--success" id="alertSuccess" hidden>
+    <i class="bi bi-check-circle-fill"></i>
+    <span id="alertSuccessMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+
+  <div class="alert alert--error" id="alertError" hidden>
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span id="alertErrorMsg"></span>
+    <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+  </div>
+
+  <div class="card mb-24">
+    <div class="card__body">
+      <div class="toggle-header" id="tambahKonselingToggle">
+        <h3 class="mb-0">Tambah Catatan Konseling</h3>
+        <i class="bi bi-plus-circle toggle-header__icon" id="tambahKonselingIcon"></i>
+      </div>
+      <form id="formKonseling" novalidate class="d-none">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="siswaSelect"
+              >Pilih Siswa <span class="required">*</span></label
+            >
+            <select class="form-input" id="siswaSelect" required>
+              <option value="">— Pilih Siswa —</option>
+            </select>
+            <small class="field-error" id="err-siswa"></small>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="tanggalKonseling">Tanggal</label>
+            <input type="date" class="form-input" id="tanggalKonseling" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="topikKonseling"
+            >Topik <span class="required">*</span></label
+          >
+          <input
+            type="text"
+            class="form-input"
+            id="topikKonseling"
+            placeholder="Masukkan topik konseling"
+          />
+          <small class="field-error" id="err-topik"></small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="deskripsiKonseling">Deskripsi</label>
+          <textarea
+            class="form-input"
+            id="deskripsiKonseling"
+            rows="3"
+            placeholder="Deskripsi hasil sesi konseling"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="tindakLanjutKonseling">Tindak Lanjut</label>
+          <textarea
+            class="form-input"
+            id="tindakLanjutKonseling"
+            rows="3"
+            placeholder="Rencana tindak lanjut"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn--primary" id="btnSimpanKonseling">
+            <span class="btn__text" id="btnSimpanKonselingText">Simpan</span>
+            <span class="btn__loader" id="btnSimpanKonselingLoader" hidden>
+              <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
+            </span>
+          </button>
+          <button type="reset" class="btn btn--secondary" id="btnResetKonseling">Reset</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <div class="flex items-center justify-between mb-16">
+        <h3 class="mb-0">Riwayat Konseling</h3>
+        <div class="form-group mb-0 min-w-180">
+          <select class="form-input" id="filterSiswa">
+            <option value="">Semua Siswa</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Tanggal</th>
+              <th>Nama Siswa</th>
+              <th>Topik</th>
+              <th>Tindak Lanjut</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="riwayatTableBody">
+            <tr>
+              <td colspan="6" class="text-center text-muted">Memuat data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
+
+<div class="modal" id="modalDetailKonseling" hidden>
+  <div class="modal__box">
+    <h3>Detail Catatan Konseling</h3>
+    <div class="form-group">
+      <label class="form-label">Nama Siswa</label>
+      <input type="text" class="form-input" id="detailSiswa" readonly />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tanggal</label>
+      <input type="text" class="form-input" id="detailTanggal" readonly />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Topik</label>
+      <input type="text" class="form-input" id="detailTopik" readonly />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Deskripsi</label>
+      <textarea class="form-input" id="detailDeskripsi" rows="4" readonly></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tindak Lanjut</label>
+      <textarea class="form-input" id="detailTindakLanjut" rows="3" readonly></textarea>
+    </div>
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn--secondary"
+        onclick="window.closeModal('modalDetailKonseling')"
+      >
+        Tutup
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/konseling.js"></script>

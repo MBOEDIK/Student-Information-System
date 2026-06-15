@@ -109,3 +109,10 @@ INSERT INTO absensi (siswa_id, schedule_id, status, keterangan, tanggal) VALUES
 (8, 2, 'Alpa',  NULL,            '2026-06-12'),
 (9, 2, 'Hadir', NULL,            '2026-06-12'),
 (10,2, 'Hadir', NULL,            '2026-06-12');
+
+-- ── Counseling Records (Catatan Konseling) ──────────────────
+TRUNCATE TABLE counseling_records;
+
+INSERT INTO counseling_records (student_id, teacher_id, tanggal, topik, deskripsi, tindak_lanjut) VALUES
+(2, 2, '2026-06-10', 'Motivasi belajar menurun', 'Siswa mengaku sulit fokus di kelas karena masalah keluarga.', 'Rencana konseling lanjutan 2 minggu lagi.'),
+(4, 2, '2026-06-11', 'Konflik dengan teman sebangku', 'Siswa merasa tidak nyaman duduk dengan teman sekelas.', 'Pindah tempat duduk sementara.');

@@ -1,8 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const konselingController = require('../controllers/konselingController');
+const router = require('express').Router();
+const konselingCtrl = require('../controllers/konselingController');
 
-router.post('/api/konseling', konselingController.createKonseling);
-router.get('/api/konseling', konselingController.getRiwayatKonseling);
+router.get('/siswa', konselingCtrl.getAllSiswa);
+router.post('/', konselingCtrl.createKonseling);
+router.get('/', konselingCtrl.getAllKonseling);
+router.get('/:id', konselingCtrl.getKonselingById);
 
 module.exports = router;
