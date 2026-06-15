@@ -54,35 +54,6 @@ exports.getSiswaByJadwal = async (req, res) => {
   }
 };
 
-exports.createAbsensi = async (req, res) => {
-  try {
-    const { schedule_id, tanggal, records } = req.body;
-
-    if (!schedule_id || !tanggal || !records || !Array.isArray(records) || records.length === 0) {
-      return responseHelper.error(
-        res,
-        'Data tidak lengkap. schedule_id, tanggal, dan records wajib diisi.',
-        400
-      );
-    }
-
-    const values = records.map(function (r) {
-      return [schedule_id, r.student_id, r.status, tanggal];
-    });
-
-    await pool.query(
-      `INSERT INTO absensi (schedule_id, siswa_id, status, tanggal) VALUES ?
-       ON DUPLICATE KEY UPDATE status = VALUES(status)`,
-      [values]
-    );
-
-    return responseHelper.success(res, null, 'Data absensi berhasil disimpan', 201);
-  } catch (err) {
-    console.error('[ABSENSI] createAbsensi:', err.message);
-    return responseHelper.error(res, 'Gagal memproses permintaan', 500);
-  }
-};
-
 exports.getLaporanHarian = async (req, res) => {
   try {
     const { tanggal } = req.query;
@@ -150,7 +121,7 @@ exports.getSiswaBySchedule = async (req, res) => {
     }
 
     const [rows] = await pool.query(
-      `SELECT
+      `SELECT DISTINCT
         s.id,
         s.nis,
         s.nama,
@@ -158,8 +129,7 @@ exports.getSiswaBySchedule = async (req, res) => {
         a.keterangan
       FROM schedule_students ss
       JOIN students s ON s.id = ss.student_id
-      LEFT JOIN absensi a
-        ON a.siswa_id = s.id
+      LEFT JOIN absensi a ON a.siswa_id = s.id
         AND a.schedule_id = ?
         AND a.tanggal = ?
       WHERE ss.schedule_id = ?
@@ -189,8 +159,22 @@ exports.saveAbsensiBatch = async (req, res) => {
     return responseHelper.error(res, 'schedule_id tidak valid', 400);
   }
 
-  if (!schedule_id || !tanggal || !Array.isArray(entries) || entries.length === 0) {
+  if (!tanggal || !Array.isArray(entries) || entries.length === 0) {
     return responseHelper.error(res, 'Data tidak lengkap', 400);
+  }
+
+  const validStatus = ['Hadir', 'Sakit', 'Izin', 'Alpa'];
+
+  for (const entry of entries) {
+    const { siswa_id, status } = entry;
+
+    if (!siswa_id || !status) {
+      return responseHelper.error(res, 'Setiap entri harus memiliki siswa_id dan status', 400);
+    }
+
+    if (!validStatus.includes(status)) {
+      return responseHelper.error(res, 'Status tidak valid', 400);
+    }
   }
 
   const conn = await pool.getConnection();
@@ -200,26 +184,32 @@ exports.saveAbsensiBatch = async (req, res) => {
     for (const entry of entries) {
       const { siswa_id, status, keterangan } = entry;
 
-      if (!siswa_id || !status) {
-        await conn.rollback();
-        return responseHelper.error(res, 'Setiap entri harus memiliki siswa_id dan status', 400);
-      }
-
-      await conn.query(
-        `INSERT INTO absensi (siswa_id, schedule_id, tanggal, status, keterangan)
-         VALUES (?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           status = VALUES(status),
-           keterangan = VALUES(keterangan)`,
-        [siswa_id, schedule_id, tanggal, status, keterangan || null]
+      const [existing] = await conn.query(
+        `SELECT id FROM absensi
+         WHERE siswa_id = ? AND schedule_id = ? AND tanggal = ?
+         LIMIT 1`,
+        [siswa_id, schedule_id, tanggal]
       );
+
+      if (existing.length > 0) {
+        await conn.query('UPDATE absensi SET status = ?, keterangan = ? WHERE id = ?', [
+          status,
+          keterangan || null,
+          existing[0].id
+        ]);
+      } else {
+        await conn.query(
+          'INSERT INTO absensi (siswa_id, schedule_id, tanggal, status, keterangan) VALUES (?, ?, ?, ?, ?)',
+          [siswa_id, schedule_id, tanggal, status, keterangan || null]
+        );
+      }
     }
 
     await conn.commit();
     return responseHelper.success(res, null, 'Data absensi berhasil disimpan');
   } catch (err) {
     await conn.rollback();
-    console.error(`[ABSENSI] saveAbsensiBatch: ${err.message}`);
+    console.error('[ABSENSI] saveAbsensiBatch:', err.message);
     return responseHelper.error(res, 'Gagal memproses permintaan', 500);
   } finally {
     conn.release();

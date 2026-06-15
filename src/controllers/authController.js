@@ -63,6 +63,16 @@ exports.login = async (req, res) => {
       loginAt: new Date().toISOString()
     };
 
+    // Jika guru, cari teacher_id dari tabel teachers
+    if (user.role === 'guru') {
+      const [teacherRows] = await pool.query('SELECT id FROM teachers WHERE nip = ?', [
+        user.username
+      ]);
+      if (teacherRows.length > 0) {
+        sessionData.teacher_id = teacherRows[0].id;
+      }
+    }
+
     // Regenerate session ID (Mencegah celah keamanan Session Fixation)
     req.session.regenerate((err) => {
       if (err) {
