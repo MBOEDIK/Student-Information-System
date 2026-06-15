@@ -1,4 +1,142 @@
 <div class="page active">
-  <div class="page-header"><h1>Transkrip & Rekap Nilai</h1></div>
-  <p class="text-muted">Fitur akan tersedia pada sprint berikutnya.</p>
+  <div class="page-header">
+    <h1>Nilai</h1>
+  </div>
+
+  <!-- VIEW GURU: Input Nilai (US 6.1 / 6.2) -->
+  <div id="nilai-guru-view" hidden>
+    <div class="alert alert--success" id="alertSuccess" hidden>
+      <i class="bi bi-check-circle-fill"></i>
+      <span id="alertSuccessMsg"></span>
+      <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+    </div>
+    <div class="alert alert--error" id="alertError" hidden>
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span id="alertErrorMsg"></span>
+      <button class="alert__close" onclick="this.parentElement.hidden = true">&times;</button>
+    </div>
+
+    <div class="card">
+      <div class="card__body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="nilaiMapelSelect">Mata Pelajaran</label>
+            <select class="form-input" id="nilaiMapelSelect">
+              <option value="">-- Pilih Mata Pelajaran --</option>
+            </select>
+            <small class="field-error" id="errMapel"></small>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="nilaiSemester">Semester</label>
+            <input
+              type="text"
+              class="form-input"
+              id="nilaiSemester"
+              value="Ganjil 2025/2026"
+              readonly
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrapper d-none mt-20" id="nilaiTableWrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-no">No</th>
+            <th class="col-nis">NIS</th>
+            <th>Nama Siswa</th>
+            <th class="col-nilai">Tugas</th>
+            <th class="col-nilai">UTS</th>
+            <th class="col-nilai">UAS</th>
+          </tr>
+        </thead>
+        <tbody id="nilaiTableBody">
+          <tr>
+            <td colspan="6" class="text-center text-muted">
+              Pilih mata pelajaran terlebih dahulu.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="form-actions" id="nilaiActions" hidden>
+        <button class="btn btn--primary" id="btnSimpanNilai">
+          <span class="btn__text" id="btnSimpanNilaiText">Simpan Nilai</span>
+          <span class="btn__loader" id="btnSimpanNilaiLoader" hidden>
+            <i class="bi bi-arrow-repeat spin"></i> Menyimpan...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW SISWA: Transkrip Nilai (US 6.3) -->
+  <div id="nilai-siswa-view" hidden>
+    <div class="page-header">
+      <h2>Transkrip Nilai Saya</h2>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Semester</th>
+            <th>Mata Pelajaran</th>
+            <th>Tugas</th>
+            <th>UTS</th>
+            <th>UAS</th>
+            <th>Rata-rata</th>
+            <th>Nilai Akhir</th>
+          </tr>
+        </thead>
+        <tbody id="transkripTableBody"></tbody>
+      </table>
+      <div id="transkripEmpty" class="empty-state" hidden>
+        <div class="empty-state__icon"><i class="bi bi-journal-text"></i></div>
+        <div class="empty-state__title">Belum ada data nilai</div>
+        <div class="empty-state__desc">Belum ada data nilai untuk akun ini.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW ADMIN: Rangkuman Transkrip (US 6.4) -->
+  <div id="nilai-admin-view" hidden>
+    <div class="page-header">
+      <h2>Rangkuman Transkrip Nilai Siswa</h2>
+    </div>
+    <div id="admin-cari-siswa" class="mb-24">
+      <select id="selectSiswa" class="form-input" onchange="window.loadTranskripAdmin(this.value)">
+        <option value="">-- Pilih Siswa --</option>
+      </select>
+    </div>
+    <div id="adminTranskripResult" hidden>
+      <div class="page-header">
+        <h3 id="adminSiswaInfo"></h3>
+        <button class="btn btn--primary" onclick="window.cetakTranskrip()">Cetak Transkrip</button>
+      </div>
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Semester</th>
+              <th>Mata Pelajaran</th>
+              <th>Tugas</th>
+              <th>UTS</th>
+              <th>UAS</th>
+              <th>Rata-rata</th>
+              <th>Nilai Akhir</th>
+            </tr>
+          </thead>
+          <tbody id="adminTranskripTableBody"></tbody>
+        </table>
+        <div id="adminTranskripEmpty" class="empty-state" hidden>
+          <div class="empty-state__icon"><i class="bi bi-journal-text"></i></div>
+          <div class="empty-state__title">Belum ada data nilai</div>
+          <div class="empty-state__desc">Belum ada data nilai untuk siswa ini.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
