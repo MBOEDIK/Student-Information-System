@@ -1,12 +1,13 @@
 'use strict';
 
 const pool = require('../config/db');
+const responseHelper = require('../shared/response');
 
 exports.getTranskripSiswa = async (req, res) => {
   try {
     const { nis } = req.query;
     if (!nis) {
-      return res.status(400).json({ success: false, message: 'Parameter NIS wajib diisi.' });
+      return responseHelper.error(res, 'Parameter NIS wajib diisi', 400);
     }
     const [rows] = await pool.query(
       `SELECT
@@ -30,9 +31,9 @@ exports.getTranskripSiswa = async (req, res) => {
       ORDER BY g.semester, sub.nama_pelajaran`,
       [nis]
     );
-    return res.json({ success: true, data: rows, message: 'Transkrip nilai berhasil diambil.' });
+    return responseHelper.success(res, rows, 'Transkrip nilai berhasil diambil');
   } catch (err) {
     console.error('[NILAI] getTranskripSiswa:', err.message);
-    return res.status(500).json({ success: false, message: 'Gagal mengambil transkrip nilai.' });
+    return responseHelper.error(res, 'Gagal mengambil transkrip nilai', 500);
   }
 };
