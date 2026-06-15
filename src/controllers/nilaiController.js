@@ -3,6 +3,32 @@
 const pool = require('../config/db');
 const responseHelper = require('../shared/response');
 
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS grades (
+        id            INT AUTO_INCREMENT PRIMARY KEY,
+        student_id    INT NOT NULL,
+        subject_id    INT NOT NULL,
+        teacher_id    INT NOT NULL,
+        semester      VARCHAR(20) NOT NULL DEFAULT 'Ganjil 2025/2026',
+        tugas         DECIMAL(5,2) DEFAULT NULL,
+        uts           DECIMAL(5,2) DEFAULT NULL,
+        uas           DECIMAL(5,2) DEFAULT NULL,
+        created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+        FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+        FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+        UNIQUE KEY uq_grade_siswa_mapel_semester (student_id, subject_id, semester)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('[NILAI] Tabel grades siap.');
+  } catch (err) {
+    console.error('[NILAI] Migrasi tabel grades:', err.message);
+  }
+})();
+
 exports.getMapelGuru = async (req, res) => {
   try {
     const { teacher_id } = req.query;

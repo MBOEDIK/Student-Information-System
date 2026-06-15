@@ -1,16 +1,18 @@
 'use strict';
 
+/* global menuAccessRule */
+
 if (window.location.pathname.includes('dashboard')) {
   (async () => {
     try {
       const res = await fetch('/api/auth/check');
       const data = await res.json();
-      if (!data.loggedIn) {
+      if (!data.success) {
         window.location.href = '/index.html';
         return;
       }
 
-      const user = data.user;
+      const user = data.data;
       const nameEl = document.getElementById('userNameDisplay');
       const badgeEl = document.getElementById('roleBadge');
       if (nameEl) nameEl.textContent = user.nama || user.nama_lengkap;
@@ -18,7 +20,7 @@ if (window.location.pathname.includes('dashboard')) {
 
       window.currentUser = user;
 
-      for (const [pageName, allowedRoles] of Object.entries(window.menuAccessRule)) {
+      for (const [pageName, allowedRoles] of Object.entries(menuAccessRule)) {
         const menuId = 'nav' + pageName.charAt(0).toUpperCase() + pageName.slice(1);
         const menuElement = document.getElementById(menuId);
         if (menuElement && !allowedRoles.includes(user.role)) {
