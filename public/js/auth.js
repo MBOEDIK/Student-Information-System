@@ -18,7 +18,7 @@ if (window.location.pathname.includes('dashboard')) {
 
       window.currentUser = user;
 
-      for (const [pageName, allowedRoles] of Object.entries(menuAccessRule)) {
+      for (const [pageName, allowedRoles] of Object.entries(window.menuAccessRule)) {
         const menuId = 'nav' + pageName.charAt(0).toUpperCase() + pageName.slice(1);
         const menuElement = document.getElementById(menuId);
         if (menuElement && !allowedRoles.includes(user.role)) {
@@ -30,7 +30,7 @@ if (window.location.pathname.includes('dashboard')) {
         document.querySelectorAll('[id^="btnTambah"]').forEach((el) => (el.hidden = false));
       }
 
-      router.init();
+      window.router.init();
     } catch (e) {
       window.location.href = '/index.html';
     }
@@ -41,20 +41,20 @@ window.doLogin = async function () {
   const username = document.getElementById('username')?.value.trim();
   const password = document.getElementById('password')?.value;
 
-  clearFieldError('group-username', 'err-username');
-  clearFieldError('group-password', 'err-password');
-  hideAlert();
+  window.clearFieldError('group-username', 'err-username');
+  window.clearFieldError('group-password', 'err-password');
+  window.hideAlert();
 
   if (!username) {
-    showFieldError('group-username', 'err-username', 'Username tidak boleh kosong.');
+    window.showFieldError('group-username', 'err-username', 'Username tidak boleh kosong.');
     return;
   }
   if (!password) {
-    showFieldError('group-password', 'err-password', 'Password tidak boleh kosong.');
+    window.showFieldError('group-password', 'err-password', 'Password tidak boleh kosong.');
     return;
   }
 
-  setLoading(true);
+  window.setLoading(true);
 
   try {
     const res = await fetch('/api/auth/login', {
@@ -67,12 +67,12 @@ window.doLogin = async function () {
     if (data.success) {
       window.location.href = '/dashboard.html';
     } else {
-      showAlert(data.message || 'Login gagal.');
-      setLoading(false);
+      window.showAlert(data.message || 'Login gagal.');
+      window.setLoading(false);
     }
   } catch (err) {
-    showAlert('Tidak dapat terhubung ke server.');
-    setLoading(false);
+    window.showAlert('Tidak dapat terhubung ke server.');
+    window.setLoading(false);
   }
 };
 

@@ -1,29 +1,6 @@
 const pool = require('../config/db');
 const responseHelper = require('../shared/response');
 
-// ── Auto-migrate: buat tabel counseling_records jika belum ada ──
-(async () => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS counseling_records (
-        id            INT AUTO_INCREMENT PRIMARY KEY,
-        student_id    INT NOT NULL,
-        teacher_id    INT NOT NULL,
-        tanggal       DATE NOT NULL DEFAULT (CURRENT_DATE),
-        topik         VARCHAR(150) NOT NULL,
-        deskripsi     TEXT,
-        tindak_lanjut TEXT,
-        created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-        FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-    `);
-    console.log('[KONSELING] Tabel counseling_records siap.');
-  } catch (err) {
-    console.error('[KONSELING] Migrasi tabel counseling_records:', err.message);
-  }
-})();
-
 exports.getAllSiswa = async (req, res) => {
   try {
     const [rows] = await pool.query(

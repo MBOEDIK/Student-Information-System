@@ -95,26 +95,26 @@ function renderTable(data) {
 
 const ABSENSI_STATUS_OPTIONS = ['Hadir', 'Sakit', 'Izin', 'Alpa'];
 
-function renderStatusDropdown(siswaId, selected) {
+function renderStatusDropdown(studentId, selected) {
   const current = selected || 'Hadir';
   const options = ABSENSI_STATUS_OPTIONS.map(function (s) {
     const sel = current === s ? ' selected' : '';
     return '<option value="' + s + '"' + sel + '>' + s + '</option>';
   }).join('');
   return (
-    '<select class="form-input absensi-status" data-siswa-id="' +
-    siswaId +
+    '<select class="form-input absensi-status" data-student-id="' +
+    studentId +
     '">' +
     options +
     '</select>'
   );
 }
 
-function renderKeteranganTextarea(siswaId, value) {
+function renderKeteranganTextarea(studentId, value) {
   const safeValue = value ? String(value).replace(/"/g, '&quot;') : '';
   return (
-    '<textarea class="form-input absensi-keterangan" data-siswa-id="' +
-    siswaId +
+    '<textarea class="form-input absensi-keterangan" data-student-id="' +
+    studentId +
     '" placeholder="Opsional" rows="1">' +
     safeValue +
     '</textarea>'
@@ -304,16 +304,16 @@ window.submitAbsensiGuru = async function () {
 
   const keteranganMap = {};
   document.querySelectorAll('.absensi-keterangan').forEach(function (el) {
-    keteranganMap[el.dataset.siswaId] = el.value.trim();
+    keteranganMap[el.dataset.studentId] = el.value.trim();
   });
 
   const entries = [];
   document.querySelectorAll('.absensi-status').forEach(function (el) {
-    const siswaId = el.dataset.siswaId;
+    const studentId = el.dataset.studentId;
     entries.push({
-      siswa_id: Number(siswaId),
+      student_id: Number(studentId),
       status: el.value,
-      keterangan: keteranganMap[siswaId] || null
+      keterangan: keteranganMap[studentId] || null
     });
   });
 

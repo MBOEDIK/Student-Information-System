@@ -28,9 +28,9 @@ window.loadDaftarKesehatan = async function () {
           '<td>' +
           (r.golongan_darah || '–') +
           '</td>' +
-          '<td><button class="btn btn--sm btn--primary" onclick="window.editKesehatan(' +
+          '<td><button class="btn btn--icon btn--icon-edit" onclick="window.editKesehatan(' +
           r.student_id +
-          ')">Edit</button></td>' +
+          ')" title="Edit"><i class="bi bi-pencil"></i></button></td>' +
           '</tr>'
         );
       })

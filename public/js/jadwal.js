@@ -19,13 +19,13 @@ window.loadJadwal = async function () {
   const tbody = document.getElementById('jadwalTableBody');
   if (!tbody) return;
   tbody.innerHTML =
-    '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+    '<tr><td colspan="7" class="text-center text-muted py-32">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/jadwal');
     const json = await res.json();
     if (!json.success || !json.data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Belum ada jadwal.</td></tr>';
+        '<tr><td colspan="7"><div class="empty-state"><div class="empty-state__icon"><i class="bi bi-inbox"></i></div><div class="empty-state__title">Belum ada jadwal</div><div class="empty-state__desc">Belum ada jadwal.</div></div></td></tr>';
       return;
     }
     tbody.innerHTML = json.data
@@ -39,10 +39,8 @@ window.loadJadwal = async function () {
         <td>${s.jam_mulai.substring(0, 5)} - ${s.jam_selesai.substring(0, 5)}</td>
         <td>${s.ruangan}</td>
         <td>
-          <button class="btn btn--sm btn--primary" onclick="editJadwal(${s.id})">Edit</button>
-          <button class="btn btn--danger btn--sm" onclick="hapusJadwal(${s.id})">
-            Hapus
-          </button>
+          <button class="btn btn--icon btn--icon-edit" onclick="editJadwal(${s.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn--icon btn--icon-danger" onclick="hapusJadwal(${s.id})" title="Hapus"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
     `
@@ -50,7 +48,7 @@ window.loadJadwal = async function () {
       .join('');
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
+      '<tr><td colspan="7" class="text-center text-danger">Gagal memuat jadwal.</td></tr>';
   }
 };
 
@@ -63,13 +61,13 @@ window.loadJadwalSiswa = async function (nis) {
   const tbody = document.getElementById('jadwalSiswaTableBody');
   if (!tbody) return;
   tbody.innerHTML =
-    '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+    '<tr><td colspan="6" class="text-center text-muted py-32">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/jadwal/siswa?nis=' + encodeURIComponent(nis));
     const json = await res.json();
     if (!json.success || !json.data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Belum ada jadwal untuk akun ini.</td></tr>';
+        '<tr><td colspan="6"><div class="empty-state"><div class="empty-state__icon"><i class="bi bi-inbox"></i></div><div class="empty-state__title">Belum ada jadwal</div><div class="empty-state__desc">Belum ada jadwal untuk akun ini.</div></div></td></tr>';
       return;
     }
     tbody.innerHTML = json.data
@@ -88,7 +86,7 @@ window.loadJadwalSiswa = async function (nis) {
       .join('');
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="6" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
+      '<tr><td colspan="6" class="text-center text-danger">Gagal memuat jadwal.</td></tr>';
   }
 };
 
@@ -96,13 +94,13 @@ window.loadJadwalGuru = async function (nip) {
   const tbody = document.getElementById('jadwalGuruTableBody');
   if (!tbody) return;
   tbody.innerHTML =
-    '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+    '<tr><td colspan="5" class="text-center text-muted py-32">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/jadwal/guru?nip=' + encodeURIComponent(nip));
     const json = await res.json();
     if (!json.success || !json.data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Belum ada jadwal mengajar.</td></tr>';
+        '<tr><td colspan="5"><div class="empty-state"><div class="empty-state__icon"><i class="bi bi-inbox"></i></div><div class="empty-state__title">Belum ada jadwal</div><div class="empty-state__desc">Belum ada jadwal mengajar.</div></div></td></tr>';
       return;
     }
     tbody.innerHTML = json.data
@@ -120,7 +118,7 @@ window.loadJadwalGuru = async function (nip) {
       .join('');
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="5" style="text-align:center;color:var(--danger);">Gagal memuat jadwal.</td></tr>';
+      '<tr><td colspan="5" class="text-center text-danger">Gagal memuat jadwal.</td></tr>';
   }
 };
 
