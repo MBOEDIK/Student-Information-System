@@ -13,7 +13,9 @@ window.loadTranskripSiswa = async (nis) => {
       return;
     }
     if (emptyState) emptyState.hidden = true;
-    tbody.innerHTML = json.data.map((g, i) => `
+    tbody.innerHTML = json.data
+      .map(
+        (g, i) => `
       <tr>
         <td>${i + 1}</td>
         <td>${g.semester}</td>
@@ -22,8 +24,11 @@ window.loadTranskripSiswa = async (nis) => {
         <td>${g.uts ?? '–'}</td>
         <td>${g.uas ?? '–'}</td>
         <td><strong>${g.rata_rata ?? '–'}</strong></td>
+        <td><span class="badge badge--${g.grade === 'A' ? 'green' : g.grade === 'B' ? 'green' : g.grade === 'C' ? 'gray' : 'red'}">${g.grade ?? '–'}</span></td>
       </tr>
-    `).join('');
+    `
+      )
+      .join('');
   } catch (err) {
     console.error('[NILAI] loadTranskripSiswa:', err.message);
   }
@@ -52,7 +57,7 @@ window.loadSiswaForAdmin = async () => {
     const json = await res.json();
     const select = document.getElementById('selectSiswa');
     if (!select || !json.success) return;
-    json.data.forEach(s => {
+    json.data.forEach((s) => {
       const opt = document.createElement('option');
       opt.value = s.id;
       opt.textContent = `${s.nis} — ${s.nama}`;
@@ -82,7 +87,9 @@ window.loadTranskripAdmin = async (siswaId) => {
       return;
     }
     if (emptyState) emptyState.hidden = true;
-    tbody.innerHTML = grades.map((g, i) => `
+    tbody.innerHTML = grades
+      .map(
+        (g, i) => `
       <tr>
         <td>${i + 1}</td>
         <td>${g.semester}</td>
@@ -91,8 +98,11 @@ window.loadTranskripAdmin = async (siswaId) => {
         <td>${g.uts ?? '–'}</td>
         <td>${g.uas ?? '–'}</td>
         <td><strong>${g.rata_rata ?? '–'}</strong></td>
+        <td><span class="badge badge--${g.grade === 'A' ? 'green' : g.grade === 'B' ? 'green' : g.grade === 'C' ? 'gray' : 'red'}">${g.grade ?? '–'}</span></td>
       </tr>
-    `).join('');
+    `
+      )
+      .join('');
   } catch (err) {
     console.error('[NILAI] loadTranskripAdmin:', err.message);
   }

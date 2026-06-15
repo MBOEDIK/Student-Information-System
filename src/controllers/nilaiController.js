@@ -11,24 +11,35 @@ exports.getTranskripSiswa = async (req, res) => {
     }
     const [rows] = await pool.query(
       `SELECT
-        g.semester,
-        sub.nama_pelajaran,
-        g.tugas,
-        g.uts,
-        g.uas,
-        ROUND(
-          (COALESCE(g.tugas, 0) + COALESCE(g.uts, 0) + COALESCE(g.uas, 0)) /
-          (
-            CASE WHEN g.tugas IS NULL THEN 0 ELSE 1 END +
-            CASE WHEN g.uts   IS NULL THEN 0 ELSE 1 END +
-            CASE WHEN g.uas   IS NULL THEN 0 ELSE 1 END
-          ), 2
-        ) AS rata_rata
-      FROM grades g
-      JOIN subjects sub ON g.subject_id = sub.id
-      JOIN students s   ON g.student_id = s.id
-      WHERE s.nis = ?
-      ORDER BY g.semester, sub.nama_pelajaran`,
+        subq.*,
+        CASE
+          WHEN subq.rata_rata >= 85 THEN 'A'
+          WHEN subq.rata_rata >= 70 THEN 'B'
+          WHEN subq.rata_rata >= 55 THEN 'C'
+          WHEN subq.rata_rata >= 40 THEN 'D'
+          ELSE 'E'
+        END AS grade
+      FROM (
+        SELECT
+          g.semester,
+          sub.nama_pelajaran,
+          g.tugas,
+          g.uts,
+          g.uas,
+          ROUND(
+            (COALESCE(g.tugas, 0) + COALESCE(g.uts, 0) + COALESCE(g.uas, 0)) /
+            (
+              CASE WHEN g.tugas IS NULL THEN 0 ELSE 1 END +
+              CASE WHEN g.uts   IS NULL THEN 0 ELSE 1 END +
+              CASE WHEN g.uas   IS NULL THEN 0 ELSE 1 END
+            ), 2
+          ) AS rata_rata
+        FROM grades g
+        JOIN subjects sub ON g.subject_id = sub.id
+        JOIN students s   ON g.student_id = s.id
+        WHERE s.nis = ?
+      ) subq
+      ORDER BY subq.semester, subq.nama_pelajaran`,
       [nis]
     );
     return responseHelper.success(res, rows, 'Transkrip nilai berhasil diambil.');
@@ -52,23 +63,34 @@ exports.getTranskripAdmin = async (req, res) => {
     }
     const [grades] = await pool.query(
       `SELECT
-        g.semester,
-        sub.nama_pelajaran,
-        g.tugas,
-        g.uts,
-        g.uas,
-        ROUND(
-          (COALESCE(g.tugas, 0) + COALESCE(g.uts, 0) + COALESCE(g.uas, 0)) /
-          (
-            CASE WHEN g.tugas IS NULL THEN 0 ELSE 1 END +
-            CASE WHEN g.uts   IS NULL THEN 0 ELSE 1 END +
-            CASE WHEN g.uas   IS NULL THEN 0 ELSE 1 END
-          ), 2
-        ) AS rata_rata
-      FROM grades g
-      JOIN subjects sub ON g.subject_id = sub.id
-      WHERE g.student_id = ?
-      ORDER BY g.semester, sub.nama_pelajaran`,
+        subq.*,
+        CASE
+          WHEN subq.rata_rata >= 85 THEN 'A'
+          WHEN subq.rata_rata >= 70 THEN 'B'
+          WHEN subq.rata_rata >= 55 THEN 'C'
+          WHEN subq.rata_rata >= 40 THEN 'D'
+          ELSE 'E'
+        END AS grade
+      FROM (
+        SELECT
+          g.semester,
+          sub.nama_pelajaran,
+          g.tugas,
+          g.uts,
+          g.uas,
+          ROUND(
+            (COALESCE(g.tugas, 0) + COALESCE(g.uts, 0) + COALESCE(g.uas, 0)) /
+            (
+              CASE WHEN g.tugas IS NULL THEN 0 ELSE 1 END +
+              CASE WHEN g.uts   IS NULL THEN 0 ELSE 1 END +
+              CASE WHEN g.uas   IS NULL THEN 0 ELSE 1 END
+            ), 2
+          ) AS rata_rata
+        FROM grades g
+        JOIN subjects sub ON g.subject_id = sub.id
+        WHERE g.student_id = ?
+      ) subq
+      ORDER BY subq.semester, subq.nama_pelajaran`,
       [siswaId]
     );
     return responseHelper.success(res, { siswa, grades }, 'Transkrip admin berhasil diambil.');
