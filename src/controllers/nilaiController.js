@@ -157,3 +157,38 @@ exports.saveNilaiBatch = async (req, res) => {
     return responseHelper.error(res, 'Gagal memproses permintaan', 500);
   }
 };
+
+exports.getTranskripSiswa = async (req, res) => {
+  try {
+    const { nis } = req.query;
+    if (!nis) {
+      return responseHelper.error(res, 'Parameter NIS wajib diisi', 400);
+    }
+    const [rows] = await pool.query(
+      `SELECT
+        g.semester,
+        sub.nama_pelajaran,
+        g.tugas,
+        g.uts,
+        g.uas,
+        ROUND(
+          (COALESCE(g.tugas, 0) + COALESCE(g.uts, 0) + COALESCE(g.uas, 0)) /
+          (
+            CASE WHEN g.tugas IS NULL THEN 0 ELSE 1 END +
+            CASE WHEN g.uts   IS NULL THEN 0 ELSE 1 END +
+            CASE WHEN g.uas   IS NULL THEN 0 ELSE 1 END
+          ), 2
+        ) AS rata_rata
+      FROM grades g
+      JOIN subjects sub ON g.subject_id = sub.id
+      JOIN students s   ON g.student_id = s.id
+      WHERE s.nis = ?
+      ORDER BY g.semester, sub.nama_pelajaran`,
+      [nis]
+    );
+    return responseHelper.success(res, rows, 'Transkrip nilai berhasil diambil');
+  } catch (err) {
+    console.error('[NILAI] getTranskripSiswa:', err.message);
+    return responseHelper.error(res, 'Gagal mengambil transkrip nilai', 500);
+  }
+};
