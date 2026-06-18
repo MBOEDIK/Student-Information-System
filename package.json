@@ -12,10 +12,12 @@
     "format:check": "prettier --check \"public/pages/*.html\" \"public/css/*.css\" \"src/**/*.js\""
   },
   "dependencies": {
+    "csv-parse": "^6.2.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-mysql-session": "^3.0.3",
     "express-session": "^1.17.3",
+    "multer": "^2.1.1",
     "mysql2": "^3.6.5"
   },
   "devDependencies": {
