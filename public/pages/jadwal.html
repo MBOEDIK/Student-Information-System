@@ -19,8 +19,11 @@
   <div id="jadwal-siswa-view" hidden>
     <div class="card mb-24">
       <div class="card__body">
-        <div class="page-header">
+        <div class="flex items-center justify-between flex-wrap gap-16">
           <h2>Jadwal Kelas Saya</h2>
+          <button class="btn btn--primary btn--sm" onclick="window.downloadIcsSiswa()">
+            <i class="bi bi-download"></i> Unduh .ics
+          </button>
         </div>
         <div class="table-wrapper">
           <table>
@@ -50,8 +53,11 @@
   <div id="jadwal-guru-view" hidden>
     <div class="card mb-24">
       <div class="card__body">
-        <div class="page-header">
+        <div class="flex items-center justify-between flex-wrap gap-16">
           <h2>Jadwal Mengajar Saya</h2>
+          <button class="btn btn--primary btn--sm" onclick="window.downloadIcsGuru()">
+            <i class="bi bi-download"></i> Unduh .ics
+          </button>
         </div>
         <div class="table-wrapper">
           <table>

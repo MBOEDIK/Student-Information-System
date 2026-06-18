@@ -124,6 +124,60 @@ window.loadJadwalGuru = async function (nip) {
   }
 };
 
+window.downloadIcsGuru = async function () {
+  const nip = window.currentUser?.username;
+  if (!nip) {
+    alert('Data guru tidak ditemukan.');
+    return;
+  }
+  try {
+    const res = await fetch('/api/jadwal/export-ics?nip=' + encodeURIComponent(nip));
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.message || 'Gagal mengunduh jadwal.');
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'jadwal-mengajar.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Gagal mengunduh jadwal: ' + (e.message || ''));
+  }
+};
+
+window.downloadIcsSiswa = async function () {
+  const nis = window.currentUser?.username;
+  if (!nis) {
+    alert('Data siswa tidak ditemukan.');
+    return;
+  }
+  try {
+    const res = await fetch('/api/jadwal/export-ics?nis=' + encodeURIComponent(nis));
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.message || 'Gagal mengunduh jadwal.');
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'jadwal-siswa.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Gagal mengunduh jadwal: ' + (e.message || ''));
+  }
+};
+
 window.editJadwal = async function (id) {
   document.querySelectorAll('#modal-jadwal .field-error').forEach(function (e) {
     e.textContent = '';
