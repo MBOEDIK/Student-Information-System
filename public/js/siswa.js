@@ -44,6 +44,8 @@ window.editSiswa = async function (id) {
     document.getElementById('edit-siswa-nis').value = s.nis;
     document.getElementById('edit-siswa-jenis_kelamin').value = s.jenis_kelamin;
     document.getElementById('edit-siswa-alamat').value = s.alamat;
+    document.getElementById('edit-siswa-nama_wali').value = s.nama_wali || '';
+    document.getElementById('edit-siswa-no_hp_wali').value = s.no_hp_wali || '';
     document.getElementById('edit-siswa-status').value = s.status;
     window.openModal('modal-siswa');
   } catch (e) {
@@ -58,6 +60,8 @@ window.simpanSiswa = async function () {
     nis: document.getElementById('edit-siswa-nis').value,
     jenis_kelamin: document.getElementById('edit-siswa-jenis_kelamin').value,
     alamat: document.getElementById('edit-siswa-alamat').value,
+    nama_wali: document.getElementById('edit-siswa-nama_wali').value.trim() || null,
+    no_hp_wali: document.getElementById('edit-siswa-no_hp_wali').value.trim() || null,
     status: document.getElementById('edit-siswa-status').value
   };
   try {

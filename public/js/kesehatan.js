@@ -3,17 +3,23 @@
 window.loadDaftarKesehatan = async function () {
   const tbody = document.getElementById('kesehatanTableBody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Memuat data...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/kesehatan');
     const json = await res.json();
     if (!json.success || !json.data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="5" class="text-center text-muted">Belum ada data kesehatan.</td></tr>';
+        '<tr><td colspan="6" class="text-center text-muted">Belum ada data kesehatan.</td></tr>';
       return;
     }
     tbody.innerHTML = json.data
       .map(function (r, i) {
+        var hasCondition = r.penyakit_bawaan || r.alergi;
+        var kontakBtn = hasCondition
+          ? '<button class="btn btn--icon btn--icon-danger" onclick="window.showKontakDarurat(' +
+            r.student_id +
+            ')" title="Kontak Darurat"><i class="bi bi-telephone-fill"></i></button>'
+          : '–';
         return (
           '<tr>' +
           '<td>' +
@@ -28,6 +34,9 @@ window.loadDaftarKesehatan = async function () {
           '<td>' +
           (r.golongan_darah || '–') +
           '</td>' +
+          '<td class="text-center">' +
+          kontakBtn +
+          '</td>' +
           '<td><button class="btn btn--sm btn--primary" onclick="window.editKesehatan(' +
           r.student_id +
           ')">Edit</button></td>' +
@@ -37,7 +46,36 @@ window.loadDaftarKesehatan = async function () {
       .join('');
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="5" class="text-center text-danger">Gagal memuat data.</td></tr>';
+      '<tr><td colspan="6" class="text-center text-danger">Gagal memuat data.</td></tr>';
+  }
+};
+
+window.showKontakDarurat = async function (studentId) {
+  try {
+    var res = await fetch('/api/kesehatan/' + studentId + '/kontak');
+    var json = await res.json();
+    if (!json.success) {
+      showAlertKesehatan(json.message || 'Gagal memuat data kontak.', 'error');
+      return;
+    }
+    var d = json.data;
+    document.getElementById('kontak-nama-siswa').value = d.nama || '–';
+    document.getElementById('kontak-nama-wali').value = d.nama_wali || '–';
+    document.getElementById('kontak-no-hp-wali').value = d.no_hp_wali || '–';
+    document.getElementById('kontak-penyakit-bawaan').value = d.penyakit_bawaan || '–';
+    document.getElementById('kontak-alergi').value = d.alergi || '–';
+    var hubungi = document.getElementById('kontak-hubungi');
+    if (d.no_hp_wali) {
+      hubungi.href = 'tel:' + d.no_hp_wali;
+      hubungi.classList.remove('btn--disabled');
+    } else {
+      hubungi.href = '#';
+      hubungi.classList.add('btn--disabled');
+    }
+    window.openModal('modal-kontak-darurat');
+  } catch (e) {
+    showAlertKesehatan('Gagal memuat data kontak darurat.', 'error');
+    console.error('[KESEHATAN] showKontakDarurat:', e.message);
   }
 };
 

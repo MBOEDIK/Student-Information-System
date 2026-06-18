@@ -57,6 +57,7 @@ exports.getAllKesehatan = async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT hr.id, hr.student_id, s.nis, s.nama,
+              s.nama_wali, s.no_hp_wali,
               hr.golongan_darah, hr.penyakit_bawaan, hr.riwayat_vaksin, hr.alergi,
               hr.updated_at
        FROM health_records hr
@@ -124,5 +125,25 @@ exports.updateKesehatan = async (req, res) => {
   } catch (err) {
     console.error('[KESEHATAN] updateKesehatan:', err.message);
     return responseHelper.error(res, 'Gagal memperbarui data kesehatan', 500);
+  }
+};
+
+exports.getKontakDarurat = async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT s.id, s.nis, s.nama, s.nama_wali, s.no_hp_wali,
+              hr.penyakit_bawaan, hr.alergi
+       FROM students s
+       LEFT JOIN health_records hr ON hr.student_id = s.id
+       WHERE s.id = ?`,
+      [req.params.studentId]
+    );
+    if (!rows.length) {
+      return responseHelper.error(res, 'Siswa tidak ditemukan', 404);
+    }
+    return responseHelper.success(res, rows[0], 'Data kontak darurat berhasil diambil');
+  } catch (err) {
+    console.error('[KESEHATAN] getKontakDarurat:', err.message);
+    return responseHelper.error(res, 'Gagal memproses permintaan', 500);
   }
 };

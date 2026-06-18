@@ -28,17 +28,17 @@ INSERT INTO teachers (nip, nama, email, status) VALUES
 -- ── Students ───────────────────────────────────────────────
 TRUNCATE TABLE students;
 
-INSERT INTO students (nis, nama, jenis_kelamin, alamat, status) VALUES
-('20240001', 'Santoso',         'Laki-laki', 'Jl. Ijen No. 10, Malang',            'aktif'),
-('20240002', 'Siti Rahmawati',  'Perempuan', 'Jl. Merdeka No. 10, Malang',         'aktif'),
-('20240003', 'Budi Santoso',    'Laki-laki', 'Jl. A Yani No. 22, Surabaya',        'aktif'),
-('20240004', 'Ani Kusuma Wati', 'Perempuan', 'Jl. Diponegoro No. 5, Malang',       'aktif'),
-('20240005', 'Dwi Prasetyo',    'Laki-laki', 'Jl. Panglima Sudirman No. 8, Malang','tidak aktif'),
-('20240006', 'Rina Marlina',    'Perempuan', 'Jl. Gajayana No. 15, Malang',        'aktif'),
-('20240007', 'Ahmad Rizki',     'Laki-laki', 'Jl. Veteran No. 33, Malang',         'lulus'),
-('20240008', 'Dewi Lestari',    'Perempuan', 'Jl. Ijen No. 77, Malang',            'aktif'),
-('20240009', 'Bayu Aji Saputra','Laki-laki', 'Jl. Bromo No. 12, Batu',             'aktif'),
-('SMK24010', 'Fitriana Dewi',   'Perempuan', 'Jl. Semeru No. 45, Malang',          'aktif');
+INSERT INTO students (nis, nama, jenis_kelamin, alamat, nama_wali, no_hp_wali, status) VALUES
+('20240001', 'Santoso',         'Laki-laki', 'Jl. Ijen No. 10, Malang',            'Bapak Santoso',    '081234567890', 'aktif'),
+('20240002', 'Siti Rahmawati',  'Perempuan', 'Jl. Merdeka No. 10, Malang',         'Ibu Rahmawati',    '081234567891', 'aktif'),
+('20240003', 'Budi Santoso',    'Laki-laki', 'Jl. A Yani No. 22, Surabaya',        NULL,               NULL,           'aktif'),
+('20240004', 'Ani Kusuma Wati', 'Perempuan', 'Jl. Diponegoro No. 5, Malang',       'Bapak Kusuma',     '081234567892', 'aktif'),
+('20240005', 'Dwi Prasetyo',    'Laki-laki', 'Jl. Panglima Sudirman No. 8, Malang',NULL,               NULL,           'tidak aktif'),
+('20240006', 'Rina Marlina',    'Perempuan', 'Jl. Gajayana No. 15, Malang',        'Ibu Marlina',      '081234567893', 'aktif'),
+('20240007', 'Ahmad Rizki',     'Laki-laki', 'Jl. Veteran No. 33, Malang',         NULL,               NULL,           'lulus'),
+('20240008', 'Dewi Lestari',    'Perempuan', 'Jl. Ijen No. 77, Malang',            'Bapak Lestari',    '081234567894', 'aktif'),
+('20240009', 'Bayu Aji Saputra','Laki-laki', 'Jl. Bromo No. 12, Batu',             NULL,               NULL,           'aktif'),
+('SMK24010', 'Fitriana Dewi',   'Perempuan', 'Jl. Semeru No. 45, Malang',          'Ibu Dewi',         '081234567895', 'aktif');
 
 -- ── Subjects (Mata Pelajaran) ───────────────────────────────
 TRUNCATE TABLE subjects;
