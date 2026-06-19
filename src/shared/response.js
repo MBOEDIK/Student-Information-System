@@ -1,6 +1,3 @@
-// src/shared/response.js
-// Helper global untuk standardisasi respons API (AI_RULES #3)
-
 exports.success = (res, data, message = 'Berhasil', statusCode = 200) => {
   return res.status(statusCode).json({ success: true, message, data });
 };

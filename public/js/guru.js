@@ -4,13 +4,13 @@ window.loadGuru = async function () {
   const tbody = document.getElementById('guruTableBody');
   if (!tbody) return;
   tbody.innerHTML =
-    '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+    '<tr><td colspan="6" class="text-center text-muted py-32">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/guru');
     const json = await res.json();
     if (!json.success || !json.data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Belum ada data guru.</td></tr>';
+        '<tr><td colspan="6"><div class="empty-state"><div class="empty-state__icon"><i class="bi bi-inbox"></i></div><div class="empty-state__title">Belum ada data guru</div><div class="empty-state__desc">Belum ada data guru.</div></div></td></tr>';
       return;
     }
     tbody.innerHTML = json.data
@@ -22,14 +22,14 @@ window.loadGuru = async function () {
         <td>${g.nama}</td>
         <td>${g.email || '–'}</td>
         <td>${window.statusBadge(g.status)}</td>
-        <td><button class="btn btn--sm btn--primary" onclick="editGuru(${g.id})">Edit</button></td>
+        <td><button class="btn btn--icon btn--icon-edit" onclick="editGuru(${g.id})" title="Edit"><i class="bi bi-pencil"></i></button></td>
       </tr>
     `
       )
       .join('');
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="6" style="text-align:center;color:var(--danger);">Gagal memuat data.</td></tr>';
+      '<tr><td colspan="6" class="text-center text-danger">Gagal memuat data.</td></tr>';
   }
 };
 

@@ -1,6 +1,3 @@
-// src/controllers/jadwalController.js
-// Menangani logika pembuatan dan pengelolaan jadwal kelas
-
 const pool = require('../config/db');
 const responseHelper = require('../shared/response');
 
@@ -12,7 +9,7 @@ exports.getAllSubjects = async (req, res) => {
 
     return responseHelper.success(res, rows, 'Daftar mata pelajaran berhasil diambil');
   } catch (err) {
-    console.error('[JADWAL CONTROLLER] getAllSubjects:', err.message);
+    console.error('[JADWAL] getAllSubjects:', err.message);
     return responseHelper.error(res, 'Gagal mengambil data mata pelajaran', 500);
   }
 };
@@ -33,7 +30,7 @@ exports.getJadwalById = async (req, res) => {
     }
     return responseHelper.success(res, rows[0], 'Data jadwal berhasil diambil');
   } catch (err) {
-    console.error('[JADWAL CONTROLLER] getJadwalById:', err.message);
+    console.error('[JADWAL] getJadwalById:', err.message);
     return responseHelper.error(res, 'Gagal mengambil data jadwal', 500);
   }
 };
@@ -66,7 +63,7 @@ exports.getAllJadwal = async (req, res) => {
 
     return responseHelper.success(res, rows, 'Daftar jadwal berhasil diambil');
   } catch (err) {
-    console.error('[JADWAL CONTROLLER] getAllJadwal:', err.message);
+    console.error('[JADWAL] getAllJadwal:', err.message);
     return responseHelper.error(res, 'Gagal mengambil data jadwal', 500);
   }
 };
@@ -184,7 +181,7 @@ exports.createJadwal = async (req, res) => {
       201
     );
   } catch (err) {
-    console.error('[JADWAL CONTROLLER] createJadwal:', err.message);
+    console.error('[JADWAL] createJadwal:', err.message);
     return responseHelper.error(res, 'Gagal membuat jadwal kelas.', 500);
   }
 };
@@ -201,7 +198,7 @@ exports.deleteJadwal = async (req, res) => {
 
     return responseHelper.success(res, null, 'Jadwal berhasil dihapus.');
   } catch (err) {
-    console.error('[JADWAL CONTROLLER] deleteJadwal:', err.message);
+    console.error('[JADWAL] deleteJadwal:', err.message);
     return responseHelper.error(res, 'Gagal menghapus jadwal.', 500);
   }
 };
@@ -256,7 +253,6 @@ exports.updateJadwal = async (req, res) => {
       return responseHelper.error(res, 'Hari tidak valid.', 400, ['Hari tidak valid.']);
     }
 
-    // Cek bentrok guru (kecuali jadwal yang sedang diedit)
     const [guruConflict] = await pool.query(
       `SELECT id FROM schedules
        WHERE teacher_id = ? AND hari = ? AND jam_mulai < ? AND jam_selesai > ? AND id != ?`,
@@ -272,7 +268,6 @@ exports.updateJadwal = async (req, res) => {
       );
     }
 
-    // Cek bentrok ruangan (kecuali jadwal yang sedang diedit)
     const [roomConflict] = await pool.query(
       `SELECT id FROM schedules
        WHERE ruangan = ? AND hari = ? AND jam_mulai < ? AND jam_selesai > ? AND id != ?`,
@@ -296,7 +291,7 @@ exports.updateJadwal = async (req, res) => {
 
     return responseHelper.success(res, null, 'Jadwal kelas berhasil diubah.');
   } catch (err) {
-    console.error('[JADWAL CONTROLLER] updateJadwal:', err.message);
+    console.error('[JADWAL] updateJadwal:', err.message);
     return responseHelper.error(res, 'Gagal mengubah jadwal kelas.', 500);
   }
 };
@@ -309,7 +304,6 @@ exports.getJadwalSiswa = async (req, res) => {
   }
 
   try {
-    // Pastikan siswa dengan NIS tersebut ada
     const [siswa] = await pool.query('SELECT id, nama FROM students WHERE nis = ?', [nis.trim()]);
     if (siswa.length === 0) {
       return responseHelper.error(res, 'Siswa dengan NIS tersebut tidak ditemukan.', 404);
@@ -342,7 +336,7 @@ exports.getJadwalSiswa = async (req, res) => {
       `Jadwal untuk siswa ${siswa[0].nama} berhasil diambil`
     );
   } catch (err) {
-    console.error('[JADWAL CONTROLLER] getJadwalSiswa:', err.message);
+    console.error('[JADWAL] getJadwalSiswa:', err.message);
     return responseHelper.error(res, 'Gagal mengambil jadwal siswa.', 500);
   }
 };
@@ -384,7 +378,7 @@ exports.getJadwalGuru = async (req, res) => {
       `Jadwal mengajar untuk ${guru[0].nama} berhasil diambil`
     );
   } catch (err) {
-    console.error('[JADWAL CONTROLLER] getJadwalGuru:', err.message);
+    console.error('[JADWAL] getJadwalGuru:', err.message);
     return responseHelper.error(res, 'Gagal mengambil jadwal guru.', 500);
   }
 };

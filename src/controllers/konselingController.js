@@ -1,7 +1,6 @@
 const pool = require('../config/db');
 const responseHelper = require('../shared/response');
 
-// ── Auto-migrate: buat tabel counseling_records jika belum ada ──
 (async () => {
   try {
     await pool.query(`

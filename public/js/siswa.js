@@ -4,13 +4,13 @@ window.loadSiswa = async function () {
   const tbody = document.getElementById('siswaTableBody');
   if (!tbody) return;
   tbody.innerHTML =
-    '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Memuat data...</td></tr>';
+    '<tr><td colspan="7" class="text-center text-muted py-32">Memuat data...</td></tr>';
   try {
     const res = await fetch('/api/siswa');
     const json = await res.json();
     if (!json.success || !json.data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Belum ada data siswa.</td></tr>';
+        '<tr><td colspan="7"><div class="empty-state"><div class="empty-state__icon"><i class="bi bi-inbox"></i></div><div class="empty-state__title">Belum ada data siswa</div><div class="empty-state__desc">Belum ada data siswa.</div></div></td></tr>';
       return;
     }
     tbody.innerHTML = json.data
@@ -23,14 +23,14 @@ window.loadSiswa = async function () {
         <td>${s.jenis_kelamin}</td>
         <td>${s.alamat || '–'}</td>
         <td>${window.statusBadge(s.status)}</td>
-        <td><button class="btn btn--sm btn--primary" onclick="editSiswa(${s.id})">Edit</button></td>
+        <td><button class="btn btn--icon btn--icon-edit" onclick="editSiswa(${s.id})" title="Edit"><i class="bi bi-pencil"></i></button></td>
       </tr>
     `
       )
       .join('');
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="7" style="text-align:center;color:var(--danger);">Gagal memuat data.</td></tr>';
+      '<tr><td colspan="7" class="text-center text-danger">Gagal memuat data.</td></tr>';
   }
 };
 
@@ -84,7 +84,7 @@ window.cariSiswa = async function (keyword) {
     if (!tbody) return;
     if (!json.success || json.data.length === 0) {
       tbody.innerHTML =
-        '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px;">Data siswa tidak ditemukan.</td></tr>';
+        '<tr><td colspan="7"><div class="empty-state"><div class="empty-state__icon"><i class="bi bi-inbox"></i></div><div class="empty-state__title">Data tidak ditemukan</div><div class="empty-state__desc">Data siswa tidak ditemukan.</div></div></td></tr>';
       return;
     }
     tbody.innerHTML = json.data
@@ -97,7 +97,7 @@ window.cariSiswa = async function (keyword) {
         <td>${s.jenis_kelamin}</td>
         <td>${s.alamat || '–'}</td>
         <td>${window.statusBadge(s.status)}</td>
-        <td><button class="btn btn--sm btn--primary" onclick="editSiswa(${s.id})">Edit</button></td>
+        <td><button class="btn btn--icon btn--icon-edit" onclick="editSiswa(${s.id})" title="Edit"><i class="bi bi-pencil"></i></button></td>
       </tr>
     `
       )
@@ -121,16 +121,6 @@ window.page_siswa_init = function () {
 };
 
 window.page_pendaftaran_init = function () {
-  function pendaftaranClearFieldError(groupId, errId) {
-    const g = document.getElementById(groupId);
-    const e = document.getElementById(errId);
-    if (e) e.textContent = '';
-    if (g) {
-      const input = g.querySelector('.form-input');
-      if (input) input.classList.remove('input--error');
-    }
-  }
-
   function pendaftaranShowFieldError(groupId, errId, msg) {
     const g = document.getElementById(groupId);
     const e = document.getElementById(errId);

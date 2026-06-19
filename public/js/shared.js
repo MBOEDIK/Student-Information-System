@@ -25,39 +25,39 @@ window.dismissAlert = function () {
   if (el) el.hidden = true;
 };
 
-function setText(id, val) {
+window.setText = function (id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val ?? '–';
-}
+};
 
-function showAlert(msg) {
+window.showAlert = function (msg) {
   const el = document.getElementById('flashAlert');
   const txt = document.getElementById('flashMsg');
   if (!el || !txt) return;
   txt.textContent = msg;
   el.hidden = false;
-}
+};
 
-function hideAlert() {
+window.hideAlert = function () {
   const el = document.getElementById('flashAlert');
   if (el) el.hidden = true;
-}
+};
 
-function showFieldError(groupId, errId, msg) {
+window.showFieldError = function (groupId, errId, msg) {
   const g = document.getElementById(groupId);
   const e = document.getElementById(errId);
   if (e) e.textContent = msg;
   g?.querySelector('.form-input')?.classList.add('input--error');
-}
+};
 
-function clearFieldError(groupId, errId) {
+window.clearFieldError = function (groupId, errId) {
   const g = document.getElementById(groupId);
   const e = document.getElementById(errId);
   if (e) e.textContent = '';
   g?.querySelector('.form-input')?.classList.remove('input--error');
-}
+};
 
-function setLoading(on) {
+window.setLoading = function (on) {
   const btn = document.getElementById('btnLogin');
   if (!btn) return;
   const textEl = btn.querySelector('.btn-login__text');
@@ -67,7 +67,7 @@ function setLoading(on) {
   if (textEl) textEl.hidden = on;
   if (loadEl) loadEl.hidden = !on;
   if (arrEl) arrEl.hidden = on;
-}
+};
 
 window.api = async function (url, options = {}) {
   const res = await fetch(url, {

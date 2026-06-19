@@ -12,7 +12,7 @@ const menuAccessRule = {
   guru: ['admin']
 };
 
-const router = {
+window.router = {
   currentPage: null,
 
   async navigate(pageName) {
@@ -41,7 +41,7 @@ const router = {
 
       document.getElementById('sidebar')?.classList.remove('open');
     } catch (e) {
-      container.innerHTML = `<div class="page active"><div class="page-header"><h1>${pageName}</h1></div><p style="color:var(--text-muted);">Konten belum tersedia.</p></div>`;
+      container.innerHTML = `<div class="page active"><div class="page-header"><h1>${pageName}</h1></div><p class="text-muted">Konten belum tersedia.</p></div>`;
       this.currentPage = pageName;
     }
   },
@@ -82,12 +82,12 @@ window.loadStats = async function () {
       fetch('/api/guru/stats').then((r) => r.json())
     ]);
     if (rSiswa.success) {
-      setText('statTotalSiswa', rSiswa.data.total);
-      setText('statAktifSiswa', rSiswa.data.aktif);
+      window.setText('statTotalSiswa', rSiswa.data.total);
+      window.setText('statAktifSiswa', rSiswa.data.aktif);
     }
     if (rGuru.success) {
-      setText('statTotalGuru', rGuru.data.total);
-      setText('statAktifGuru', rGuru.data.aktif);
+      window.setText('statTotalGuru', rGuru.data.total);
+      window.setText('statAktifGuru', rGuru.data.aktif);
     }
   } catch (e) {
     console.error('Gagal memuat statistik dasbor:', e);

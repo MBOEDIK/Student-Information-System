@@ -3,7 +3,6 @@
 const pool = require('../config/db');
 const responseHelper = require('../shared/response');
 
-// ── Auto-migrate: buat tabel grades jika belum ada ──────────
 (async () => {
   try {
     await pool.query(`
@@ -81,7 +80,6 @@ exports.getSiswaByMapel = async (req, res) => {
     return responseHelper.success(res, rows, 'Daftar siswa berhasil diambil');
   } catch (err) {
     console.error('[NILAI] getSiswaByMapel:', err.message);
-    console.error('[NILAI] getSiswaByMapel SQL:', err.sqlMessage || '(not a query error)');
     return responseHelper.error(
       res,
       err.sqlMessage || err.message || 'Gagal memproses permintaan',

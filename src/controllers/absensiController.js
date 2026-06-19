@@ -72,7 +72,7 @@ exports.getLaporanHarian = async (req, res) => {
         a.status,
         a.keterangan
       FROM absensi a
-      JOIN students s ON a.siswa_id = s.id
+      JOIN students s ON a.student_id = s.id
       LEFT JOIN schedules sch ON a.schedule_id = sch.id
       LEFT JOIN subjects sub ON sch.subject_id = sub.id
       LEFT JOIN teachers t ON sch.teacher_id = t.id
@@ -129,7 +129,7 @@ exports.getSiswaBySchedule = async (req, res) => {
         a.keterangan
       FROM schedule_students ss
       JOIN students s ON s.id = ss.student_id
-      LEFT JOIN absensi a ON a.siswa_id = s.id
+      LEFT JOIN absensi a ON a.student_id = s.id
         AND a.schedule_id = ?
         AND a.tanggal = ?
       WHERE ss.schedule_id = ?
@@ -166,10 +166,10 @@ exports.saveAbsensiBatch = async (req, res) => {
   const validStatus = ['Hadir', 'Sakit', 'Izin', 'Alpa'];
 
   for (const entry of entries) {
-    const { siswa_id, status } = entry;
+    const { student_id, status } = entry;
 
-    if (!siswa_id || !status) {
-      return responseHelper.error(res, 'Setiap entri harus memiliki siswa_id dan status', 400);
+    if (!student_id || !status) {
+      return responseHelper.error(res, 'Setiap entri harus memiliki student_id dan status', 400);
     }
 
     if (!validStatus.includes(status)) {
@@ -182,13 +182,13 @@ exports.saveAbsensiBatch = async (req, res) => {
     await conn.beginTransaction();
 
     for (const entry of entries) {
-      const { siswa_id, status, keterangan } = entry;
+      const { student_id, status, keterangan } = entry;
 
       const [existing] = await conn.query(
         `SELECT id FROM absensi
-         WHERE siswa_id = ? AND schedule_id = ? AND tanggal = ?
+         WHERE student_id = ? AND schedule_id = ? AND tanggal = ?
          LIMIT 1`,
-        [siswa_id, schedule_id, tanggal]
+        [student_id, schedule_id, tanggal]
       );
 
       if (existing.length > 0) {
@@ -199,8 +199,8 @@ exports.saveAbsensiBatch = async (req, res) => {
         ]);
       } else {
         await conn.query(
-          'INSERT INTO absensi (siswa_id, schedule_id, tanggal, status, keterangan) VALUES (?, ?, ?, ?, ?)',
-          [siswa_id, schedule_id, tanggal, status, keterangan || null]
+          'INSERT INTO absensi (student_id, schedule_id, tanggal, status, keterangan) VALUES (?, ?, ?, ?, ?)',
+          [student_id, schedule_id, tanggal, status, keterangan || null]
         );
       }
     }

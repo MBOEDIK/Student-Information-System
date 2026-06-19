@@ -1,21 +1,20 @@
 const pool = require('../config/db');
+const responseHelper = require('../shared/response');
 
 exports.searchSiswa = async (req, res) => {
   try {
     const keyword = req.query.keyword;
     if (!keyword || !keyword.trim()) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Kata kunci pencarian tidak boleh kosong.' });
+      return responseHelper.error(res, 'Kata kunci pencarian tidak boleh kosong.', 400);
     }
     const [rows] = await pool.query(
       'SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students WHERE nama LIKE ? OR nis LIKE ? ORDER BY created_at DESC',
       [`%${keyword}%`, `%${keyword}%`]
     );
-    return res.json({ success: true, data: rows });
+    return responseHelper.success(res, rows, 'Data berhasil diambil');
   } catch (err) {
-    console.error('[SISWA CONTROLLER] searchSiswa:', err);
-    return res.status(500).json({ success: false, message: 'Gagal mencari data siswa.' });
+    console.error('[SISWA] searchSiswa:', err.message);
+    return responseHelper.error(res, 'Gagal mencari data siswa.', 500);
   }
 };
 
@@ -24,10 +23,10 @@ exports.getAllSiswa = async (req, res) => {
     const [rows] = await pool.query(
       'SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students ORDER BY created_at DESC'
     );
-    return res.json({ success: true, data: rows });
+    return responseHelper.success(res, rows, 'Data berhasil diambil');
   } catch (err) {
-    console.error('[SISWA CONTROLLER] getAllSiswa:', err);
-    return res.status(500).json({ success: false, message: 'Gagal mengambil data siswa.' });
+    console.error('[SISWA] getAllSiswa:', err.message);
+    return responseHelper.error(res, 'Gagal mengambil data siswa.', 500);
   }
 };
 
@@ -38,10 +37,10 @@ exports.getStats = async (req, res) => {
       'SELECT COUNT(*) AS aktif FROM students WHERE status = ?',
       ['aktif']
     );
-    return res.json({ success: true, data: { total, aktif } });
+    return responseHelper.success(res, { total, aktif }, 'Statistik berhasil diambil');
   } catch (err) {
-    console.error('[SISWA CONTROLLER] getStats:', err);
-    return res.status(500).json({ success: false, message: 'Gagal mengambil statistik siswa.' });
+    console.error('[SISWA] getStats:', err.message);
+    return responseHelper.error(res, 'Gagal mengambil statistik siswa.', 500);
   }
 };
 
@@ -67,22 +66,16 @@ exports.createSiswa = async (req, res) => {
   }
 
   if (errors.length > 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validasi gagal.',
-      errors
-    });
+    return responseHelper.error(res, 'Validasi gagal.', 400, errors);
   }
 
   try {
     const [existing] = await pool.query('SELECT id FROM students WHERE nis = ?', [nis.trim()]);
 
     if (existing.length > 0) {
-      return res.status(409).json({
-        success: false,
-        message: `NIS "${nis}" sudah terdaftar di sistem.`,
-        errors: [`NIS "${nis}" sudah terdaftar.`]
-      });
+      return responseHelper.error(res, `NIS "${nis}" sudah terdaftar di sistem.`, 409, [
+        `NIS "${nis}" sudah terdaftar.`
+      ]);
     }
 
     const [result] = await pool.query(
@@ -91,24 +84,22 @@ exports.createSiswa = async (req, res) => {
       [nis.trim(), nama.trim(), jenis_kelamin.trim(), alamat.trim()]
     );
 
-    return res.status(201).json({
-      success: true,
-      message: 'Data siswa baru berhasil didaftarkan.',
-      data: {
+    return responseHelper.success(
+      res,
+      {
         id: result.insertId,
         nis: nis.trim(),
         nama: nama.trim(),
         jenis_kelamin: jenis_kelamin.trim(),
         alamat: alamat.trim(),
         status: 'aktif'
-      }
-    });
+      },
+      'Data siswa baru berhasil didaftarkan.',
+      201
+    );
   } catch (err) {
-    console.error('[SISWA CONTROLLER]', err);
-    return res.status(500).json({
-      success: false,
-      message: 'Terjadi kesalahan pada server.'
-    });
+    console.error('[SISWA] createSiswa:', err.message);
+    return responseHelper.error(res, 'Terjadi kesalahan pada server.', 500);
   }
 };
 
@@ -118,12 +109,11 @@ exports.getSiswaById = async (req, res) => {
       'SELECT id, nis, nama, jenis_kelamin, alamat, status, created_at FROM students WHERE id = ?',
       [req.params.id]
     );
-    if (rows.length === 0)
-      return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });
-    return res.json({ success: true, data: rows[0] });
+    if (rows.length === 0) return responseHelper.error(res, 'Siswa tidak ditemukan.', 404);
+    return responseHelper.success(res, rows[0], 'Data berhasil diambil');
   } catch (err) {
-    console.error('[SISWA CONTROLLER] getSiswaById:', err);
-    return res.status(500).json({ success: false, message: 'Gagal mengambil data siswa.' });
+    console.error('[SISWA] getSiswaById:', err.message);
+    return responseHelper.error(res, 'Gagal mengambil data siswa.', 500);
   }
 };
 
@@ -135,11 +125,10 @@ exports.updateSiswa = async (req, res) => {
       'UPDATE students SET nama=?, nis=?, jenis_kelamin=?, alamat=?, status=? WHERE id=?',
       [nama, nis, jenis_kelamin, alamat, status, id]
     );
-    if (result.affectedRows === 0)
-      return res.status(404).json({ success: false, message: 'Siswa tidak ditemukan.' });
-    return res.json({ success: true, message: 'Data siswa berhasil diupdate.' });
+    if (result.affectedRows === 0) return responseHelper.error(res, 'Siswa tidak ditemukan.', 404);
+    return responseHelper.success(res, null, 'Data siswa berhasil diupdate.');
   } catch (err) {
-    console.error('[SISWA CONTROLLER] updateSiswa:', err);
-    return res.status(500).json({ success: false, message: 'Gagal mengupdate data siswa.' });
+    console.error('[SISWA] updateSiswa:', err.message);
+    return responseHelper.error(res, 'Gagal mengupdate data siswa.', 500);
   }
 };
